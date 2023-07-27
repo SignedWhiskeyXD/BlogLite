@@ -1,10 +1,14 @@
 package com.wsmrxd.bloglite.service;
 
+import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.base.BlogTagServiceBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.github.pagehelper.PageHelper;
+
+import java.util.List;
 
 @Service
 public class BlogTagService implements BlogTagServiceBase {
@@ -23,6 +27,15 @@ public class BlogTagService implements BlogTagServiceBase {
     @Override
     public BlogTag getTagByName(String name) {
         return mapper.selectTagByName(name);
+    }
+
+    @Override
+    public PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<BlogTag> userList = mapper.selectAllTags();
+
+        return new PageInfo<>(userList);
     }
 
     @Override

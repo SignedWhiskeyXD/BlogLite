@@ -1,0 +1,47 @@
+package com.wsmrxd.bloglite.service;
+
+import com.wsmrxd.bloglite.entity.User;
+import com.wsmrxd.bloglite.mapping.UserMapper;
+import com.wsmrxd.bloglite.service.base.UserServiceBase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService implements UserServiceBase {
+    @Autowired
+    public void setMapper(UserMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    private UserMapper mapper;
+
+    @Override
+    public User getUser(int id) {
+        return mapper.selectUserByID(id);
+    }
+
+    @Override
+    public User getUser(String email) {
+        return mapper.selectUserByEmail(email);
+    }
+
+    @Override
+    public int queryUserID(String email) {
+        return mapper.selectUserByEmail(email).getId();
+    }
+
+    @Override
+    public boolean verifyUser(String email, String password) {
+        return mapper.selectUserByEmail(email).getPassword().equals(password);
+    }
+
+    @Override
+    public boolean changePassword(String email, String newPassword) {
+        return mapper.updateUserPassword(email, newPassword);
+    }
+
+    @Override
+    public boolean changeUsername(String email, String newUsername) {
+        return mapper.updateUserUsername(email, newUsername);
+    }
+}

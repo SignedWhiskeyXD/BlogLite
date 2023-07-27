@@ -3,13 +3,18 @@ package com.wsmrxd.bloglite.mapping;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 @Mapper
 public interface BlogTagMapper {
     @Select("SELECT * FROM blog_tag WHERE id = #{id}")
-    BlogTag selectTagByID(Integer id);
+    BlogTag selectTagByID(int id);
 
     @Select("SELECT * FROM blog_tag WHERE tag_name = #{name}")
     BlogTag selectTagByName(String name);
+
+    @Select("SELECT * FROM blog_tag")
+    List<BlogTag> selectAllTags();
 
     @Insert("INSERT INTO blog_tag (tag_name) VALUES (#{name})")
     boolean insertTagFromName(String name);
