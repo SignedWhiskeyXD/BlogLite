@@ -31,11 +31,6 @@ public class UserService implements UserServiceBase {
     }
 
     @Override
-    public boolean verifyUser(String email, String password) {
-        return mapper.selectUserByEmail(email).getPassword().equals(password);
-    }
-
-    @Override
     public boolean changePassword(String email, String newPassword) {
         return mapper.updateUserPassword(email, newPassword);
     }

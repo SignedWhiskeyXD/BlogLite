@@ -1,7 +1,7 @@
 package com.wsmrxd.bloglite.exception.handler;
 
-import com.wsmrxd.bloglite.enums.SqlErrorCode;
-import com.wsmrxd.bloglite.exception.BlogSqlException;
+import com.wsmrxd.bloglite.enums.ErrorCode;
+import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,15 +14,15 @@ import javax.servlet.http.HttpServletRequest;
 public class ControllerExceptionHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private void logRequestError(SqlErrorCode errorCode, HttpServletRequest request){
+    private void logRequestError(ErrorCode errorCode, HttpServletRequest request){
         logger.error("Caught Exception: {}({}), Request Method: {}, URI: {}",
                 errorCode.name(), errorCode.getErrorCode(),
                 request.getMethod(), request.getRequestURI());
     }
 
-    @ExceptionHandler(BlogSqlException.class)
-    public RestResponse handleSQLException(HttpServletRequest request, BlogSqlException exception){
+    @ExceptionHandler(BlogException.class)
+    public RestResponse handleSQLException(HttpServletRequest request, BlogException exception){
         logRequestError(exception.getCode(), request);
-        return RestResponse.build(400, exception.what());
+        return RestResponse.build(exception.getCode().getErrorCode(), exception.what());
     }
 }

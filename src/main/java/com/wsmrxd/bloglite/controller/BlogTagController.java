@@ -1,9 +1,8 @@
 package com.wsmrxd.bloglite.controller;
 
-import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
-import com.wsmrxd.bloglite.enums.SqlErrorCode;
-import com.wsmrxd.bloglite.exception.BlogSqlException;
+import com.wsmrxd.bloglite.enums.ErrorCode;
+import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.base.BlogTagServiceBase;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +22,14 @@ public class BlogTagController {
     public RestResponse serveBlogTagByID(@PathVariable Integer id){
         BlogTag ret = tagService.getTagByID(id);
         if(ret == null)
-            throw new BlogSqlException(SqlErrorCode.NOT_FOUND, "Blog Tag Not Found!");
+            throw new BlogException(ErrorCode.TAG_NOT_FOUND, "Blog Tag Not Found!");
 
         return RestResponse.ok(ret);
     }
 
     @GetMapping
     public RestResponse getUsersByPage(@RequestParam(defaultValue = "1") int pageNum,
-                                            @RequestParam(defaultValue = "10") int pageSize) {
+                                       @RequestParam(defaultValue = "10") int pageSize) {
         return RestResponse.ok(tagService.getAllTagsByPage(pageNum, pageSize));
     }
 }

@@ -9,8 +9,6 @@ public interface UserServiceBase {
 
     int queryUserID(String email);
 
-    boolean verifyUser(String email, String password);
-
     boolean changePassword(String email, String newPassword);
 
     boolean changeUsername(String email, String newUsername);
