@@ -1,5 +1,6 @@
 <script>
 import {addTag, getBlogTags, removeBlogTagByID, renameBlogTagByID} from "@/fetch/fetchBlogTags";
+import {ElMessage} from "element-plus";
 
 export default {
     created() {
@@ -9,8 +10,15 @@ export default {
         handleRequest() {
             getBlogTags(this.tagQueryParams.currentPage, this.tagQueryParams.currentPageSize)
                 .then(tagData => {
-                    this.handleClear()
-                    this.currentPageInfo = tagData;
+                    if(tagData != null){
+                        this.handleClear()
+                        this.currentPageInfo = tagData;
+                    }else{
+                        ElMessage({
+                            message: "加载数据失败！",
+                            type: "success"
+                        })
+                    }
                 })
         },
         handlePageNumChanged(newPage){
@@ -18,20 +26,30 @@ export default {
             this.handleRequest()
         },
         handleRemove(id) {
-            removeBlogTagByID(id).then(response => {
-                if (response.ok) {
+            removeBlogTagByID(id).then(isRemoved => {
+                if (isRemoved) {
+                    ElMessage({
+                        message: "删除标签成功！",
+                        type: "success"
+                    })
                     this.handleRequest()
                 } else {
-                    console.log("删除失败！")
+                    ElMessage({
+                        message: "删除标签失败！",
+                        type: "error"
+                    })
                 }
             })
         },
         handleAdd(newTagName){
-            addTag(newTagName).then(response => {
-                if (response.ok) {
+            addTag(newTagName).then(isSuccess => {
+                if (isSuccess) {
                     this.handleRequest()
                 } else {
-                    console.log("添加失败！")
+                    ElMessage({
+                        message: "该标签名称已存在！",
+                        type: "error"
+                    })
                 }
             }).finally(()=>{
                 this.dialogAddVisible = false
@@ -39,16 +57,23 @@ export default {
         },
         handleRename(id, newName) {
             renameBlogTagByID(id, newName)
-                .then(response =>{
-                    if(response.ok){
-                        this.handleRequest()
-                        console.log("重命名成功")
+                .then(isSuccess =>{
+                    if(isSuccess){
+                        ElMessage({
+                            message: "重命名成功！",
+                            type: "success"
+                        })
+                        for(let tagInfo of this.currentPageInfo.list)
+                            if(tagInfo.id === id)
+                                tagInfo.tagName = newName
+                        this.dialogVisible = false
                     }else{
-                        console.log("删除失败")
+                        ElMessage({
+                            message: "该标签名称已存在！",
+                            type: "error"
+                        })
                     }
-                }).finally(()=>{
-                this.dialogVisible = false
-            })
+                })
         },
         handleClear() {
             this.currentPageInfo.list = []
@@ -106,7 +131,6 @@ export default {
     <el-pagination layout="prev, pager, next" :total="currentPageInfo.total" background
                    vmodel:current-page="tagQueryParams.currentPage"
                    @current-change="handlePageNumChanged"
-
     />
 
     <el-dialog

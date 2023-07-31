@@ -1,36 +1,30 @@
 import {makeRequest} from "@/fetch/requestCommon";
 
-export function getBlogTags(pageNum, pageSize){
-    return makeRequest('/api/blogtag?pageNum=' + pageNum +"&pageSize=" + pageSize)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json()
-        })
-        .then(responseData =>{
-            if(responseData.code === 200)
-                return responseData.responseBody
-            else
-                return null
-        })
-        .catch(reason => console.log(reason))
+export async function getBlogTags(pageNum, pageSize){
+    const responsePayload = await makeRequest('/api/blogtag?pageNum=' + pageNum +"&pageSize=" + pageSize)
+    if(responsePayload.code === 200)
+        return responsePayload.responseBody
+    else
+        return null
 }
 
-export function removeBlogTagByID(id){
-    return makeRequest('/api/blogtag/' + id, {
+export async function removeBlogTagByID(id){
+    const responseJSON = await makeRequest('/api/blogtag/' + id, {
         method: 'DELETE'
     })
+    return responseJSON.code === 200
 }
 
-export function renameBlogTagByID(id, newName){
-    return makeRequest('/api/blogtag?renamedID=' + id + "&newName=" + newName,{
+export async function renameBlogTagByID(id, newName){
+    const responseJSON = await makeRequest('/api/blogtag?renamedID=' + id + "&newName=" + newName,{
         method: 'POST'
     })
+    return responseJSON.code === 200
 }
 
-export function addTag(tagName){
-    return makeRequest('/api/blogtag?tagName=' + tagName, {
+export async function addTag(tagName){
+    const responseJSON = await makeRequest('/api/blogtag?tagName=' + tagName, {
         method: 'PUT'
     })
+    return responseJSON.code === 200
 }

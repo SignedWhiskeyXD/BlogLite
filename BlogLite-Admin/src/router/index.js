@@ -4,6 +4,7 @@ import Login from "@/components/Login.vue";
 import Failed from "@/components/Failed.vue";
 import AdminPanel from "@/components/AdminPanel.vue";
 import BlogTagPanel from "@/components/BlogTagPanel.vue";
+import BlogListPanel from "@/components/BlogListPanel.vue";
 import BlogPanel from "@/components/BlogPanel.vue";
 
 const routes = [
@@ -21,7 +22,11 @@ const routes = [
                 component: BlogTagPanel
             },
             {
-                path: '/blog',
+                path: '/blog/list',
+                component: BlogListPanel
+            },
+            {
+                path: '/blog/write',
                 component: BlogPanel
             }
         ]

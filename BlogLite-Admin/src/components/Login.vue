@@ -29,6 +29,7 @@
 import {login} from "@/fetch/login";
 import router from "@/router";
 import {Lock, User} from '@element-plus/icons-vue'
+import {ElMessage} from "element-plus";
 
 export default {
     computed: {
@@ -56,15 +57,29 @@ export default {
             };
 
             // 发送网络请求
-            login(requestBody).then((data) => {
-                if (data.code === 200) {
-                    console.log('登录成功！');
-                    router.push('/admin')
-                } else {
-                    console.log('登录失败，请检查用户名和密码！');
-                    router.push('/failed')
-                }
-            })
+            login(requestBody)
+                .then(response => {
+                    if(response.code === 200) {
+                        ElMessage({
+                            message: "登录成功",
+                            type: "success"
+                        })
+                        window.localStorage.setItem('token', response.responseBody.token)
+                        window.localStorage.setItem('email', response.responseBody.email)
+                        router.push('/admin')
+                    }
+                    else {
+                        let errorMessage = "未知错误"
+                        if(response.code === 53404)
+                            errorMessage = "用户不存在！"
+                        else if(response.code === 52403)
+                            errorMessage = "用户名或密码错误"
+                        ElMessage({
+                            message: errorMessage,
+                            type: "error"
+                        })
+                    }
+                })
             .catch((error) => {
                 // 处理错误情况
                 console.error('Error:', error);
