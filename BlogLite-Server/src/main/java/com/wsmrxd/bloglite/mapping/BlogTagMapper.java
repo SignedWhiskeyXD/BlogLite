@@ -13,7 +13,7 @@ public interface BlogTagMapper {
     @Select("SELECT * FROM blog_tag WHERE tag_name = #{name}")
     BlogTag selectTagByName(String name);
 
-    @Select("SELECT * FROM blog_tag")
+    @Select("SELECT * FROM blog_tag ORDER BY id")
     List<BlogTag> selectAllTags();
 
     @Insert("INSERT INTO blog_tag (tag_name) VALUES (#{name})")

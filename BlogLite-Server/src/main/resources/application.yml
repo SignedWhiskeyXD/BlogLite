@@ -11,3 +11,8 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+
+myConfig:
+  jwt:
+    expireTime: 259200000 # 3 days
+    secretKey: DoNotUseThisAsYourSecretKey

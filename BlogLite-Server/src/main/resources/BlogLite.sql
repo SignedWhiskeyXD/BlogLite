@@ -1,3 +1,12 @@
+DROP TABLE IF EXISTS blog;
+CREATE TABLE blog (
+    id int NOT NULL AUTO_INCREMENT,
+    title varchar(255) NOT NULL,
+    content longtext NOT NULL,
+    thumb_ups int NOT NULL,
+    PRIMARY KEY (id) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
 DROP TABLE IF EXISTS `blog_tag`;
 CREATE TABLE `blog_tag`  (
     `id` int NOT NULL AUTO_INCREMENT,
@@ -5,8 +14,11 @@ CREATE TABLE `blog_tag`  (
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
-insert into blog_tag (tag_name) values ('无');
-
+DROP TABLE IF EXISTS blog_tag_mapping;
+CREATE TABLE blog_tag_mapping(
+    blog_id int NOT NULL,
+    tag_id int NOT NULL
+);
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`(

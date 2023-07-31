@@ -1,5 +1,6 @@
-package com.wsmrxd.bloglite.controller;
+package com.wsmrxd.bloglite.controller.publics;
 
+import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
 
     @RequestMapping("/hello")
-    public String sayHello(){
-        return "Hello from Spring Boot!";
+    public RestResponse sayHello(){
+        return RestResponse.ok("Hello from Spring Boot!");
     }
 }
