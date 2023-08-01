@@ -38,4 +38,10 @@ public class BlogTest {
         var result = blogService.deleteBlog(1);
         System.out.println(result);
     }
+
+    @Test
+    public void testBlogTags(){
+        var result = blogService.getAllTagsByBlogID(22);
+        System.out.println(result);
+    }
 }

@@ -27,10 +27,13 @@ public class BlogController {
     }
 
     @GetMapping
-    public RestResponse getUsersByPage(@RequestParam(defaultValue = "1") int pageNum,
+    public RestResponse getBlogsByPage(@RequestParam(defaultValue = "1") int pageNum,
                                        @RequestParam(defaultValue = "10") int pageSize){
         return RestResponse.ok(blogService.getAllBlogsByPage(pageNum, pageSize));
     }
 
-
+    @GetMapping("/gettags/{blogID}")
+    public RestResponse getTagsByBlogID(@PathVariable int blogID){
+        return RestResponse.ok(blogService.getAllTagsByBlogID(blogID));
+    }
 }

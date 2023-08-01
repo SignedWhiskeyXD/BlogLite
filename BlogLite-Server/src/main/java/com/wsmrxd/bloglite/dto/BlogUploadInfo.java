@@ -1,10 +1,22 @@
 package com.wsmrxd.bloglite.dto;
 
+import java.util.List;
+
 public class BlogUploadInfo {
 
-    String title;
+    private String title;
 
-    String content;
+    private String content;
+
+    private List<String> tagNames;
+
+    public List<String> getTagNames() {
+        return tagNames;
+    }
+
+    public void setTagNames(List<String> tagNames) {
+        this.tagNames = tagNames;
+    }
 
     public String getTitle() {
         return title;

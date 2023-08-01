@@ -16,8 +16,10 @@ public interface BlogTagMapper {
     @Select("SELECT * FROM blog_tag ORDER BY id")
     List<BlogTag> selectAllTags();
 
-    @Insert("INSERT INTO blog_tag (tag_name) VALUES (#{name})")
-    boolean insertTagFromName(String name);
+    @Insert("INSERT INTO blog_tag (tag_name) VALUES (#{tagName})")
+    @SelectKey(statement="SELECT LAST_INSERT_ID()",
+            keyProperty="id", before=false, resultType=int.class)
+    void insertTag(BlogTag newTag);
 
     @Delete("DELETE FROM blog_tag WHERE id = #{id}")
     boolean deleteTagByID(int id);

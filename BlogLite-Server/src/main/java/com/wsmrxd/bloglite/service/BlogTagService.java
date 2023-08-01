@@ -39,8 +39,11 @@ public class BlogTagService implements BlogTagServiceBase {
     }
 
     @Override
-    public boolean addTag(String name) {
-        return mapper.insertTagFromName(name);
+    public int addTag(String name) {
+        var newTag = new BlogTag();
+        newTag.setTagName(name);
+        mapper.insertTag(newTag);
+        return newTag.getId();
     }
 
     @Override

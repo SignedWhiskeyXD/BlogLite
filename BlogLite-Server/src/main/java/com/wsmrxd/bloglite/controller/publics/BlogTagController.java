@@ -28,7 +28,7 @@ public class BlogTagController {
     }
 
     @GetMapping
-    public RestResponse getUsersByPage(@RequestParam(defaultValue = "1") int pageNum,
+    public RestResponse getTagsByPage(@RequestParam(defaultValue = "1") int pageNum,
                                        @RequestParam(defaultValue = "10") int pageSize) {
         return RestResponse.ok(tagService.getAllTagsByPage(pageNum, pageSize));
     }
@@ -42,8 +42,8 @@ public class BlogTagController {
 
     @PutMapping
     public RestResponse addTag(@RequestParam String tagName){
-        boolean result = tagService.addTag(tagName);
-        return result ? RestResponse.ok(null) : RestResponse.build(400, "Bad Request");
+        int newTagID = tagService.addTag(tagName);
+        return newTagID > 0 ? RestResponse.ok(null) : RestResponse.build(400, "Bad Request");
     }
 
     @DeleteMapping("/{id}")

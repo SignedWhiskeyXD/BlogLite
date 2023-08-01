@@ -4,8 +4,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
+import com.wsmrxd.bloglite.entity.BlogTag;
+import com.wsmrxd.bloglite.entity.BlogTagMapping;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
+import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.base.BlogServiceBase;
+import com.wsmrxd.bloglite.vo.BlogPageView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,25 +18,37 @@ import java.util.List;
 @Service
 public class BlogService implements BlogServiceBase {
 
-    private BlogMapper mapper;
+    private BlogMapper blogMapper;
+
+    private BlogTagMapper tagMapper;
 
     @Autowired
-    public void setMapper(BlogMapper mapper) {
-        this.mapper = mapper;
+    public void setBlogMapper(BlogMapper blogMapper) {
+        this.blogMapper = blogMapper;
+    }
+
+    @Autowired
+    public void setTagMapper(BlogTagMapper tagMapper) {
+        this.tagMapper = tagMapper;
     }
 
     @Override
     public Blog getBlogByID(int id) {
-        return mapper.selectTagByID(id);
+        return blogMapper.selectBlogByID(id);
     }
 
     @Override
-    public PageInfo<Blog> getAllBlogsByPage(int pageNum, int pageSize) {
+    public PageInfo<BlogPageView> getAllBlogsByPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
-        List<Blog> blogList = mapper.selectAllBlogs();
+        var blogListView = blogMapper.selectAllBlogs();
 
-        return new PageInfo<>(blogList);
+        return new PageInfo<>(blogListView);
+    }
+
+    @Override
+    public List<BlogTag> getAllTagsByBlogID(int blogID) {
+        return blogMapper.selectTagsByBlogID(blogID);
     }
 
     @Override
@@ -40,26 +56,48 @@ public class BlogService implements BlogServiceBase {
         var newBlogEntity = new Blog();
         newBlogEntity.setTitle(newBlog.getTitle());
         newBlogEntity.setContent(newBlog.getContent());
-        return mapper.insertBlog(newBlogEntity);
+        blogMapper.insertBlog(newBlogEntity);
+
+        int newBlogID = newBlogEntity.getId();
+        var tagList = newBlog.getTagNames();
+        if(tagList != null && tagList.size() > 0)
+            arrangeTagList(newBlogID, tagList);
+
+        return newBlogID;
     }
 
     @Override
     public boolean renameBlogTitle(int id, String newTitle) {
-        return mapper.updateBlogTitleByID(id, newTitle);
+        return blogMapper.updateBlogTitleByID(id, newTitle);
     }
 
     @Override
     public boolean editBlogContent(int id, String newContent) {
-        return mapper.updateBlogContentByID(id, newContent);
+        return blogMapper.updateBlogContentByID(id, newContent);
     }
 
     @Override
     public boolean addBlogLikes(int id, int moreLikes){
-        return mapper.updateBlogLikesByID(id, moreLikes);
+        return blogMapper.updateBlogLikesByID(id, moreLikes);
     }
 
     @Override
     public boolean deleteBlog(int id) {
-        return mapper.deleteBlogByID(id);
+        return blogMapper.deleteBlogByID(id);
+    }
+
+    private void arrangeTagList(int newBlogID, List<String> tagList) {
+        for(String tagName : tagList){
+            var tag = tagMapper.selectTagByName(tagName);
+            if(tag != null){
+                blogMapper.insertBlogTagMapping(new BlogTagMapping(newBlogID, tag.getId()));
+            }else{
+                var newTag = new BlogTag();
+                newTag.setTagName(tagName);
+                tagMapper.insertTag(newTag);
+                int newTagID = newTag.getId();
+                blogMapper.insertBlogTagMapping(new BlogTagMapping(newBlogID, newTagID));
+            }
+        }
     }
 }

@@ -3,6 +3,8 @@ package com.wsmrxd.bloglite.service.base;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
 
+import java.util.List;
+
 public interface BlogTagServiceBase {
     BlogTag getTagByID(int id);
 
@@ -10,7 +12,7 @@ public interface BlogTagServiceBase {
 
     PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize);
 
-    boolean addTag(String name);
+    int addTag(String name);
 
     boolean removeTag(int id);
 

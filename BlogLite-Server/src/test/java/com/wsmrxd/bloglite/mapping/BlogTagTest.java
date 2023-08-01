@@ -23,17 +23,6 @@ public class BlogTagTest {
     }
 
     @Test
-    public void testInsert(){
-        var isExist = blogTagMapper.selectTagByName("new Tag") != null;
-        var result = blogTagMapper.insertTagFromName("new Tag");
-        System.out.println(result);
-        if(!isExist)
-            assert (result);
-        else
-            assert (!result);
-    }
-
-    @Test
     public void testDelete(){
         var result = blogTagMapper.deleteTagByName("new Tag");
         System.out.println(result);
