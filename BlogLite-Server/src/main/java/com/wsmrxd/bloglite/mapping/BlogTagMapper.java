@@ -27,6 +27,9 @@ public interface BlogTagMapper {
     @Delete("DELETE FROM blog_tag WHERE tag_name = #{name}")
     boolean deleteTagByName(String name);
 
+    @Delete("DELETE FROM blog_tag_mapping WHERE tag_id = #{tagID}")
+    boolean deleteTagMappingByTagID(int tagID);
+
     @Update("UPDATE blog_tag SET tag_name = #{newName} WHERE id = #{id}")
     boolean updateTagNameByID(@Param("id") int id, @Param("newName") String newName);
 

@@ -18,17 +18,12 @@ public class BlogAdminController {
         this.blogService = blogService;
     }
 
-    @PostMapping
-    public RestResponse modifyBlog(@RequestBody BlogModifyInfo modifyInfo){
-        boolean result1 = false, result2 = false, result3 = false;
-        if(modifyInfo.getNewTitle() != null && modifyInfo.getNewTitle().length() > 0)
-            result1 = blogService.renameBlogTitle(modifyInfo.getId(), modifyInfo.getNewTitle());
-        if(modifyInfo.getNewContent() != null && modifyInfo.getNewContent().length() > 0)
-            result2 = blogService.editBlogContent(modifyInfo.getId(), modifyInfo.getNewContent());
-        if(modifyInfo.getAddLikes() > 0)
-            result3 = blogService.addBlogLikes(modifyInfo.getId(), modifyInfo.getAddLikes());
-
-        return (result1 | result2 | result3) ? RestResponse.ok(null)
+    @PostMapping("/{id}")
+    public RestResponse modifyBlog(@RequestBody BlogUploadInfo modifyInfo, @PathVariable int id){
+        boolean result = blogService.renameBlogTitle(id, modifyInfo.getTitle());
+        result &= blogService.editBlogContent(id, modifyInfo.getContent());
+        blogService.reArrangeBlogTag(id, modifyInfo.getTagNames());
+        return result ? RestResponse.ok(null)
                 : RestResponse.build(400, "Bad Request");
     }
 

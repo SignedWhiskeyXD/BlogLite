@@ -65,6 +65,11 @@ public class BlogService implements BlogServiceBase {
 
         return newBlogID;
     }
+    @Override
+    public void reArrangeBlogTag(int blogID, List<String> tagNames){
+        blogMapper.deleteTagMappingByBlogID(blogID);
+        arrangeTagList(blogID, tagNames);
+    }
 
     @Override
     public boolean renameBlogTitle(int id, String newTitle) {

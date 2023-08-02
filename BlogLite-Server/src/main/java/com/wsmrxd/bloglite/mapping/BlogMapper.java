@@ -34,6 +34,9 @@ public interface BlogMapper {
     @Delete("DELETE FROM blog WHERE id = #{id}")
     boolean deleteBlogByID(int id);
 
+    @Delete("DELETE FROM blog_tag_mapping WHERE blog_id = #{blogID}")
+    boolean deleteTagMappingByBlogID(int blogID);
+
     @Update("UPDATE blog set title = #{newTitle} WHERE id = #{id}")
     boolean updateBlogTitleByID(@Param("id") int id, @Param("newTitle") String newTitle);
 

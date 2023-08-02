@@ -17,6 +17,8 @@ public interface BlogServiceBase {
 
     int addNewBlog(BlogUploadInfo newBlog);
 
+    void reArrangeBlogTag(int blogID, List<String> tagNames);
+
     boolean renameBlogTitle(int id, String newTitle);
 
     boolean editBlogContent(int id, String newContent);

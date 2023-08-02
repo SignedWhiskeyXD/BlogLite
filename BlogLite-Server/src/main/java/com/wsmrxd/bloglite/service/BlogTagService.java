@@ -48,7 +48,9 @@ public class BlogTagService implements BlogTagServiceBase {
 
     @Override
     public boolean removeTag(int id) {
-        return mapper.deleteTagByID(id);
+        boolean result = mapper.deleteTagByID(id);
+        result &= mapper.deleteTagMappingByTagID(id);
+        return result;
     }
 
     @Override
