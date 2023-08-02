@@ -6,6 +6,7 @@ import AdminPanel from "@/components/AdminPanel.vue";
 import BlogTagPanel from "@/components/BlogTagPanel.vue";
 import BlogListPanel from "@/components/BlogListPanel.vue";
 import BlogPanel from "@/components/BlogPanel.vue";
+import Layout from '@/layout/index.vue';
 
 const routes = [
     {path: '/hello', component: Hello},
@@ -14,8 +15,8 @@ const routes = [
 
     {
         path: '/admin',
-        redirect: '/tag',
-        component: AdminPanel,
+        redirect: '/blog/list',
+        component: Layout,
         children:[
             {
                 path: '/tag',
@@ -28,9 +29,14 @@ const routes = [
             {
                 path: '/blog/write',
                 component: BlogPanel
+            },
+            {
+                path: '/blog/edit/:blog_id',
+                component: BlogPanel
             }
         ]
-    }
+    },
+
 ]
 
 const router = createRouter(

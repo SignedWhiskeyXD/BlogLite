@@ -1,6 +1,7 @@
 <script>
 import {getBlogs, removeBlogByID} from "@/fetch/BlogAPI";
   import {ElMessage} from "element-plus";
+import router from "@/router";
 
   export default {
       created() {
@@ -32,8 +33,7 @@ import {getBlogs, removeBlogByID} from "@/fetch/BlogAPI";
               }
           },
           showEditBlogDialog(selectedBlog){
-              this.currentBlogInDialog = selectedBlog
-              this.dialogEditBlogVisible = true
+              router.push(`/blog/edit/${selectedBlog.id}`)
           },
           handleEditBlogDialogClosed(){
               this.dialogEditBlogVisible = false
