@@ -1,4 +1,4 @@
-package com.wsmrxd.bloglite.controller.publics;
+package com.wsmrxd.bloglite.controller.admin;
 
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.enums.ErrorCode;
@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/blogtag")
-public class BlogTagController {
+@RequestMapping("/api/admin/blogtag")
+public class BlogTagAdminController {
     private BlogTagService tagService;
 
     @Autowired
@@ -37,18 +37,24 @@ public class BlogTagController {
     public RestResponse renameTagByID(@RequestParam int renamedID,
                                       @RequestParam String newName){
         boolean result = tagService.renameTag(renamedID, newName);
-        return result ? RestResponse.ok(null) : RestResponse.build(400, "Bad Request");
+        if(!result)
+            throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot rename the tag");
+        return RestResponse.ok(null);
     }
 
     @PutMapping
     public RestResponse addTag(@RequestParam String tagName){
         int newTagID = tagService.addTag(tagName);
-        return newTagID > 0 ? RestResponse.ok(null) : RestResponse.build(400, "Bad Request");
+        if(newTagID < 1)
+            throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot add this tag");
+        return RestResponse.ok(null);
     }
 
     @DeleteMapping("/{id}")
     public RestResponse deleteBlogTagByID(@PathVariable int id){
         boolean result = tagService.removeTag(id);
-        return result ? RestResponse.ok(null) : RestResponse.build(400, "Bad Request");
+        if(!result)
+            throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot delete the tag");
+        return RestResponse.ok(null);
     }
 }

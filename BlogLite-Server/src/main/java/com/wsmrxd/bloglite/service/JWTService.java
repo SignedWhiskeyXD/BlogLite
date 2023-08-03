@@ -1,7 +1,5 @@
 package com.wsmrxd.bloglite.service;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 public interface JWTService {
     String extractTokenFromHeader(String authorization);
 

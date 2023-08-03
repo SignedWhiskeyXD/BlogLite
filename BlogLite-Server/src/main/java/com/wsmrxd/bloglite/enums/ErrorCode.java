@@ -1,6 +1,9 @@
 package com.wsmrxd.bloglite.enums;
 
 public enum ErrorCode {
+
+    BAD_REQUEST(52400),
+
     TAG_NOT_FOUND(52404),
 
     LOGIN_ERROR(53400),

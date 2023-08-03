@@ -5,12 +5,12 @@ public class RestResponse {
 
     private final String message;
 
-    private final Object responseBody;
+    private final Object body;
 
-    public RestResponse(Integer code, String message, Object responseBody) {
+    public RestResponse(Integer code, String message, Object body) {
         this.code = code;
         this.message = message;
-        this.responseBody = responseBody;
+        this.body = body;
     }
 
     public static RestResponse ok(Object response){
@@ -29,8 +29,8 @@ public class RestResponse {
         return message;
     }
 
-    public Object getResponseBody() {
-        return responseBody;
+    public Object getBody() {
+        return body;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class RestResponse {
         return "RestResponse{" +
                 "code=" + code +
                 ", message='" + message + '\'' +
-                ", responseBody=" + responseBody +
+                ", responseBody=" + body +
                 '}';
     }
 }

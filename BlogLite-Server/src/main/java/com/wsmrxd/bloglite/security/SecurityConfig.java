@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -16,9 +17,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private JWTAuthFilter jwtAuthFilter;
 
+    private AuthenticationEntryPoint authEntryPoint;
+
     @Autowired
     public void setJwtAuthFilter(JWTAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+    }
+
+    @Autowired
+    public void setAuthEntryPoint(AuthenticationEntryPoint authEntryPoint) {
+        this.authEntryPoint = authEntryPoint;
     }
 
     @Bean
@@ -40,9 +48,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/login").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/api/hello").permitAll()
+                .antMatchers("/api/admin/**").authenticated()
+                .anyRequest().permitAll();
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling().authenticationEntryPoint(this.authEntryPoint);
         http.cors();
     }
 }

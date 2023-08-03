@@ -5,7 +5,6 @@ import com.wsmrxd.bloglite.service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -56,8 +55,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         var authToken = new UsernamePasswordAuthenticationToken(userEmail, "114514", null);
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        if(authToken.isAuthenticated())
-            System.out.println("JWT verified");
         filterChain.doFilter(request, response);
     }
 }
