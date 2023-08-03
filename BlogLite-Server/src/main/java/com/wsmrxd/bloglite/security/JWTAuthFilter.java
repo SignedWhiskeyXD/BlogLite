@@ -1,10 +1,12 @@
 package com.wsmrxd.bloglite.security;
 
-import com.wsmrxd.bloglite.service.impl.UserServiceImpl;
+import com.wsmrxd.bloglite.service.UserService;
 import com.wsmrxd.bloglite.service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,7 +21,9 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     JWTService jwtService;
 
-    UserServiceImpl userServiceImpl;
+    UserService userService;
+
+    UserDetailsService userDetailsService;
 
     @Autowired
     public void setJwtService(JWTService jwtService) {
@@ -27,8 +31,13 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     }
 
     @Autowired
-    public void setUserService(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -36,25 +45,15 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String jwt = jwtService.extractTokenFromHeader(authHeader);
 
-        if(jwt == null){
-            filterChain.doFilter(request, response);
-            return;
+        // 任何一个条件被否决都会跳出， 即JWT鉴权失败
+        if(jwt != null && jwtService.verifyToken(jwt)){
+            String userEmail = jwtService.getSubject(jwt);
+            if(userEmail != null){
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                var authToken = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
         }
-
-        if(!jwtService.verifyToken(jwt)){
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String userEmail = jwtService.getSubject(jwt);
-        if (userEmail == null)
-            throw new RuntimeException("Invalid Email");
-
-        // TODO: 从缓存检测是否登录
-
-        var authToken = new UsernamePasswordAuthenticationToken(userEmail, "114514", null);
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
         filterChain.doFilter(request, response);
     }
 }
