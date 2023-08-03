@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import {login} from "@/fetch/login";
+import {login} from "@/fetch/LoginAPI";
 import router from "@/router";
 import {Lock, User} from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
@@ -64,8 +64,8 @@ export default {
                             message: "登录成功",
                             type: "success"
                         })
-                        window.localStorage.setItem('token', response.responseBody.token)
-                        window.localStorage.setItem('email', response.responseBody.email)
+                        window.localStorage.setItem('token', response.body.token)
+                        window.localStorage.setItem('email', response.body.email)
                         router.push('/admin')
                     }
                     else {

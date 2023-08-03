@@ -1,9 +1,9 @@
-import {makeRequest} from "@/fetch/requestCommon";
+import {makeRequest} from "@/fetch/FetchTemplate";
 
 export async function getBlogTags(pageNum, pageSize){
     const responsePayload = await makeRequest('/api/blogtag?pageNum=' + pageNum +"&pageSize=" + pageSize)
     if(responsePayload.code === 200)
-        return responsePayload.responseBody
+        return responsePayload.body
     else
         return null
 }

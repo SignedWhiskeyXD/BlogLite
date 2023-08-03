@@ -1,5 +1,5 @@
 <script>
-import {addTag, getBlogTags, removeBlogTagByID, renameBlogTagByID} from "@/fetch/fetchBlogTags";
+import {addTag, getBlogTags, removeBlogTagByID, renameBlogTagByID} from "@/fetch/BlogTagAPI";
 import {ElMessage} from "element-plus";
 
 export default {

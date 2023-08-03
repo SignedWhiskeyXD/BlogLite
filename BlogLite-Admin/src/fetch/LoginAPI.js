@@ -1,4 +1,4 @@
-import {makeRequest} from "@/fetch/requestCommon";
+import {makeRequest} from "@/fetch/FetchTemplate";
 
 export async function login(formData){
     return await makeRequest('/login', {

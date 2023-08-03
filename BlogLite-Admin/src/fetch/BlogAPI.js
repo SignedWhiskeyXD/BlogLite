@@ -1,9 +1,9 @@
-import {makeRequest} from "@/fetch/requestCommon";
+import {makeRequest} from "@/fetch/FetchTemplate";
 
 export async function  getBlogByID(blogID){
     const response = await makeRequest('/api/blog/' + blogID)
     if(response.code === 200)
-        return response.responseBody
+        return response.body
     else
         return null
 }
@@ -11,7 +11,7 @@ export async function  getBlogByID(blogID){
 export async function getBlogs(pageNum, pageSize){
     const responsePayload = await makeRequest('/api/blog?pageNum=' + pageNum +"&pageSize=" + pageSize)
     if(responsePayload.code === 200)
-        return responsePayload.responseBody
+        return responsePayload.body
     else
         return null
 }

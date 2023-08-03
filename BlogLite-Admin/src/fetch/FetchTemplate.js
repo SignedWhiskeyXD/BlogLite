@@ -1,4 +1,5 @@
 import {ElMessage} from "element-plus";
+import router from "@/router";
 
 export async function makeRequest(relativeURI, init) {
     const token = window.localStorage.getItem('token');
@@ -13,7 +14,14 @@ export async function makeRequest(relativeURI, init) {
     const modifiedInit = { ...init, headers };
 
     const response = await fetch('http://localhost:52480' + relativeURI, modifiedInit);
-    if(!response.ok){
+    if(response.status === 401){
+        await router.push('/login')
+        return null
+    }else if(response.status === 403){
+        ElMessage.error('权限不足')
+        return null;
+    }
+    else if(!response.ok){
         ElMessage.error("请求错误：" + response.status + " " + response.statusText)
         return null
     }
