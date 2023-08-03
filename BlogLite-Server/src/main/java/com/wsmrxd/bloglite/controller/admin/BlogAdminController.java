@@ -1,8 +1,7 @@
 package com.wsmrxd.bloglite.controller.admin;
 
-import com.wsmrxd.bloglite.dto.BlogModifyInfo;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
-import com.wsmrxd.bloglite.service.BlogService;
+import com.wsmrxd.bloglite.service.impl.BlogService;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

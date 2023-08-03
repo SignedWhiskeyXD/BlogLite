@@ -1,45 +1,31 @@
 package com.wsmrxd.bloglite.controller.publics;
 
 import com.wsmrxd.bloglite.dto.UserLoginInfo;
-import com.wsmrxd.bloglite.enums.ErrorCode;
-import com.wsmrxd.bloglite.exception.BlogException;
-import com.wsmrxd.bloglite.service.UserService;
-import com.wsmrxd.bloglite.service.base.JWTServiceBase;
+import com.wsmrxd.bloglite.service.LoginService;
+import com.wsmrxd.bloglite.service.impl.UserServiceImpl;
+import com.wsmrxd.bloglite.service.JWTService;
 import com.wsmrxd.bloglite.vo.LoginSuccessInfo;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/login")
 public class LoginController {
 
-    private UserService userService;
-
-    private JWTServiceBase jwtService;
+    private LoginService loginService;
 
     @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setJwtService(JWTServiceBase jwtService) {
-        this.jwtService = jwtService;
+    public void setLoginService(LoginService loginService) {
+        this.loginService = loginService;
     }
 
     @PostMapping
     public RestResponse serveLogin(@RequestBody UserLoginInfo body){
-        var targetUser = userService.getUser(body.getEmail());
-        if(targetUser == null)
-            throw new BlogException(ErrorCode.USER_NOT_FOUND, "No Such User");
-
-        if(targetUser.getPassword().equals(body.getPassword())) {
-            String jwt = jwtService.generateToken(body.getEmail());
-            var ret = new LoginSuccessInfo(body.getEmail(), jwt);
-            return RestResponse.ok(ret);
-        }
-        else
-            throw new BlogException(ErrorCode.INVALID_PASSWORD, "Invalid Password");
+        return loginService.doLogin(body.getEmail(), body.getPassword());
     }
 }

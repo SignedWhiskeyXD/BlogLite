@@ -2,7 +2,7 @@ package com.wsmrxd.bloglite.controller.publics;
 
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
-import com.wsmrxd.bloglite.service.BlogService;
+import com.wsmrxd.bloglite.service.impl.BlogService;
 import com.wsmrxd.bloglite.vo.BlogView;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlogView {
-    private Blog blog;
+    private final Blog blog;
 
-    private List<String> tagNames = new ArrayList<>();
+    private final List<String> tagNames = new ArrayList<>();
 
     public BlogView(Blog blog, List<BlogTag> blogTags) {
         this.blog = blog;
@@ -21,15 +21,7 @@ public class BlogView {
         return blog;
     }
 
-    public void setBlog(Blog blog) {
-        this.blog = blog;
-    }
-
     public List<String> getTagNames() {
         return tagNames;
-    }
-
-    public void setTagNames(List<String> tagNames) {
-        this.tagNames = tagNames;
     }
 }

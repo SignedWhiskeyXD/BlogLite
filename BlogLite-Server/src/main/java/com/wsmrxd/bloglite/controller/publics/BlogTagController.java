@@ -3,7 +3,7 @@ package com.wsmrxd.bloglite.controller.publics;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
-import com.wsmrxd.bloglite.service.base.BlogTagServiceBase;
+import com.wsmrxd.bloglite.service.BlogTagService;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/blogtag")
 public class BlogTagController {
-    private BlogTagServiceBase tagService;
+    private BlogTagService tagService;
 
     @Autowired
-    public void setTagService(BlogTagServiceBase tagService) {
+    public void setTagService(BlogTagService tagService) {
         this.tagService = tagService;
     }
 
