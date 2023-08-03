@@ -2,7 +2,7 @@
 
 import router from "@/router";
 
-router.push('/')
+router.push('/admin')
 </script>
 
 <template>
