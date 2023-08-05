@@ -8,18 +8,25 @@ import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.entity.BlogTagMapping;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
+import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.vo.BlogPageView;
+import com.wsmrxd.bloglite.vo.BlogView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class BlogService implements com.wsmrxd.bloglite.service.BlogService {
+public class BlogServiceImpl implements BlogService {
 
     private BlogMapper blogMapper;
 
     private BlogTagMapper tagMapper;
+
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private final String redisPageKey = "BlogPageInfo";
 
     @Autowired
     public void setBlogMapper(BlogMapper blogMapper) {
@@ -31,18 +38,49 @@ public class BlogService implements com.wsmrxd.bloglite.service.BlogService {
         this.tagMapper = tagMapper;
     }
 
+    @Autowired
+    public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
     @Override
     public Blog getBlogByID(int id) {
         return blogMapper.selectBlogByID(id);
     }
 
     @Override
+    public BlogView getBlogViewByID(int id) {
+        var redisValOps = redisTemplate.opsForValue();
+
+        BlogView blogViewCache = (BlogView) redisValOps.get("BlogView_" + id);
+        if(blogViewCache != null) return blogViewCache;
+
+        var blog = blogMapper.selectBlogByID(id);
+        if(blog == null) return null;
+
+        var blogTags = blogMapper.selectTagsByBlogID(id);
+        var blogView = new BlogView(blog, blogTags);
+
+        redisValOps.set("BlogView_" + id, blogView);
+
+        return blogView;
+    }
+
+    @Override
     public PageInfo<BlogPageView> getAllBlogsByPage(int pageNum, int pageSize) {
+        var redisHashOps = redisTemplate.opsForHash();
+        final String hashKey = pageNum + "_" + pageSize;
+
+        PageInfo<BlogPageView> blogPageInfoCache = (PageInfo<BlogPageView>) redisHashOps.get(redisPageKey, hashKey);
+        if(blogPageInfoCache != null) return blogPageInfoCache;
+
         PageHelper.startPage(pageNum, pageSize);
 
         var blogListView = blogMapper.selectAllBlogs();
 
-        return new PageInfo<>(blogListView);
+        var ret = new PageInfo<>(blogListView);
+        redisHashOps.put(redisPageKey, hashKey, ret);
+        return ret;
     }
 
     @Override
@@ -88,6 +126,16 @@ public class BlogService implements com.wsmrxd.bloglite.service.BlogService {
     @Override
     public boolean deleteBlog(int id) {
         return blogMapper.deleteBlogByID(id);
+    }
+
+    @Override
+    public void flushBlogCache(int blogID){
+        redisTemplate.delete("BlogView_" + blogID);
+    }
+
+    @Override
+    public void flushBlogPagingCache(){
+        redisTemplate.delete(redisPageKey);
     }
 
     private void arrangeTagList(int newBlogID, List<String> tagList) {

@@ -1,7 +1,7 @@
 package com.wsmrxd.bloglite.security;
 
-import com.wsmrxd.bloglite.service.UserService;
 import com.wsmrxd.bloglite.service.JWTService;
+import com.wsmrxd.bloglite.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

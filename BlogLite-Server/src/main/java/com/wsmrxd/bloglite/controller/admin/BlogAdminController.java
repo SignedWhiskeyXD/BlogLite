@@ -3,7 +3,7 @@ package com.wsmrxd.bloglite.controller.admin;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
-import com.wsmrxd.bloglite.service.impl.BlogService;
+import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +26,8 @@ public class BlogAdminController {
         blogService.reArrangeBlogTag(id, modifyInfo.getTagNames());
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Modify The Blog");
+
+        blogService.flushBlogCache(id);
         return RestResponse.ok(null);
     }
 
@@ -34,6 +36,8 @@ public class BlogAdminController {
         boolean result =  blogService.addNewBlog(newBlog) > 0;
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Add The Blog");
+
+        blogService.flushBlogPagingCache();
         return RestResponse.ok(null);
     }
 
@@ -42,6 +46,9 @@ public class BlogAdminController {
         boolean result = blogService.deleteBlog(id);
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Delete The Blog");
+
+        blogService.flushBlogCache(id);
+        blogService.flushBlogPagingCache();
         return RestResponse.ok(null);
     }
 }

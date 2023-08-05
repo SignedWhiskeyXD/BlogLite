@@ -1,7 +1,7 @@
 package com.wsmrxd.bloglite.entity;
 
 public class User {
-    private int id;
+    private Integer id;
     private String email;
 
     private String username;
@@ -10,11 +10,11 @@ public class User {
 
     private String role;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -59,6 +59,9 @@ public class User {
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 '}';
+    }
+
+    public User() {
     }
 
     public User(String email, String username, String password, String role) {

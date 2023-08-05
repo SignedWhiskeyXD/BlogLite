@@ -2,16 +2,12 @@ package com.wsmrxd.bloglite.controller.publics;
 
 import com.wsmrxd.bloglite.dto.UserLoginInfo;
 import com.wsmrxd.bloglite.service.LoginService;
-import com.wsmrxd.bloglite.service.impl.UserServiceImpl;
-import com.wsmrxd.bloglite.service.JWTService;
-import com.wsmrxd.bloglite.vo.LoginSuccessInfo;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/login")

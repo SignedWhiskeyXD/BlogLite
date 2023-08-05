@@ -7,14 +7,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlogView {
-    private final Blog blog;
+    private Blog blog;
 
-    private final List<String> tagNames = new ArrayList<>();
+    private List<String> tagNames = new ArrayList<>();
+
+    public BlogView() {
+    }
 
     public BlogView(Blog blog, List<BlogTag> blogTags) {
         this.blog = blog;
         for(var tag : blogTags)
             tagNames.add(tag.getTagName());
+    }
+
+    public void setBlog(Blog blog) {
+        this.blog = blog;
+    }
+
+    public void setTagNames(List<String> tagNames) {
+        this.tagNames = tagNames;
     }
 
     public Blog getBlog() {
