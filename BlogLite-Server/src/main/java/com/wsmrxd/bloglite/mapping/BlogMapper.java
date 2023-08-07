@@ -14,7 +14,7 @@ public interface BlogMapper {
     @Select("SELECT * FROM blog WHERE id = #{id}")
     Blog selectBlogByID(int id);
 
-    @Select("SELECT id, title FROM blog ORDER BY id")
+    @Select("SELECT id, title FROM blog ORDER BY id DESC")
     List<BlogPageView> selectAllBlogs();
 
     @Select("SELECT bt.* FROM blog_tag_mapping btm\n" +
