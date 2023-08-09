@@ -9,5 +9,7 @@ public class BlogStream {
 
     private int blogNum;
 
-    private List<BlogStreamItem> blogViewList;
+    private int nextRequestParam;
+
+    private List<BlogStreamItem> blogList;
 }

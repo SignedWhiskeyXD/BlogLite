@@ -47,6 +47,11 @@ public class BlogTagServiceImpl implements BlogTagService {
     }
 
     @Override
+    public List<BlogTag> getAllTags() {
+        return mapper.selectAllTags();
+    }
+
+    @Override
     public PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize) {
         var redisHashOps = redisTemplate.opsForHash();
         final String hashKey = pageNum + "_" + pageSize;

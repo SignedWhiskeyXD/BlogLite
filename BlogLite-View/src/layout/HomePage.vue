@@ -1,28 +1,25 @@
 <script setup>
 import BlogStream from "@/components/BlogStream.vue";
+import AboutMe from "@/components/AboutMe.vue";
+import MainPageTags from "@/components/MainPageTags.vue";
 </script>
 
 <template>
-  <el-row gutter="20">
-      <el-col :span="5" :offset="1" class="blog-left">左边</el-col>
+  <el-row class="home-page">
+      <el-col :span="5" :offset="1" class="blog-left">
+          <AboutMe/>
+      </el-col>
       <el-col :span="12" class="blog-middle">
           <BlogStream/>
       </el-col>
-      <el-col :span="5" class="blog-right">右边</el-col>
+      <el-col :span="5" class="blog-right">
+        <main-page-tags/>
+      </el-col>
   </el-row>
 </template>
 
 <style scoped>
-.blog-left {
-    background-color: cornflowerblue;
-
-}
-
-.blog-middle {
-
-}
-
-.blog-right {
-    background-color: aquamarine;
+.home-page {
+    background-color: lightcyan;
 }
 </style>

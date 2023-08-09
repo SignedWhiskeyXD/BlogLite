@@ -3,10 +3,14 @@ package com.wsmrxd.bloglite.service;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
 
+import java.util.List;
+
 public interface BlogTagService {
     BlogTag getTagByID(int id);
 
     BlogTag getTagByName(String name);
+
+    List<BlogTag> getAllTags();
 
     PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize);
 

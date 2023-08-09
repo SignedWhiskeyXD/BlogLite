@@ -131,6 +131,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void flushBlogCache(int blogID){
         redisTemplate.delete("BlogView_" + blogID);
+        redisTemplate.delete("BlogStream_" + blogID);
     }
 
     @Override
