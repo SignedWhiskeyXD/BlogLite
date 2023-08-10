@@ -4,15 +4,18 @@ import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogTag;
+import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPageView;
-import com.wsmrxd.bloglite.vo.BlogView;
+import com.wsmrxd.bloglite.vo.BlogAdminView;
 
 import java.util.List;
 
 public interface BlogService {
     Blog getBlogByID(int id);
 
-    BlogView getBlogViewByID(int id);
+    BlogAdminView getBlogViewByID(int id);
+
+    BlogDetail getBlogDetail(int id);
 
     PageInfo<BlogPageView> getAllBlogsByPage(int pageNum, int pageSize);
 
@@ -24,9 +27,11 @@ public interface BlogService {
 
     boolean renameBlogTitle(int id, String newTitle);
 
+    boolean editBlogAbstract(int id, String newAbstract);
+
     boolean editBlogContent(int id, String newContent);
 
-    boolean addBlogLikes(int id, int moreLikes);
+    boolean addBlogViews(int id, int moreViews);
 
     boolean deleteBlog(int id);
 

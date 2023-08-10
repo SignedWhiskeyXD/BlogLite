@@ -31,7 +31,7 @@ public class BlogTest {
 
         blogService.renameBlogTitle(1, "修改标题");
         blogService.editBlogContent(1, "修改正文");
-        blogService.addBlogLikes(1, 114);
+        blogService.addBlogViews(1, 114);
         var newBlog = blogService.getBlogByID(1);
         System.out.println(newBlog);
     }

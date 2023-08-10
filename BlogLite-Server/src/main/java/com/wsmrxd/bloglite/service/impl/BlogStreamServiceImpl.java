@@ -19,8 +19,6 @@ public class BlogStreamServiceImpl implements BlogStreamService {
 
     private RedisTemplate<String, Object> redisTemplate;
 
-    private MarkDownUtil markDownUtil;
-
     @Autowired
     public void setMapper(BlogMapper mapper) {
         this.mapper = mapper;
@@ -29,11 +27,6 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     @Autowired
     public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
-    }
-
-    @Autowired
-    public void setMarkDownUtil(MarkDownUtil markDownUtil) {
-        this.markDownUtil = markDownUtil;
     }
 
     @Override
@@ -77,9 +70,8 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         if(blog == null) return null;
         var blogTagNames = mapper.selectTagNamesByBlogID(blogID);
 
-        var ret = new BlogStreamItem();
-        ret.setTitle(blog.getTitle());
-        ret.setContentHTML(markDownUtil.toHtml(blog.getContent()));
+        var ret = new BlogStreamItem(blog);
+        ret.setContentAbstract(blog.getContentAbstract());
         ret.setTagNames(blogTagNames);
 
         redisValOps.set(redisKey, ret);

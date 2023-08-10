@@ -2,8 +2,10 @@ DROP TABLE IF EXISTS blog;
 CREATE TABLE blog (
     id int NOT NULL AUTO_INCREMENT,
     title varchar(255) NOT NULL,
+    content_abstract varchar(255) NOT NULL DEFAULT 'No Abstract given',
     content longtext NOT NULL,
-    thumb_ups int NOT NULL,
+    views int NOT NULL DEFAULT 0,
+    publish_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
@@ -18,7 +20,7 @@ DROP TABLE IF EXISTS blog_tag_mapping;
 CREATE TABLE blog_tag_mapping(
     blog_id int NOT NULL,
     tag_id int NOT NULL
-);
+) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`(

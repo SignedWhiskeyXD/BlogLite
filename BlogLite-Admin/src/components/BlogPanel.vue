@@ -6,16 +6,14 @@ import router from "@/router";
 export default {
     created() {
         if(this.$route.params.blog_id)
-            this.getBlogByID(this.$route.params.blog_id)
+            this.getBlog(this.$route.params.blog_id)
     },
     methods:{
-        getBlogByID(blogID){
+        getBlog(blogID){
             getBlogByID(blogID)
                 .then(blogInfo => {
                     if(blogInfo){
-                        this.blogInfo.title = blogInfo.blog.title
-                        this.blogInfo.content = blogInfo.blog.content
-                        this.blogInfo.tagNames = blogInfo.tagNames
+                        this.blogInfo = blogInfo.blog
                     }else{
                         ElMessage.error('无法加载该文章')
                     }
@@ -63,6 +61,7 @@ export default {
         return {
             blogInfo:{
                 title: "",
+                contentAbstract: "",
                 content: "",
                 tagNames: []
             },
@@ -78,6 +77,8 @@ export default {
     <h2>写新文章</h2>
     <h3>标题</h3>
     <el-input v-model="blogInfo.title"></el-input>
+    <h3>文章摘要</h3>
+    <el-input v-model="blogInfo.contentAbstract"></el-input>
     <h3>文章正文</h3>
     <mavon-editor v-model="blogInfo.content"></mavon-editor>
 

@@ -2,6 +2,7 @@ package com.wsmrxd.bloglite.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wsmrxd.bloglite.Utils.MarkDownUtil;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogTag;
@@ -9,8 +10,9 @@ import com.wsmrxd.bloglite.entity.BlogTagMapping;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.BlogService;
+import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPageView;
-import com.wsmrxd.bloglite.vo.BlogView;
+import com.wsmrxd.bloglite.vo.BlogAdminView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class BlogServiceImpl implements BlogService {
     private BlogTagMapper tagMapper;
 
     private RedisTemplate<String, Object> redisTemplate;
+
+    private MarkDownUtil markDownUtil;
 
     private final String redisPageKey = "BlogPageInfo";
 
@@ -43,27 +47,50 @@ public class BlogServiceImpl implements BlogService {
         this.redisTemplate = redisTemplate;
     }
 
+    @Autowired
+    public void setMarkDownUtil(MarkDownUtil markDownUtil) {
+        this.markDownUtil = markDownUtil;
+    }
+
     @Override
     public Blog getBlogByID(int id) {
         return blogMapper.selectBlogByID(id);
     }
 
     @Override
-    public BlogView getBlogViewByID(int id) {
+    public BlogAdminView getBlogViewByID(int id) {
         var redisValOps = redisTemplate.opsForValue();
 
-        BlogView blogViewCache = (BlogView) redisValOps.get("BlogView_" + id);
-        if(blogViewCache != null) return blogViewCache;
+        BlogAdminView blogAdminViewCache = (BlogAdminView) redisValOps.get("BlogView_" + id);
+        if(blogAdminViewCache != null) return blogAdminViewCache;
 
         var blog = blogMapper.selectBlogByID(id);
         if(blog == null) return null;
 
         var blogTags = blogMapper.selectTagsByBlogID(id);
-        var blogView = new BlogView(blog, blogTags);
+        var blogView = new BlogAdminView(blog, blogTags);
 
         redisValOps.set("BlogView_" + id, blogView);
 
         return blogView;
+    }
+
+    @Override
+    public BlogDetail getBlogDetail(int id) {
+        var redisValOps = redisTemplate.opsForValue();
+        final String redisKey = "BlogDetail_" + id;
+
+        BlogDetail blogDetailCache = (BlogDetail) redisValOps.get(redisKey);
+        if(blogDetailCache != null) return blogDetailCache;
+
+        Blog blog = blogMapper.selectBlogByID(id);
+        List<String> tagNames = blogMapper.selectTagNamesByBlogID(id);
+        BlogDetail blogDetail = new BlogDetail(blog);
+        blogDetail.setContentHTML(markDownUtil.toHtml(blog.getContent()));
+        blogDetail.setTagNames(tagNames);
+
+        redisValOps.set(redisKey, blogDetail);
+        return blogDetail;
     }
 
     @Override
@@ -114,13 +141,18 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    public boolean editBlogAbstract(int id, String newAbstract) {
+        return blogMapper.updateBlogAbstractByID(id, newAbstract);
+    }
+
+    @Override
     public boolean editBlogContent(int id, String newContent) {
         return blogMapper.updateBlogContentByID(id, newContent);
     }
 
     @Override
-    public boolean addBlogLikes(int id, int moreLikes){
-        return blogMapper.updateBlogLikesByID(id, moreLikes);
+    public boolean addBlogViews(int id, int moreViews){
+        return blogMapper.updateBlogViewsByID(id, moreViews);
     }
 
     @Override
@@ -131,6 +163,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void flushBlogCache(int blogID){
         redisTemplate.delete("BlogView_" + blogID);
+        redisTemplate.delete("BlogDetail_" + blogID);
         redisTemplate.delete("BlogStream_" + blogID);
     }
 

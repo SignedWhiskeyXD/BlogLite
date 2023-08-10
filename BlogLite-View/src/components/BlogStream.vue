@@ -11,8 +11,18 @@ import 'element-plus/dist/index.css'
         <div class="blog-title">
           <h2>{{ blog.title }}</h2>
         </div>
+        <el-row class="blog-date-views">
+          <el-col :span="12" class="blog-date">
+            <el-text>发布时间 {{ blog.publishTime }}</el-text>
+          </el-col>
+          <el-col :span="12" class="blog-views">
+            <el-text>浏览次数 {{ blog.views }}</el-text>
+          </el-col>
+        </el-row>
+
         <el-divider class="title-content-divider" border-style="dashed"/>
-        <div class="blog-content" v-html="blog.contentHTML">
+        <div class="blog-content" @click="routeToBlogDetail(blog.id)">
+          {{ blog.contentAbstract }}
         </div>
         <el-divider class="title-content-divider" border-style="dashed"/>
         <div class="blog-tags">
@@ -28,6 +38,7 @@ import 'element-plus/dist/index.css'
 
 <script>
 import {getBlogStream, getBlogStreamInitiation} from "@/fetch/BlogStreamAPI";
+import router from "@/router";
 
 export default {
     created() {
@@ -47,6 +58,9 @@ export default {
                     this.blogs = this.blogs.concat(BlogStream.blogList)
                     this.scrollDisabled = false
                 })
+        },
+        routeToBlogDetail(blogID){
+            router.push(`/blog/${blogID}`)
         }
     },
     data() {
@@ -86,6 +100,7 @@ export default {
 
 .title-content-divider {
     scale: 90%;
+    margin-top: 10px;
 }
 
 .blog-tag {
@@ -97,5 +112,15 @@ export default {
     padding-left: 0;
     margin-left: 40px;
     margin-right: 40px;
+}
+
+.blog-date {
+    text-align: center;
+    padding-left: 10%;
+}
+
+.blog-views {
+    text-align: center;
+    padding-right: 10%;
 }
 </style>

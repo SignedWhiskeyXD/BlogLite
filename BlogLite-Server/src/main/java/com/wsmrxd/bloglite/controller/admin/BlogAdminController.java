@@ -19,9 +19,26 @@ public class BlogAdminController {
         this.blogService = blogService;
     }
 
+    @GetMapping("/{id}")
+    public RestResponse serveBlogByID(@PathVariable int id){
+        var blogView = blogService.getBlogViewByID(id);
+        if(blogView == null)
+            throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
+
+        return RestResponse.ok(blogView);
+    }
+
+    @GetMapping
+    public RestResponse getBlogsByPage(@RequestParam(defaultValue = "1") int pageNum,
+                                       @RequestParam(defaultValue = "10") int pageSize){
+        return RestResponse.ok(blogService.getAllBlogsByPage(pageNum, pageSize));
+    }
+
+    // TODO: 聚合其中的三个更新方法
     @PostMapping("/{id}")
     public RestResponse modifyBlog(@RequestBody BlogUploadInfo modifyInfo, @PathVariable int id){
         boolean result = blogService.renameBlogTitle(id, modifyInfo.getTitle());
+        result &= blogService.editBlogAbstract(id, modifyInfo.getContentAbstract());
         result &= blogService.editBlogContent(id, modifyInfo.getContent());
         blogService.reArrangeBlogTag(id, modifyInfo.getTagNames());
         if(!result)

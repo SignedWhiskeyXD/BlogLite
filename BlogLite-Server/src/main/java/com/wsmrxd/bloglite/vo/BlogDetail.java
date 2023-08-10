@@ -1,19 +1,17 @@
 package com.wsmrxd.bloglite.vo;
 
 import com.wsmrxd.bloglite.entity.Blog;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-public class BlogStreamItem {
+public class BlogDetail {
 
-    public BlogStreamItem(Blog blog){
+    public BlogDetail(Blog blog){
         this.id = blog.getId();
         this.title = blog.getTitle();
         this.views = blog.getViews();
@@ -30,7 +28,7 @@ public class BlogStreamItem {
 
     private int views;
 
-    private String contentAbstract;
+    private String contentHTML;
 
     private List<String> tagNames;
 }

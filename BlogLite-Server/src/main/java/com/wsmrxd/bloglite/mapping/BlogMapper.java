@@ -33,8 +33,8 @@ public interface BlogMapper {
     @Insert("INSERT INTO blog_tag_mapping VALUES (#{blog_id}, #{tag_id})")
     void insertBlogTagMapping(BlogTagMapping mapping);
 
-    @Insert("INSERT INTO blog (title, content, thumb_ups) " +
-            "VALUES (#{title}, #{content}, 0)")
+    @Insert("INSERT INTO blog (title, contentAbstract, content " +
+            "VALUES (#{title}, #{contentAbstract}, #{content})")
     @SelectKey(statement="SELECT LAST_INSERT_ID()",
             keyProperty="id", before=false, resultType=int.class)
     void insertBlog(Blog newBlog);
@@ -48,9 +48,12 @@ public interface BlogMapper {
     @Update("UPDATE blog set title = #{newTitle} WHERE id = #{id}")
     boolean updateBlogTitleByID(@Param("id") int id, @Param("newTitle") String newTitle);
 
+    @Update("UPDATE blog set content_abstract = #{newAbstract} WHERE id = #{id}")
+    boolean updateBlogAbstractByID(@Param("id") int id, @Param("newAbstract") String newAbstract);
+
     @Update("UPDATE blog set content = #{content} WHERE id = #{id}")
     boolean updateBlogContentByID(@Param("id") int id, @Param("content") String content);
 
-    @Update("UPDATE blog set thumb_ups = thumb_ups + #{likes} WHERE id = #{id}")
-    boolean updateBlogLikesByID(@Param("id") int id, @Param("likes") int likes);
+    @Update("UPDATE blog set views = views + #{views} WHERE id = #{id}")
+    boolean updateBlogViewsByID(@Param("id") int id, @Param("views") int views);
 }

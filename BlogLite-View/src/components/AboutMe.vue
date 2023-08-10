@@ -19,7 +19,7 @@ import { UserFilled } from '@element-plus/icons-vue'
         </div>
       </el-col>
       <el-col :span="12" class="thumb-ups">
-        <el-text>点赞数</el-text>
+        <el-text>浏览量</el-text>
         <div>
           <el-text size="large" tag="b">1919810</el-text>
         </div>

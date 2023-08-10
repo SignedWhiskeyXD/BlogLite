@@ -6,15 +6,15 @@ import com.wsmrxd.bloglite.entity.BlogTag;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlogView {
+public class BlogAdminView {
     private Blog blog;
 
     private List<String> tagNames = new ArrayList<>();
 
-    public BlogView() {
+    public BlogAdminView() {
     }
 
-    public BlogView(Blog blog, List<BlogTag> blogTags) {
+    public BlogAdminView(Blog blog, List<BlogTag> blogTags) {
         this.blog = blog;
         for(var tag : blogTags)
             tagNames.add(tag.getTagName());
