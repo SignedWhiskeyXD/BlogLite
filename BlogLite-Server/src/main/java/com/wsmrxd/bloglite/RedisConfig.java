@@ -10,7 +10,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
     @Bean
-    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
+    public RedisTemplate<String,Object> redisJsonTemplate(RedisConnectionFactory redisConnectionFactory){
         RedisTemplate<String,Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
@@ -22,6 +22,22 @@ public class RedisConfig {
         template.setValueSerializer(jsonSerializer);
         template.setHashKeySerializer(stringSerializer);
         template.setHashValueSerializer(jsonSerializer);
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, String> redisStringTemplate(RedisConnectionFactory redisConnectionFactory){
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+
+        // 完全的字符串序列化
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+
+        template.setKeySerializer(stringSerializer);
+        template.setValueSerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+        template.setHashValueSerializer(stringSerializer);
         template.afterPropertiesSet();
         return template;
     }

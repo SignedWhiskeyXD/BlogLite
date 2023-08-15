@@ -1,12 +1,11 @@
 package com.wsmrxd.bloglite.service.impl;
 
-import com.wsmrxd.bloglite.Utils.MarkDownUtil;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.BlogStreamService;
+import com.wsmrxd.bloglite.service.RedisService;
 import com.wsmrxd.bloglite.vo.BlogStream;
-import com.wsmrxd.bloglite.vo.BlogStreamItem;
+import com.wsmrxd.bloglite.vo.BlogCard;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class BlogStreamServiceImpl implements BlogStreamService {
 
     private BlogMapper mapper;
 
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisService redisService;
 
     @Autowired
     public void setMapper(BlogMapper mapper) {
@@ -25,8 +24,8 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     }
 
     @Autowired
-    public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public void setRedisService(RedisService redisService) {
+        this.redisService = redisService;
     }
 
     @Override
@@ -42,10 +41,10 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     }
 
     private BlogStream constructBlogStream(List<Integer> latestBlogIDList) {
-        var blogItems = new ArrayList<BlogStreamItem>();
+        var blogItems = new ArrayList<BlogCard>();
 
         for(int blogID : latestBlogIDList){
-            var blogItem = getBlogStreamItem(blogID);
+            var blogItem = getBlogCard(blogID);
             if(blogItem != null)
                 blogItems.add(blogItem);
         }
@@ -59,22 +58,23 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         return initBlogStream;
     }
 
-    private BlogStreamItem getBlogStreamItem(int blogID){
-        var redisValOps = redisTemplate.opsForValue();
-        final String redisKey = "BlogStream_" + blogID;
-
-        BlogStreamItem blogCache = (BlogStreamItem) redisValOps.get(redisKey);
-        if(blogCache != null) return blogCache;
+    private BlogCard getBlogCard(int blogID){
+        BlogCard blogCache = redisService.getBlogCard(blogID);
+        if(blogCache != null) {
+            blogCache.setViews(redisService.getBlogViewsAsCached(blogID));
+            return blogCache;
+        }
 
         var blog = mapper.selectBlogByID(blogID);
         if(blog == null) return null;
         var blogTagNames = mapper.selectTagNamesByBlogID(blogID);
 
-        var ret = new BlogStreamItem(blog);
+        var ret = new BlogCard(blog);
         ret.setContentAbstract(blog.getContentAbstract());
         ret.setTagNames(blogTagNames);
+        ret.setViews(redisService.getBlogViewsAsCached(blogID));
 
-        redisValOps.set(redisKey, ret);
+        redisService.setBlogCard(blogID, ret);
         return ret;
     }
 }

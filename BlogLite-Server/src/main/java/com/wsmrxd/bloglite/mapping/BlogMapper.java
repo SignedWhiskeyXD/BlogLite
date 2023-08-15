@@ -3,7 +3,7 @@ package com.wsmrxd.bloglite.mapping;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.entity.BlogTagMapping;
-import com.wsmrxd.bloglite.vo.BlogPageView;
+import com.wsmrxd.bloglite.vo.BlogPreview;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public interface BlogMapper {
     Blog selectBlogByID(int id);
 
     @Select("SELECT id, title FROM blog ORDER BY id DESC")
-    List<BlogPageView> selectAllBlogs();
+    List<BlogPreview> selectAllBlogs();
 
     @Select("SELECT id FROM blog WHERE id < #{latestID} ORDER BY id DESC LIMIT #{num}")
     List<Integer> selectLatestBlogIDs(@Param("latestID") int latestID, @Param("num") int num);
@@ -29,6 +29,9 @@ public interface BlogMapper {
             "INNER JOIN blog_tag bt ON btm.tag_id = bt.id\n" +
             "WHERE btm.blog_id = #{id}")
     List<String> selectTagNamesByBlogID(int id);
+
+    @Select("SELECT views FROM blog WHERE id = #{id}")
+    int selectViewsByBlogID(int id);
 
     @Insert("INSERT INTO blog_tag_mapping VALUES (#{blog_id}, #{tag_id})")
     void insertBlogTagMapping(BlogTagMapping mapping);

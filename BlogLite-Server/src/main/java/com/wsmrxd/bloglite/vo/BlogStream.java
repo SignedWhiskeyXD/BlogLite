@@ -11,5 +11,5 @@ public class BlogStream {
 
     private int nextRequestParam;
 
-    private List<BlogStreamItem> blogList;
+    private List<BlogCard> blogList;
 }

@@ -5,19 +5,20 @@ import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.vo.BlogDetail;
-import com.wsmrxd.bloglite.vo.BlogPageView;
-import com.wsmrxd.bloglite.vo.BlogAdminView;
+import com.wsmrxd.bloglite.vo.BlogPreview;
+import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 
 import java.util.List;
 
+// TODO: 这个类承担了太多职责，应当重构
 public interface BlogService {
     Blog getBlogByID(int id);
 
-    BlogAdminView getBlogViewByID(int id);
+    BlogAdminDetail getBlogViewByID(int id);
 
     BlogDetail getBlogDetail(int id);
 
-    PageInfo<BlogPageView> getAllBlogsByPage(int pageNum, int pageSize);
+    PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize);
 
     List<BlogTag> getAllTagsByBlogID(int blogID);
 

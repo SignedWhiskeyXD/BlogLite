@@ -11,9 +11,9 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BlogStreamItem {
+public class BlogCard {
 
-    public BlogStreamItem(Blog blog){
+    public BlogCard(Blog blog){
         this.id = blog.getId();
         this.title = blog.getTitle();
         this.views = blog.getViews();

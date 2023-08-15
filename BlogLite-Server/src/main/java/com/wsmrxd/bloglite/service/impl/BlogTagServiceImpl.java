@@ -5,8 +5,8 @@ import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.BlogTagService;
+import com.wsmrxd.bloglite.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +15,7 @@ import java.util.List;
 public class BlogTagServiceImpl implements BlogTagService {
     private BlogTagMapper mapper;
 
-    private RedisTemplate<String, Object> redisTemplate;
-
-    private final String redisPageKey = "TagPageInfo";
+    private RedisService redisService;
 
     @Autowired
     public void setMapper(BlogTagMapper mapper) {
@@ -25,38 +23,33 @@ public class BlogTagServiceImpl implements BlogTagService {
     }
 
     @Autowired
-    public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public void setRedisService(RedisService redisService) {
+        this.redisService = redisService;
     }
 
     @Override
     public BlogTag getTagByID(int id) {
-        var redisValOps = redisTemplate.opsForValue();
-
-        BlogTag blogTagCache = (BlogTag) redisValOps.get("BlogTag_" + id);
+        BlogTag blogTagCache = redisService.getBlogTag(id);
         if(blogTagCache != null) return blogTagCache;
 
         BlogTag ret = mapper.selectTagByID(id);
-        redisValOps.set("BlogTag_" + id, ret);
+        redisService.setBlogTag(ret);
         return ret;
     }
 
     @Override
-    public BlogTag getTagByName(String name) {
-        return mapper.selectTagByName(name);
-    }
-
-    @Override
     public List<BlogTag> getAllTags() {
-        return mapper.selectAllTags();
+        List<BlogTag> ret = redisService.getAllBlogTags();
+        if(ret == null){
+            ret = mapper.selectAllTags();
+            redisService.setAllBlogTags(ret);
+        }
+        return ret;
     }
 
     @Override
     public PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize) {
-        var redisHashOps = redisTemplate.opsForHash();
-        final String hashKey = pageNum + "_" + pageSize;
-
-        PageInfo<BlogTag> tagPageInfoCache = (PageInfo<BlogTag>) redisHashOps.get(redisPageKey, hashKey);
+        PageInfo<BlogTag> tagPageInfoCache =  redisService.getTagPageInfo(pageNum, pageSize);
         if(tagPageInfoCache != null) return tagPageInfoCache;
 
         PageHelper.startPage(pageNum, pageSize);
@@ -64,7 +57,7 @@ public class BlogTagServiceImpl implements BlogTagService {
         List<BlogTag> userList = mapper.selectAllTags();
 
         var ret = new PageInfo<>(userList);
-        redisHashOps.put(redisPageKey, hashKey, ret);
+        redisService.setTagPageInfo(pageNum, pageSize, ret);
         return ret;
     }
 
@@ -84,27 +77,17 @@ public class BlogTagServiceImpl implements BlogTagService {
     }
 
     @Override
-    public boolean removeTag(String name) {
-        return mapper.deleteTagByName(name);
-    }
-
-    @Override
     public boolean renameTag(int id, String newName) {
         return mapper.updateTagNameByID(id, newName);
     }
 
     @Override
-    public boolean renameTag(String oldName, String newName) {
-        return mapper.updateTagNameByName(oldName, newName);
-    }
-
-    @Override
     public void flushPageInfoCache(){
-        redisTemplate.delete(redisPageKey);
+        redisService.flushTagPageInfoCache();
     }
 
     @Override
     public void flushTagCache(int id){
-        redisTemplate.delete("BlogTag_" + id);
+        redisService.flushTagCache(id);
     }
 }
