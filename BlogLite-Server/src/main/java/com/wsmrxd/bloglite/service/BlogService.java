@@ -32,8 +32,6 @@ public interface BlogService {
 
     boolean editBlogContent(int id, String newContent);
 
-    boolean addBlogViews(int id, int moreViews);
-
     boolean deleteBlog(int id);
 
     void flushBlogCache(int blogID);

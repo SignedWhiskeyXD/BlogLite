@@ -2,6 +2,7 @@ package com.wsmrxd.bloglite.util;
 
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.entity.User;
+import com.wsmrxd.bloglite.service.RedisService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,9 @@ public class TestRedis {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private RedisService redisService;
 
     @Test
     public void testStringVal(){
@@ -49,5 +53,10 @@ public class TestRedis {
         BlogTag resultTag = (BlogTag) hashOps.get("hashTest", "BlogTag");
 
         assert resultTag != null && resultUser != null;
+    }
+
+    @Test
+    public void testFlush(){
+        redisService.flushSiteInfo();
     }
 }

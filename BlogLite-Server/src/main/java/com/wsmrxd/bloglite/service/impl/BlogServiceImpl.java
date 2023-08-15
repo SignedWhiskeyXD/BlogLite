@@ -123,6 +123,7 @@ public class BlogServiceImpl implements BlogService {
         if(tagList != null && tagList.size() > 0)
             arrangeTagList(newBlogID, tagList);
 
+        redisService.flushSiteInfo();
         return newBlogID;
     }
     @Override
@@ -147,12 +148,8 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public boolean addBlogViews(int id, int moreViews){
-        return blogMapper.updateBlogViewsByID(id, moreViews);
-    }
-
-    @Override
     public boolean deleteBlog(int id) {
+        redisService.flushSiteInfo();
         return blogMapper.deleteBlogByID(id);
     }
 

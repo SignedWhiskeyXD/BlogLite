@@ -1,5 +1,5 @@
 <script setup>
-import { UserFilled } from '@element-plus/icons-vue'
+
 </script>
 
 <template>
@@ -15,18 +15,39 @@ import { UserFilled } from '@element-plus/icons-vue'
       <el-col :span="12" class="blog-count">
         <el-text>文章总数</el-text>
         <div>
-          <el-text size="large" tag="b">114514</el-text>
+          <el-text size="large" tag="b">{{ siteInfo.totalBlogs }}</el-text>
         </div>
       </el-col>
       <el-col :span="12" class="thumb-ups">
         <el-text>浏览量</el-text>
         <div>
-          <el-text size="large" tag="b">1919810</el-text>
+          <el-text size="large" tag="b">{{ siteInfo.totalViews }}</el-text>
         </div>
       </el-col>
     </el-row>
   </div>
 </template>
+
+<script>
+import {getSiteInfo} from "@/fetch/SiteInfoAPI";
+
+export default {
+    created() {
+        getSiteInfo()
+            .then(siteInfo => {
+                this.siteInfo = siteInfo
+            })
+    },
+    data(){
+        return{
+            siteInfo:{
+                totalBlogs: 0,
+                totalViews: 0
+            }
+        }
+    }
+}
+</script>
 
 <style scoped>
 .about-me{

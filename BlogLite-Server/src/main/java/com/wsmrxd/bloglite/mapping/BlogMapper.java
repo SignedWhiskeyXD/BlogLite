@@ -42,6 +42,12 @@ public interface BlogMapper {
             keyProperty="id", before=false, resultType=int.class)
     void insertBlog(Blog newBlog);
 
+    @Select("SELECT COUNT(*) FROM blog")
+    int selectBlogCount();
+
+    @Select("SELECT SUM(views) FROM blog")
+    int selectViewsCount();
+
     @Delete("DELETE FROM blog WHERE id = #{id}")
     boolean deleteBlogByID(int id);
 

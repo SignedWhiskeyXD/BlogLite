@@ -4,10 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.RedisService;
-import com.wsmrxd.bloglite.vo.BlogAdminDetail;
-import com.wsmrxd.bloglite.vo.BlogCard;
-import com.wsmrxd.bloglite.vo.BlogDetail;
-import com.wsmrxd.bloglite.vo.BlogPreview;
+import com.wsmrxd.bloglite.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,11 +31,11 @@ public class RedisServiceImpl implements RedisService {
         this.stringTemplate = stringTemplate;
     }
 
-
     @Autowired
     public void setBlogMapper(BlogMapper blogMapper) {
         this.blogMapper = blogMapper;
     }
+
 
     @Override
     public int getBlogViewsAsCached(int blogID) {
@@ -54,8 +51,14 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void increaseBlogViews(int blogID) {
         var redisHashOps = jsonTemplate.opsForHash();
+
         if(redisHashOps.hasKey(blogViewsKey, Integer.toString(blogID)))
             redisHashOps.increment(blogViewsKey, Integer.toString(blogID), 1);
+
+        if(redisHashOps.hasKey(siteInfoKey, totalViewsKey))
+            redisHashOps.increment(siteInfoKey, totalViewsKey, 1);
+
+        redisHashOps.increment(blogAddViewsKey, Integer.toString(blogID), 1);
     }
 
     @Override
@@ -185,5 +188,45 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void flushTagCache(int tagID) {
         jsonTemplate.delete(blogTagPrefix + tagID);
+    }
+
+    @Override
+    public Integer getTotalBlogsAsCached() {
+        var redisHashOps = jsonTemplate.opsForHash();
+        Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalBlogsKey);
+        if(ret == null){
+            ret = blogMapper.selectBlogCount();
+            redisHashOps.put(siteInfoKey, totalBlogsKey, ret);
+        }
+        return ret;
+    }
+
+    @Override
+    public Integer getTotalViewsAsCached() {
+        var redisHashOps = jsonTemplate.opsForHash();
+        Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalViewsKey);
+        if(ret == null){
+            ret = blogMapper.selectViewsCount();
+            redisHashOps.put(siteInfoKey, totalViewsKey, ret);
+        }
+        return ret;
+    }
+
+    @Override
+    public void flushSiteInfo() {
+        updateBlogViewsFromCache();
+        jsonTemplate.delete(siteInfoKey);
+    }
+
+    private void updateBlogViewsFromCache(){
+        var redisHashOps = jsonTemplate.opsForHash();
+        var viewsMap = redisHashOps.entries(blogAddViewsKey);
+        var keySet = viewsMap.keySet();
+        for(var key : keySet){
+            String blogIDString = (String) key;
+            Integer addNum = (Integer) viewsMap.get(key);
+            blogMapper.updateBlogViewsByID(Integer.parseInt(blogIDString), addNum);
+        }
+        jsonTemplate.delete(blogAddViewsKey);
     }
 }

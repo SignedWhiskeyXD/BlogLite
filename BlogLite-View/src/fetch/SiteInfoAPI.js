@@ -1,0 +1,6 @@
+import {makeRequest} from "@/fetch/FetchTemplate";
+
+export async function getSiteInfo(){
+    const payload = await makeRequest('/api/statistic');
+    return payload.body;
+}
