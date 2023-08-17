@@ -40,8 +40,6 @@ public class BlogTagAdminController {
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot rename the tag");
 
-        tagService.flushTagCache(renamedID);
-        tagService.flushPageInfoCache();
         return RestResponse.ok(null);
     }
 
@@ -51,7 +49,6 @@ public class BlogTagAdminController {
         if(newTagID < 1)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot add this tag");
 
-        tagService.flushPageInfoCache();
         return RestResponse.ok(null);
     }
 
@@ -61,8 +58,6 @@ public class BlogTagAdminController {
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot delete the tag");
 
-        tagService.flushTagCache(id);
-        tagService.flushPageInfoCache();
         return RestResponse.ok(null);
     }
 }

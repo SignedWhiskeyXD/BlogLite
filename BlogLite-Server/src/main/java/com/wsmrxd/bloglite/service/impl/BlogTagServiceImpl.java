@@ -5,8 +5,10 @@ import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.BlogTagService;
-import com.wsmrxd.bloglite.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,53 +17,36 @@ import java.util.List;
 public class BlogTagServiceImpl implements BlogTagService {
     private BlogTagMapper mapper;
 
-    private RedisService redisService;
-
     @Autowired
     public void setMapper(BlogTagMapper mapper) {
         this.mapper = mapper;
     }
 
-    @Autowired
-    public void setRedisService(RedisService redisService) {
-        this.redisService = redisService;
-    }
-
     @Override
+    @Cacheable(value = "BlogTag", key = "#id")
     public BlogTag getTagByID(int id) {
-        BlogTag blogTagCache = redisService.getBlogTag(id);
-        if(blogTagCache != null) return blogTagCache;
-
-        BlogTag ret = mapper.selectTagByID(id);
-        redisService.setBlogTag(ret);
-        return ret;
+        return mapper.selectTagByID(id);
     }
 
     @Override
+    @Cacheable("allBlogTags")
     public List<BlogTag> getAllTags() {
-        List<BlogTag> ret = redisService.getAllBlogTags();
-        if(ret == null){
-            ret = mapper.selectAllTags();
-            redisService.setAllBlogTags(ret);
-        }
-        return ret;
+        return mapper.selectAllTags();
     }
 
     @Override
+    @Cacheable(value = "BlogTagPageInfo", key = "#pageNum + '_' + #pageSize")
     public PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize) {
-        PageInfo<BlogTag> tagPageInfoCache =  redisService.getTagPageInfo(pageNum, pageSize);
-        if(tagPageInfoCache != null) return tagPageInfoCache;
-
         PageHelper.startPage(pageNum, pageSize);
-
         List<BlogTag> userList = mapper.selectAllTags();
-
-        var ret = new PageInfo<>(userList);
-        redisService.setTagPageInfo(pageNum, pageSize, ret);
-        return ret;
+        return new PageInfo<>(userList);
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
+            @CacheEvict("allBlogTags")
+    })
     public int addTag(String name) {
         var newTag = new BlogTag();
         newTag.setTagName(name);
@@ -70,24 +55,24 @@ public class BlogTagServiceImpl implements BlogTagService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "BlogTag", key = "#id"),
+            @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
+            @CacheEvict("allBlogTags")
+    })
     public boolean removeTag(int id) {
         boolean result = mapper.deleteTagByID(id);
-        result &= mapper.deleteTagMappingByTagID(id);
+        mapper.deleteTagMappingByTagID(id);
         return result;
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "BlogTag", key = "#id"),
+            @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
+            @CacheEvict("allBlogTags")
+    })
     public boolean renameTag(int id, String newName) {
         return mapper.updateTagNameByID(id, newName);
-    }
-
-    @Override
-    public void flushPageInfoCache(){
-        redisService.flushTagPageInfoCache();
-    }
-
-    @Override
-    public void flushTagCache(int id){
-        redisService.flushTagCache(id);
     }
 }

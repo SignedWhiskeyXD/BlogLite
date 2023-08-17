@@ -17,8 +17,4 @@ public interface BlogTagService {
     boolean removeTag(int id);
 
     boolean renameTag(int id, String newName);
-
-    void flushPageInfoCache();
-
-    void flushTagCache(int id);
 }
