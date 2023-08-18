@@ -19,12 +19,14 @@ import java.util.Date;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/img")
+@RequestMapping("/api/admin/img")
 public class WebImageAdminAPI {
 
     final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
 
     private String imageRepositoryPath;
+
+    private String nginxContext;
 
     private ImageService imageService;
 
@@ -33,11 +35,17 @@ public class WebImageAdminAPI {
         this.imageRepositoryPath = imageRepositoryPath;
     }
 
+    @Value("${myConfig.image.nginxContext}")
+    public void setNginxContext(String nginxContext) {
+        this.nginxContext = nginxContext;
+    }
+
     @Autowired
     public void setImageService(ImageService imageService) {
         this.imageService = imageService;
     }
 
+    // TODO: 理论上这个API能够存储任何上传的文件，应加入过滤
     @PutMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public RestResponse uploadImage(MultipartFile uploadImage) throws IOException {
         String targetFolderName = getYearMonthPrefix();
@@ -45,30 +53,50 @@ public class WebImageAdminAPI {
         var uploadImageStream = uploadImage.getInputStream();
 
         String md5 = DigestUtils.md5DigestAsHex(uploadImageStream);
-        String typeSuffix = "";
-        var split = Objects.requireNonNull(uploadImage.getOriginalFilename()).split("\\.");
-        if(split.length > 1)
-            typeSuffix = split[split.length - 1];
+        Integer queryID = imageService.checkImageExistsByMD5(md5);
 
-        var image = new ImageMapping();
-        image.setMd5(md5);
-        image.setOriginalName(uploadImage.getOriginalFilename());
-        image.setFolder(targetFolderName);
-        image.setTypeSuffix(typeSuffix);
-
-        Integer imageID = imageService.insertImageMapping(image);
-
-        if(imageID != null){
-            String targetPath = targetFolder.getPath() + "/" + imageID;
-            if(typeSuffix.length() > 0 && typeSuffix.length() < 11)
-                targetPath += "." + typeSuffix;
-
-            File targetFile = new File(targetPath);
-            uploadImage.transferTo(targetFile);
+        if(queryID != null) {
+            uploadImageStream.close();
+            return RestResponse.ok(nginxContext + getImageFileName(imageService.getImageMappingByID(queryID)));
         }
 
+        String typeSuffix = parseTypeSuffix(Objects.requireNonNull(uploadImage.getOriginalFilename()));
+
+        var image = new ImageMapping(md5, targetFolderName, uploadImage.getOriginalFilename(), typeSuffix);
+        imageService.insertImageMapping(image);
+
+        if(image.getId() != null)
+            saveImageToLocal(uploadImage, targetFolder, image);
+
         uploadImageStream.close();
-        return RestResponse.ok(imageID);
+        return RestResponse.ok(nginxContext + getImageFileName(image));
+    }
+
+    private static void saveImageToLocal(MultipartFile uploadImage, File targetFolder, ImageMapping imageMapping) throws IOException {
+        Integer imageID = imageMapping.getId();
+        String typeSuffix = imageMapping.getTypeSuffix();
+
+        String targetPath = targetFolder.getPath() + "/" + imageID;
+        if(typeSuffix.length() > 0 && typeSuffix.length() < 11)
+            targetPath += "." + typeSuffix;
+
+        File targetFile = new File(targetPath);
+        uploadImage.transferTo(targetFile);
+    }
+
+    private static String parseTypeSuffix(String fileName) {
+        String typeSuffix = "";
+        var split = fileName.split("\\.");
+        if(split.length > 1)
+            typeSuffix = split[split.length - 1];
+        return typeSuffix;
+    }
+
+    private String getImageFileName(ImageMapping imageMapping){
+        String ret = imageMapping.getFolder() + "/" + imageMapping.getId();
+        if(imageMapping.getTypeSuffix() != null)
+            ret += "." + imageMapping.getTypeSuffix();
+        return ret;
     }
 
     private File checkTargetDir(String folderName) {

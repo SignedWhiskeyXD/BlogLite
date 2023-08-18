@@ -20,4 +20,5 @@ myConfig:
     expireTime: 259200000 # 3 days
     secretKey: DoNotUseThisAsYourSecretKey
   image:
-    repositoryPath: D://temp
+    repositoryPath: D://dev/nginx-1.25.1/html/image
+    nginxContext: http://127.0.0.1/image/

@@ -12,6 +12,9 @@ public interface ImageMapper {
     @Select("SELECT * FROM image_mapping WHERE id = #{imgID}")
     ImageMapping selectImageByID(int imgID);
 
+    @Select("SELECT id FROM image_mapping WHERE md5 = #{md5}")
+    Integer selectImageByMD5(String md5);
+
     @Insert("INSERT INTO image_mapping (source, md5, folder, original_name, type_suffix) VALUES" +
             "(#{source}, #{md5}, #{folder}, #{originalName}, #{typeSuffix})")
     @SelectKey(statement="SELECT LAST_INSERT_ID()",

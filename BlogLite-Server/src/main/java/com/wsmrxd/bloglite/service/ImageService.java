@@ -6,5 +6,7 @@ public interface ImageService {
 
     ImageMapping getImageMappingByID(int imgID);
 
+    Integer checkImageExistsByMD5(String md5);
+
     Integer insertImageMapping(ImageMapping img);
 }

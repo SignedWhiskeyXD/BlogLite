@@ -24,6 +24,12 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    @Cacheable(value = "ImageMappingMD5", key = "#md5", unless = "#result == null")
+    public Integer checkImageExistsByMD5(String md5) {
+        return mapper.selectImageByMD5(md5);
+    }
+
+    @Override
     public Integer insertImageMapping(ImageMapping img) {
         mapper.insertImageMapping(img);
         return img.getId();
