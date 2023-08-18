@@ -19,3 +19,5 @@ myConfig:
   jwt:
     expireTime: 259200000 # 3 days
     secretKey: DoNotUseThisAsYourSecretKey
+  image:
+    repositoryPath: D://temp
