@@ -1,10 +1,7 @@
 package com.wsmrxd.bloglite.service;
 
 import com.github.pagehelper.PageInfo;
-import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.vo.*;
-
-import java.util.List;
 
 public interface RedisService {
 
@@ -14,15 +11,11 @@ public interface RedisService {
 
     String blogCardPrefix = "BlogCard_";
 
-    String blogTagPrefix = "BlogTag_";
-
     String blogViewsKey = "BlogViews";
 
     String blogAddViewsKey = "BlogAddViews";
 
     String blogPreviewPageKey = "BlogPreviewPageInfo";
-
-    String blogTagPageKey = "TagPageInfo";
 
     String siteInfoKey = "SiteInfo";
 
@@ -33,10 +26,6 @@ public interface RedisService {
     int getBlogViewsAsCached(int blogID);
 
     void increaseBlogViews(int blogID);
-
-    BlogAdminDetail getBlogAdminDetail(int blogID);
-
-    void setBlogAdminDetail(int blogID, BlogAdminDetail toCache);
 
     BlogDetail getBlogDetail(int blogID);
 
@@ -53,23 +42,6 @@ public interface RedisService {
     BlogCard getBlogCard(int blogID);
 
     void setBlogCard(int blogID, BlogCard toCache);
-
-    BlogTag getBlogTag(int tagID);
-
-    void setBlogTag(BlogTag blogTag);
-
-    // TODO: 考虑使用Redis集合实现
-    List<BlogTag> getAllBlogTags();
-
-    void setAllBlogTags(List<BlogTag> allTags);
-
-    PageInfo<BlogTag> getTagPageInfo(int pageNum, int pageSize);
-
-    void setTagPageInfo(int pageNum, int pageSize, PageInfo<BlogTag> pageInfo);
-
-    void flushTagPageInfoCache();
-
-    void flushTagCache(int tagID);
 
     Integer getTotalBlogsAsCached();
 

@@ -21,11 +21,11 @@ public class BlogAdminController {
 
     @GetMapping("/{id}")
     public RestResponse serveBlogByID(@PathVariable int id){
-        var blogView = blogService.getBlogViewByID(id);
-        if(blogView == null)
+        var blogAdminDetail = blogService.getBlogAdminDetailByID(id);
+        if(blogAdminDetail == null)
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
 
-        return RestResponse.ok(blogView);
+        return RestResponse.ok(blogAdminDetail);
     }
 
     @GetMapping

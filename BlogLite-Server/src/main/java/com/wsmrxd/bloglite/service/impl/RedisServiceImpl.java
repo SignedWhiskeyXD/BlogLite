@@ -1,7 +1,6 @@
 package com.wsmrxd.bloglite.service.impl;
 
 import com.github.pagehelper.PageInfo;
-import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.RedisService;
 import com.wsmrxd.bloglite.vo.*;
@@ -10,25 +9,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class RedisServiceImpl implements RedisService {
 
-    private RedisTemplate<String, Object> jsonTemplate;
-
-    private RedisTemplate<String, String> stringTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     private BlogMapper blogMapper;
 
     @Autowired
-    public void setJsonTemplate(@Qualifier("redisJsonTemplate") RedisTemplate<String, Object> jsonTemplate) {
-        this.jsonTemplate = jsonTemplate;
-    }
-
-    @Autowired
-    public void setStringTemplate(@Qualifier("stringRedisTemplate") RedisTemplate<String, String> stringTemplate) {
-        this.stringTemplate = stringTemplate;
+    public void setRedisTemplate(@Qualifier("redisJsonTemplate") RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
     @Autowired
@@ -39,7 +29,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public int getBlogViewsAsCached(int blogID) {
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
         Integer ret = (Integer) redisHashOps.get(blogViewsKey, Integer.toString(blogID));
         if(ret != null) return ret;
 
@@ -50,7 +40,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void increaseBlogViews(int blogID) {
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
 
         if(redisHashOps.hasKey(blogViewsKey, Integer.toString(blogID)))
             redisHashOps.increment(blogViewsKey, Integer.toString(blogID), 1);
@@ -62,24 +52,8 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public BlogAdminDetail getBlogAdminDetail(int blogID) {
-        var redisValOps = jsonTemplate.opsForValue();
-        final String redisKey = blogAdminDetailPrefix + blogID;
-
-        return (BlogAdminDetail) redisValOps.get(redisKey);
-    }
-
-    @Override
-    public void setBlogAdminDetail(int blogID, BlogAdminDetail toCache) {
-        var redisValOps = jsonTemplate.opsForValue();
-        final String redisKey = blogAdminDetailPrefix + blogID;
-
-        redisValOps.set(redisKey, toCache);
-    }
-
-    @Override
     public BlogDetail getBlogDetail(int blogID) {
-        var redisValOps = jsonTemplate.opsForValue();
+        var redisValOps = redisTemplate.opsForValue();
         final String redisKey = blogDetailPrefix + blogID;
 
         return (BlogDetail) redisValOps.get(redisKey);
@@ -87,7 +61,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void setBlogDetail(int blogID, BlogDetail toCache) {
-        var redisValOps = jsonTemplate.opsForValue();
+        var redisValOps = redisTemplate.opsForValue();
         final String redisKey = blogDetailPrefix + blogID;
 
         redisValOps.set(redisKey, toCache);
@@ -95,7 +69,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public PageInfo<BlogPreview> getBlogPreviewPage(int pageNum, int pageSize) {
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
         final String hashKey = pageNum + "_" + pageSize;
 
         return (PageInfo<BlogPreview>) redisHashOps.get(blogPreviewPageKey, hashKey);
@@ -103,7 +77,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void setBlogPreviewPage(int pageNum, int pageSize, PageInfo<BlogPreview> toCache) {
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
         final String hashKey = pageNum + "_" + pageSize;
 
         redisHashOps.put(blogPreviewPageKey, hashKey, toCache);
@@ -111,19 +85,19 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void flushBlogCache(int blogID) {
-        jsonTemplate.delete(blogAdminDetailPrefix + blogID);
-        jsonTemplate.delete(blogDetailPrefix + blogID);
-        jsonTemplate.delete(blogCardPrefix + blogID);
+        redisTemplate.delete(blogAdminDetailPrefix + blogID);
+        redisTemplate.delete(blogDetailPrefix + blogID);
+        redisTemplate.delete(blogCardPrefix + blogID);
     }
 
     @Override
     public void flushBlogPagingCache() {
-        jsonTemplate.delete(blogPreviewPageKey);
+        redisTemplate.delete(blogPreviewPageKey);
     }
 
     @Override
     public BlogCard getBlogCard(int blogID) {
-        var redisValOps = jsonTemplate.opsForValue();
+        var redisValOps = redisTemplate.opsForValue();
         final String redisKey = blogCardPrefix + blogID;
 
         return (BlogCard) redisValOps.get(redisKey);
@@ -131,68 +105,15 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void setBlogCard(int blogID, BlogCard toCache) {
-        var redisValOps = jsonTemplate.opsForValue();
+        var redisValOps = redisTemplate.opsForValue();
         final String redisKey = blogCardPrefix + blogID;
 
         redisValOps.set(redisKey, toCache);
     }
 
     @Override
-    public BlogTag getBlogTag(int tagID) {
-        var redisValOps = jsonTemplate.opsForValue();
-        final String redisKey = blogTagPrefix + tagID;
-
-        return (BlogTag) redisValOps.get(redisKey);
-    }
-
-    @Override
-    public void setBlogTag(BlogTag blogTag) {
-        var redisValOps = jsonTemplate.opsForValue();
-        final String redisKey = blogTagPrefix + blogTag.getId();
-
-        redisValOps.set(redisKey, blogTag);
-    }
-
-    @Override
-    public List<BlogTag> getAllBlogTags() {
-        var redisValOps = jsonTemplate.opsForValue();
-        return (List<BlogTag>) redisValOps.get("AllBlogTags");
-    }
-
-    @Override
-    public void setAllBlogTags(List<BlogTag> allTags) {
-        jsonTemplate.opsForValue().set("AllBlogTags", allTags);
-    }
-
-    @Override
-    public PageInfo<BlogTag> getTagPageInfo(int pageNum, int pageSize) {
-        var redisHashOps = jsonTemplate.opsForHash();
-        final String hashKey = pageNum + "_" + pageSize;
-
-        return (PageInfo<BlogTag>) redisHashOps.get(blogTagPageKey, hashKey);
-    }
-
-    @Override
-    public void setTagPageInfo(int pageNum, int pageSize, PageInfo<BlogTag> pageInfo) {
-        var redisHashOps = jsonTemplate.opsForHash();
-        final String hashKey = pageNum + "_" + pageSize;
-
-        redisHashOps.put(blogTagPageKey, hashKey, pageInfo);
-    }
-
-    @Override
-    public void flushTagPageInfoCache() {
-        jsonTemplate.delete(blogTagPageKey);
-    }
-
-    @Override
-    public void flushTagCache(int tagID) {
-        jsonTemplate.delete(blogTagPrefix + tagID);
-    }
-
-    @Override
     public Integer getTotalBlogsAsCached() {
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
         Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalBlogsKey);
         if(ret == null){
             ret = blogMapper.selectBlogCount();
@@ -203,7 +124,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public Integer getTotalViewsAsCached() {
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
         Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalViewsKey);
         if(ret == null){
             ret = blogMapper.selectViewsCount();
@@ -215,11 +136,11 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void flushSiteInfo() {
         updateBlogViewsFromCache();
-        jsonTemplate.delete(siteInfoKey);
+        redisTemplate.delete(siteInfoKey);
     }
 
     private void updateBlogViewsFromCache(){
-        var redisHashOps = jsonTemplate.opsForHash();
+        var redisHashOps = redisTemplate.opsForHash();
         var viewsMap = redisHashOps.entries(blogAddViewsKey);
         var keySet = viewsMap.keySet();
         for(var key : keySet){
@@ -227,6 +148,6 @@ public class RedisServiceImpl implements RedisService {
             Integer addNum = (Integer) viewsMap.get(key);
             blogMapper.updateBlogViewsByID(Integer.parseInt(blogIDString), addNum);
         }
-        jsonTemplate.delete(blogAddViewsKey);
+        redisTemplate.delete(blogAddViewsKey);
     }
 }

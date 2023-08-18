@@ -14,7 +14,7 @@ import java.util.List;
 public interface BlogService {
     Blog getBlogByID(int id);
 
-    BlogAdminDetail getBlogViewByID(int id);
+    BlogAdminDetail getBlogAdminDetailByID(int id);
 
     BlogDetail getBlogDetail(int id);
 

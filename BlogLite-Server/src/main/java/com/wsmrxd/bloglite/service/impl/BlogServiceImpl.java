@@ -15,6 +15,7 @@ import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,8 +30,6 @@ public class BlogServiceImpl implements BlogService {
     private RedisService redisService;
 
     private MarkDownUtil markDownUtil;
-
-    private final String redisPageKey = "BlogPageInfo";
 
     @Autowired
     public void setBlogMapper(BlogMapper blogMapper) {
@@ -58,19 +57,13 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public BlogAdminDetail getBlogViewByID(int id) {
-        var blogAdminViewCache = redisService.getBlogAdminDetail(id);
-        if(blogAdminViewCache != null) return blogAdminViewCache;
-
+    @Cacheable(value = "BlogAdminDetail", key = "#id")
+    public BlogAdminDetail getBlogAdminDetailByID(int id) {
         var blog = blogMapper.selectBlogByID(id);
         if(blog == null) return null;
 
         var blogTags = blogMapper.selectTagsByBlogID(id);
-        var blogView = new BlogAdminDetail(blog, blogTags);
-
-        redisService.setBlogAdminDetail(id, blogView);
-
-        return blogView;
+        return new BlogAdminDetail(blog, blogTags);
     }
 
     @Override
