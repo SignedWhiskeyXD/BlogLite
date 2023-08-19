@@ -72,12 +72,15 @@ export default {
 
 .blog-content {
     margin-left: 20px;
-    display: flex;
-    justify-content: center;
+}
+
+.blog-content:deep(p){
+    display: grid;
 }
 
 .blog-content:deep(img){
     max-width: 100%;
+    justify-self: center;
 }
 
 .title-content-divider {

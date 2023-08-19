@@ -9,7 +9,11 @@ import MainPageTags from "@/components/MainPageTags.vue";
       <AboutMe/>
     </el-col>
     <el-col :span="12" class="blog-middle">
-      <router-view/>
+      <router-view v-slot="{ Component }">
+        <keep-alive include="BlogStream">
+          <component :is="Component"/>
+        </keep-alive>
+      </router-view>
     </el-col>
     <el-col :span="5" class="blog-right">
       <main-page-tags/>

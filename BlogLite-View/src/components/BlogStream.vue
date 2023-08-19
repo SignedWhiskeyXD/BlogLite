@@ -3,7 +3,7 @@ import 'element-plus/dist/index.css'
 </script>
 
 <template>
-  <el-scrollbar max-height="95vh">
+  <el-scrollbar ref="scrollbarRef" always @scroll="onScroll" max-height="95vh">
     <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
         infinite-scroll-delay="500">
       <li v-for="blog in blogs" :key="blog.id"
@@ -49,6 +49,10 @@ export default {
                 this.scrollDisabled = false
             })
     },
+    activated() {
+        const scrollBar = this.$refs.scrollbarRef
+        scrollBar.setScrollTop(this.scrollBarPos)
+    },
     methods: {
         getMoreBlogs(){
             this.scrollDisabled = true
@@ -61,6 +65,9 @@ export default {
         },
         routeToBlogDetail(blogID){
             router.push(`/blog/${blogID}`)
+        },
+        onScroll({ scrollTop }){
+            this.scrollBarPos = scrollTop
         }
     },
     data() {
@@ -71,7 +78,8 @@ export default {
                 nextRequestParam: 0
             },
             blogs: [],
-            scrollDisabled: true
+            scrollDisabled: true,
+            scrollBarPos: 0
         }
     },
     computed: {
