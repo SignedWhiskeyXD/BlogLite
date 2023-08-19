@@ -2,7 +2,7 @@
 import {editBlog, getBlogByID, pushNewBlog} from "@/fetch/BlogAPI";
 import {ElMessage} from "element-plus";
 import router from "@/router";
-
+import {makeRequest} from "@/fetch/FetchTemplate";
 export default {
     created() {
         if(this.$route.params.blog_id)
@@ -55,6 +55,16 @@ export default {
             console.log(this.blogInfo.tagNames)
             this.tagInputValue = ""
             this.tagInputVisible = false
+        },
+        $imgAdd(pos, $file){
+            const formData = new FormData();
+            formData.append('uploadImage', $file);
+            makeRequest('/api/admin/img/upload', {
+                method: 'PUT',
+                body: formData
+            }).then(response => {
+                this.$refs.md.$img2Url(pos, response.body)
+            })
         }
     },
     data(){
@@ -80,7 +90,7 @@ export default {
     <h3>文章摘要</h3>
     <el-input v-model="blogInfo.contentAbstract"></el-input>
     <h3>文章正文</h3>
-    <mavon-editor v-model="blogInfo.content"></mavon-editor>
+    <mavon-editor ref="md" v-model="blogInfo.content" @imgAdd="$imgAdd"></mavon-editor>
 
     <h3>添加标签</h3>
     <el-tag

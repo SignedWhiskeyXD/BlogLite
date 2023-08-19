@@ -36,7 +36,7 @@ public interface BlogMapper {
     @Insert("INSERT INTO blog_tag_mapping VALUES (#{blog_id}, #{tag_id})")
     void insertBlogTagMapping(BlogTagMapping mapping);
 
-    @Insert("INSERT INTO blog (title, contentAbstract, content " +
+    @Insert("INSERT INTO blog (title, content_abstract, content) " +
             "VALUES (#{title}, #{contentAbstract}, #{content})")
     @SelectKey(statement="SELECT LAST_INSERT_ID()",
             keyProperty="id", before=false, resultType=int.class)

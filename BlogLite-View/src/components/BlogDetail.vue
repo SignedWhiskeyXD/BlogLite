@@ -38,7 +38,6 @@ export default {
         if(this.$route.params.blog_id)
             getBlogDetail(this.$route.params.blog_id)
                 .then(blog => {
-                    console.log(blog)
                     this.blogDetail = blog
                 })
     },
@@ -73,6 +72,12 @@ export default {
 
 .blog-content {
     margin-left: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.blog-content:deep(img){
+    max-width: 100%;
 }
 
 .title-content-divider {
