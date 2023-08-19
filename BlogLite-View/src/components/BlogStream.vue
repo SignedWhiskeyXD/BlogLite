@@ -93,6 +93,7 @@ export default {
 <style scoped>
 .blog-item {
     border: 1px solid var(--el-border-color);
+    border-radius: 8px;
     padding: 20px;
     margin-bottom: 40px;
     background-color: #ffffff;

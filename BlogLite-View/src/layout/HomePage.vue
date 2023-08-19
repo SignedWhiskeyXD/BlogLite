@@ -4,26 +4,83 @@ import MainPageTags from "@/components/MainPageTags.vue";
 </script>
 
 <template>
-  <el-row class="home-page">
-    <el-col :span="5" :offset="1" class="blog-left">
+  <div class="home-page-wrapper">
+    <aside class="left-side-wrapper">
       <AboutMe/>
-    </el-col>
-    <el-col :span="12" class="blog-middle">
+    </aside>
+    <main class="main-wrapper">
       <router-view v-slot="{ Component }">
         <keep-alive include="BlogStream">
           <component :is="Component"/>
         </keep-alive>
       </router-view>
-    </el-col>
-    <el-col :span="5" class="blog-right">
+    </main>
+    <aside class="right-side-wrapper">
       <main-page-tags/>
-    </el-col>
-  </el-row>
+    </aside>
+  </div>
 </template>
 
 <style scoped>
-.home-page {
-    background-color: lightcyan;
+.home-page-wrapper{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    background-color: aliceblue;
+    min-width: 1100px;
     min-height: 95vh;
 }
+
+@media screen and (max-width: 1100px) {
+  .home-page-wrapper{
+      justify-content: flex-start;
+
+  }
+}
+
+.left-side-wrapper {
+    width: 250px;
+    position: relative;
+}
+
+.main-wrapper {
+    width: 600px;
+    position: relative;
+}
+
+.right-side-wrapper {
+    width: 250px;
+    position: relative;
+}
+
+@media screen and (min-width: 1100px) {
+    .left-side-wrapper {
+        width: 250px;
+    }
+
+    .main-wrapper {
+        width: 600px;
+    }
+
+    .right-side-wrapper {
+        width: 250px;
+    }
+}
+
+@media screen and (min-width: 1400px){
+  .left-side-wrapper {
+      width: 300px;
+  }
+
+  .main-wrapper {
+      width: 800px;
+  }
+
+  .right-side-wrapper {
+      width: 300px;
+  }
+}
+
+
+
 </style>
