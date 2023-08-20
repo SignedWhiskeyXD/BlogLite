@@ -107,6 +107,10 @@ export default {
     margin-left: 20px;
 }
 
+.blog-content:hover {
+    cursor: pointer;
+}
+
 .title-content-divider {
     scale: 90%;
     margin-top: 10px;

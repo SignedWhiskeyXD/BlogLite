@@ -85,7 +85,6 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void flushBlogCache(int blogID) {
-        redisTemplate.delete(blogAdminDetailPrefix + blogID);
         redisTemplate.delete(blogDetailPrefix + blogID);
         redisTemplate.delete(blogCardPrefix + blogID);
     }

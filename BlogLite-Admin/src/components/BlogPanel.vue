@@ -14,14 +14,22 @@ export default {
                 .then(blogInfo => {
                     if(blogInfo){
                         this.blogInfo = blogInfo.blog
+                        this.tagNames = blogInfo.tagNames
                     }else{
                         ElMessage.error('无法加载该文章')
                     }
                 })
         },
         handleSubmit(){
+            const blogModifyInfo = {
+                title: this.blogInfo.title,
+                contentAbstract: this.blogInfo.contentAbstract,
+                content: this.blogInfo.content,
+                tagNames: this.tagNames
+            }
+
             if(this.$route.params.blog_id){
-                editBlog(this.$route.params.blog_id, this.blogInfo)
+                editBlog(this.$route.params.blog_id, blogModifyInfo)
                     .then(result => {
                         if(result){
                             ElMessage.success('修改成功！')
@@ -51,8 +59,7 @@ export default {
         },
         handleTagInputConfirm(){
             if(this.tagInputValue.length > 0)
-                this.blogInfo.tagNames.push(this.tagInputValue)
-            console.log(this.blogInfo.tagNames)
+                this.tagNames.push(this.tagInputValue)
             this.tagInputValue = ""
             this.tagInputVisible = false
         },
@@ -70,12 +77,14 @@ export default {
     data(){
         return {
             blogInfo:{
+                id: 0,
                 title: "",
                 contentAbstract: "",
                 content: "",
-                tagNames: []
+                views: 0,
+                publishTime: ""
             },
-
+            tagNames: [],
             tagInputVisible: false,
             tagInputValue: ""
         }
@@ -94,7 +103,7 @@ export default {
 
     <h3>添加标签</h3>
     <el-tag
-            v-for="tag in blogInfo.tagNames"
+            v-for="tag in tagNames"
             :key="tag"
             class="mx-1"
             closable

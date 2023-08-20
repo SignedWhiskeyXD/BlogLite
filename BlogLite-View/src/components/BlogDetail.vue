@@ -17,7 +17,7 @@
     </el-row>
 
     <el-divider class="title-content-divider" border-style="dashed"/>
-    <div class="blog-content" v-html="blogDetail.contentHTML"/>
+    <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
     <el-divider class="title-content-divider" border-style="dashed"/>
     <div class="blog-tags">
       <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"

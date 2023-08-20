@@ -15,6 +15,7 @@ import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -120,9 +121,11 @@ public class BlogServiceImpl implements BlogService {
         return newBlogID;
     }
     @Override
+    @CacheEvict(value = "BlogAdminDetail", key = "#blogID")
     public void reArrangeBlogTag(int blogID, List<String> tagNames){
         blogMapper.deleteTagMappingByBlogID(blogID);
-        arrangeTagList(blogID, tagNames);
+        if(tagNames != null)
+            arrangeTagList(blogID, tagNames);
     }
 
     @Override
