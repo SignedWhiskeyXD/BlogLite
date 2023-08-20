@@ -31,6 +31,9 @@
 
 <script>
 import {getBlogDetail} from "@/fetch/BlogDetailAPI";
+import 'github-markdown-css/github-markdown.css'
+import hljs from 'highlight.js';
+import 'highlight.js/styles/default.css';
 
 export default {
     created() {
@@ -38,6 +41,7 @@ export default {
             getBlogDetail(this.$route.params.blog_id)
                 .then(blog => {
                     this.blogDetail = blog
+                    setTimeout(() => hljs.highlightAll(), 100)
                 })
     },
     data(){
@@ -80,6 +84,10 @@ export default {
 .blog-content:deep(img){
     max-width: 100%;
     justify-self: center;
+}
+
+.blog-content:deep(code){
+    padding: 0;
 }
 
 .title-content-divider {
