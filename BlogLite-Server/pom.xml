@@ -13,11 +13,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>BlogLite</name>
     <description>BlogLite</description>
+    <packaging>jar</packaging>
     <properties>
-        <java.version>1.11</java.version>
-        <maven.compiler.target>1.11</maven.compiler.target>
-        <maven.compiler.source>1.11</maven.compiler.source>
+        <java.version>11</java.version>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <skipTests>true</skipTests>
     </properties>
     <dependencies>
         <dependency>

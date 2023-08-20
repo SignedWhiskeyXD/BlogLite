@@ -3,31 +3,30 @@
 </script>
 
 <template>
-  <el-scrollbar max-height="95vh">
-    <div class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-      <div class="blog-title">
-        <h2>{{ blogDetail.title }}</h2>
-      </div>
-      <el-row class="blog-date-views">
-        <el-col :span="12" class="blog-date">
-          <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
-        </el-col>
-        <el-col :span="12" class="blog-views">
-          <el-text>浏览次数 {{ blogDetail.views }}</el-text>
-        </el-col>
-      </el-row>
-
-      <el-divider class="title-content-divider" border-style="dashed"/>
-      <div class="blog-content" v-html="blogDetail.contentHTML"/>
-      <el-divider class="title-content-divider" border-style="dashed"/>
-      <div class="blog-tags">
-        <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
-                :key="tag" size="large">
-          {{ tag }}
-        </el-tag>
-      </div>
+  <div class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+    <div class="blog-title">
+      <h2>{{ blogDetail.title }}</h2>
     </div>
-  </el-scrollbar>
+    <el-row class="blog-date-views">
+      <el-col :span="12" class="blog-date">
+        <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
+      </el-col>
+      <el-col :span="12" class="blog-views">
+        <el-text>浏览次数 {{ blogDetail.views }}</el-text>
+      </el-col>
+    </el-row>
+
+    <el-divider class="title-content-divider" border-style="dashed"/>
+    <div class="blog-content" v-html="blogDetail.contentHTML"/>
+    <el-divider class="title-content-divider" border-style="dashed"/>
+    <div class="blog-tags">
+      <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
+              :key="tag" size="large">
+        {{ tag }}
+      </el-tag>
+    </div>
+  </div>
+  <el-backtop :right="100" :bottom="100" />
 </template>
 
 <script>

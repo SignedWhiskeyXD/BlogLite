@@ -43,4 +43,4 @@ CREATE TABLE `user`(
     PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
-INSERT INTO user values (1, 'wsmrxd@gmail.com', 'WhiskeyXD', '114524', 'admin');
+INSERT INTO user values (1, 'wsmrxd@gmail.com', 'WhiskeyXD', '$2a$10$i0sTd2D/68XC/r518M0u1uXlnzGDCudYCTw5ysMoogD54xligFFf6', 'admin');
