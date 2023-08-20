@@ -43,10 +43,10 @@ public interface BlogMapper {
     void insertBlog(Blog newBlog);
 
     @Select("SELECT COUNT(*) FROM blog")
-    int selectBlogCount();
+    Integer selectBlogCount();
 
     @Select("SELECT SUM(views) FROM blog")
-    int selectViewsCount();
+    Integer selectViewsCount();
 
     @Delete("DELETE FROM blog WHERE id = #{id}")
     boolean deleteBlogByID(int id);

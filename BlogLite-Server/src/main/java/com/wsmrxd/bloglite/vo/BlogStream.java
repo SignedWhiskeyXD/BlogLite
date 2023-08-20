@@ -9,7 +9,7 @@ public class BlogStream {
 
     private int blogNum;
 
-    private int nextRequestParam;
+    private Integer nextRequestParam;
 
     private List<BlogCard> blogList;
 }

@@ -84,7 +84,7 @@ export default {
     },
     computed: {
         isScrollDisabled(){
-            return this.scrollDisabled && this.requestParams.nextRequestParam != null;
+            return this.scrollDisabled || this.requestParams.nextRequestParam == null;
         }
     }
 }

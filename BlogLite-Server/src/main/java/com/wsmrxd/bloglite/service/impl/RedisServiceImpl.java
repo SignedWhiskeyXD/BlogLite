@@ -128,6 +128,8 @@ public class RedisServiceImpl implements RedisService {
         Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalViewsKey);
         if(ret == null){
             ret = blogMapper.selectViewsCount();
+            if(ret == null)
+                ret = 0;
             redisHashOps.put(siteInfoKey, totalViewsKey, ret);
         }
         return ret;
