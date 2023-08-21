@@ -13,14 +13,42 @@ import {Postcard} from "@element-plus/icons-vue";
       </el-col>
       <el-col :span="20">
         <el-menu mode="horizontal" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b"
-                 default-active="1">
-          <el-menu-item index="1">主页</el-menu-item>
+                 :default-active="menuDefaultActive" :router="true">
+          <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path">
+            {{ menuItem.title }}
+          </el-menu-item>
         </el-menu>
       </el-col>
     </el-row>
 
   </div>
 </template>
+
+<script>
+import router from "@/router";
+
+export default {
+    data(){
+        return{
+            menuInfo: [
+                {
+                    title: '主页',
+                    path: '/'
+                },
+                {
+                    title: '专栏',
+                    path: '/collection'
+                }
+            ]
+        }
+    },
+    computed:{
+        menuDefaultActive(){
+            return router.currentRoute.value.path
+        }
+    }
+}
+</script>
 
 <style scoped>
 .blog-title-text {
@@ -35,5 +63,9 @@ import {Postcard} from "@element-plus/icons-vue";
 
 .blog-title {
     background-color: #545c64;
+}
+
+.menu-item {
+    min-width: 80px;
 }
 </style>

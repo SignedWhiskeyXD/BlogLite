@@ -26,7 +26,6 @@ import MainPageTags from "@/components/MainPageTags.vue";
     display: flex;
     justify-content: center;
     flex-direction: row;
-    background-color: aliceblue;
     min-width: 1100px;
     min-height: 95vh;
 }
@@ -67,13 +66,13 @@ import MainPageTags from "@/components/MainPageTags.vue";
     }
 }
 
-@media screen and (min-width: 1400px){
+@media screen and (min-width: 1600px){
   .left-side-wrapper {
       width: 300px;
   }
 
   .main-wrapper {
-      width: 800px;
+      width: 1000px;
   }
 
   .right-side-wrapper {

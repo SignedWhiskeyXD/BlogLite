@@ -1,6 +1,5 @@
 <script setup>
 import BlogHeader from './Header.vue'
-import HomePage from "@/layout/HomePage.vue";
 </script>
 
 <template>
@@ -9,7 +8,11 @@ import HomePage from "@/layout/HomePage.vue";
           <BlogHeader/>
       </el-header>
       <el-main class="blog-main">
-          <HomePage/>
+        <router-view v-slot="{ Component }">
+          <keep-alive include="HomePage">
+            <component :is="Component"/>
+          </keep-alive>
+        </router-view>
       </el-main>
   </div>
 </template>
