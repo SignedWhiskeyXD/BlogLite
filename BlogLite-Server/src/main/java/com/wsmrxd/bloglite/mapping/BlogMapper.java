@@ -17,8 +17,8 @@ public interface BlogMapper {
     @Select("SELECT id, title FROM blog ORDER BY id DESC")
     List<BlogPreview> selectAllBlogs();
 
-    @Select("SELECT id FROM blog WHERE id < #{latestID} ORDER BY id DESC LIMIT #{num}")
-    List<Integer> selectLatestBlogIDs(@Param("latestID") int latestID, @Param("num") int num);
+    @Select("SELECT id FROM blog ORDER BY id DESC")
+    List<Integer> selectAllBlogID();
 
     @Select("SELECT bt.* FROM blog_tag_mapping btm\n" +
             "INNER JOIN blog_tag bt ON btm.tag_id = bt.id\n" +

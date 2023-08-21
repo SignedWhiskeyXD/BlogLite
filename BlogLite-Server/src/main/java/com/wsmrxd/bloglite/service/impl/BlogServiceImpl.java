@@ -118,6 +118,7 @@ public class BlogServiceImpl implements BlogService {
             arrangeTagList(newBlogID, tagList);
 
         redisService.flushSiteInfo();
+        redisService.addBlogIDtoZSet(newBlogID);
         return newBlogID;
     }
     @Override
@@ -146,6 +147,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public boolean deleteBlog(int id) {
         redisService.flushSiteInfo();
+        redisService.removeBlogIDFromZSet(id);
         return blogMapper.deleteBlogByID(id);
     }
 

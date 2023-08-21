@@ -3,9 +3,11 @@ package com.wsmrxd.bloglite.service;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.vo.*;
 
+import java.util.List;
+
 public interface RedisService {
 
-    String blogAdminDetailPrefix = "BlogAdminDetail_";
+    String allBlogIDsKey = "AllBlogIDs";
 
     String blogDetailPrefix = "BlogDetail_";
 
@@ -48,4 +50,10 @@ public interface RedisService {
     Integer getTotalViewsAsCached();
 
     void flushSiteInfo();
+
+    List<Integer> getBlogIDsStartAt(int startID, int blogNum);
+
+    void addBlogIDtoZSet(int blogID);
+
+    void removeBlogIDFromZSet(int blogID);
 }

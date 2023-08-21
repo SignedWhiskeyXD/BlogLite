@@ -30,13 +30,13 @@ public class BlogStreamServiceImpl implements BlogStreamService {
 
     @Override
     public BlogStream getInitStream(int num) {
-        List<Integer> latestBlogIDList = mapper.selectLatestBlogIDs(1919810, num);
+        List<Integer> latestBlogIDList = redisService.getBlogIDsStartAt(Integer.MAX_VALUE, num);
         return constructBlogStream(latestBlogIDList);
     }
 
     @Override
     public BlogStream getBlogStream(int startID, int num) {
-        List<Integer> latestBlogIDList = mapper.selectLatestBlogIDs(startID, num);
+        List<Integer> latestBlogIDList = redisService.getBlogIDsStartAt(startID, num);
         return constructBlogStream(latestBlogIDList);
     }
 

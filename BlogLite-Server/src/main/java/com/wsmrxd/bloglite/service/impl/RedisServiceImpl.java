@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class RedisServiceImpl implements RedisService {
 
@@ -138,6 +141,50 @@ public class RedisServiceImpl implements RedisService {
     public void flushSiteInfo() {
         updateBlogViewsFromCache();
         redisTemplate.delete(siteInfoKey);
+    }
+
+    @Override
+    public List<Integer> getBlogIDsStartAt(int startID, int blogNum) {
+        if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
+            cacheAllBlogIDs();
+        var redisZSetOps = redisTemplate.opsForZSet();
+
+        var idSet = redisZSetOps
+                .reverseRangeByScore(allBlogIDsKey, Double.NEGATIVE_INFINITY, startID, 0, blogNum);
+
+        if (idSet == null) return null;
+        List<Integer> ret = new ArrayList<>(idSet.size());
+        for(Object id : idSet)
+            ret.add((Integer) id);
+
+        return ret;
+    }
+
+    @Override
+    public void addBlogIDtoZSet(int blogID) {
+        if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
+            cacheAllBlogIDs();
+        var redisZSetOps = redisTemplate.opsForZSet();
+
+        redisZSetOps.add(allBlogIDsKey, blogID, blogID);
+    }
+
+    @Override
+    public void removeBlogIDFromZSet(int blogID) {
+        if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
+            cacheAllBlogIDs();
+        var redisZSetOps = redisTemplate.opsForZSet();
+
+        redisZSetOps.remove(allBlogIDsKey, blogID);
+    }
+
+    private void cacheAllBlogIDs(){
+        redisTemplate.delete(allBlogIDsKey);
+        var redisZSetOps = redisTemplate.opsForZSet();
+
+        List<Integer> allBlogIDs = blogMapper.selectAllBlogID();
+        for(Integer id : allBlogIDs)
+            redisZSetOps.add(allBlogIDsKey, id, id);
     }
 
     private void updateBlogViewsFromCache(){

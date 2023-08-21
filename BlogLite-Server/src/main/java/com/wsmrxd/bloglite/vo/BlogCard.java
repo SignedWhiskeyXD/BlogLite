@@ -16,7 +16,6 @@ public class BlogCard {
     public BlogCard(Blog blog){
         this.id = blog.getId();
         this.title = blog.getTitle();
-        this.views = blog.getViews();
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         this.publishTime = formatter.format(blog.getPublishTime());
