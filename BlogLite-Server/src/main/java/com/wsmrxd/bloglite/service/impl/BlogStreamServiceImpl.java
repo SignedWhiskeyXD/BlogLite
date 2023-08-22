@@ -1,5 +1,6 @@
 package com.wsmrxd.bloglite.service.impl;
 
+import com.wsmrxd.bloglite.cache.BlogCollectionCache;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.BlogStreamService;
 import com.wsmrxd.bloglite.service.RedisService;
@@ -18,6 +19,8 @@ public class BlogStreamServiceImpl implements BlogStreamService {
 
     private RedisService redisService;
 
+    private BlogCollectionCache blogCollectionCache;
+
     @Autowired
     public void setMapper(BlogMapper mapper) {
         this.mapper = mapper;
@@ -26,6 +29,11 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     @Autowired
     public void setRedisService(RedisService redisService) {
         this.redisService = redisService;
+    }
+
+    @Autowired
+    public void setBlogCollectionCache(BlogCollectionCache blogCollectionCache) {
+        this.blogCollectionCache = blogCollectionCache;
     }
 
     @Override
@@ -38,6 +46,16 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     public BlogStream getBlogStream(int startID, int num) {
         List<Integer> latestBlogIDList = redisService.getBlogIDsStartAt(startID, num);
         return constructBlogStream(latestBlogIDList);
+    }
+
+    @Override
+    public List<BlogCard> getAllBlogsFromCollection(int collectionID) {
+        List<Integer> blogIDs = blogCollectionCache.getBlogIDsByCollectionIDAsCached(collectionID);
+        List<BlogCard> ret = new ArrayList<>();
+        for(Integer blogID : blogIDs){
+            ret.add(getBlogCard(blogID));
+        }
+        return ret;
     }
 
     private BlogStream constructBlogStream(List<Integer> latestBlogIDList) {

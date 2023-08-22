@@ -9,7 +9,7 @@ import BlogHeader from './Header.vue'
       </el-header>
       <el-main class="blog-main">
         <router-view v-slot="{ Component }">
-          <keep-alive include="HomePage">
+          <keep-alive>
             <component :is="Component"/>
           </keep-alive>
         </router-view>

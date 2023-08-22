@@ -5,8 +5,9 @@
 <template>
   <div class="collection-list-wrapper">
     <ul class="collection-list">
-      <li v-for="collection in collectionList" class="collection-item">
-        <img class="collection-img" :src="collection.image" alt="img"/>
+      <li v-for="collection in collectionList" class="collection-item"
+          @click="routeToBlogList(collection.id)">
+        <img class="collection-img" :src="collection.imageLink" alt="img"/>
 
         <div class="collection-info">
           <h3>{{ collection.collectionName }}</h3>
@@ -16,27 +17,36 @@
             <span class="collection-totalViews">总浏览数：{{ collection.totalViews }}</span>
           </p>
         </div>
-
-        <div class="collection-tags"/>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import {getAllBlogCollections} from "@/fetch/BlogCollectionAPI";
+import router from "@/router";
+
 export default {
     created() {
-        while(this.collectionList.length < 10)
-            this.collectionList.push(this.collectionList.at(0))
+        getAllBlogCollections()
+            .then(collectionInfo => {
+                this.collectionList = collectionInfo
+            })
+    },
+    methods: {
+        routeToBlogList(collectionID){
+            router.push(`/collection/${collectionID}`)
+        }
     },
     data(){
         return{
             collectionList: [{
-                image: "https://picx.zhimg.com/4b70deef7_l.jpg?source=d16d100b",
-                collectionName: "专栏",
-                description: "这是一篇专栏的描述，随便写点啥凑凑字数",
-                blogNum: 114,
-                totalViews: 514
+                id: 0,
+                imageLink: "",
+                collectionName: "",
+                description: "",
+                blogNum: 0,
+                totalViews: 0
             }]
         }
     }
@@ -50,7 +60,7 @@ export default {
 
 .collection-item {
     border: 1px solid var(--el-border-color);
-    width: 1200px;
+    width: 1000px;
     background-color: white;
     margin-top: 20px;
     padding: 10px;

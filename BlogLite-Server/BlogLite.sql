@@ -33,6 +33,21 @@ CREATE TABLE image_mapping(
     PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS blog_collection;
+CREATE TABLE blog_collection(
+    id int NOT NULL AUTO_INCREMENT,
+    image_link varchar(255),
+    collection_name varchar(50) NOT NULL UNIQUE,
+    description text NOT NULL,
+    PRIMARY KEY (id) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS blog_collection_mapping;
+CREATE TABLE blog_collection_mapping(
+    blog_id int NOT NULL,
+    collection_id int NOT NULL
+) ENGINE = InnoDB;
+
 DROP TABLE IF EXISTS user;
 CREATE TABLE `user`(
     id int NOT NULL AUTO_INCREMENT,
