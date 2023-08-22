@@ -13,7 +13,7 @@ export async function makeRequest(relativeURI, init) {
     // Modify init object to include the updated headers
     const modifiedInit = { ...init, headers };
 
-    const response = await fetch('http://localhost:52480' + relativeURI, modifiedInit);
+    const response = await fetch(relativeURI, modifiedInit);
     if(response.status === 401){
         await router.push('/login')
         return null
