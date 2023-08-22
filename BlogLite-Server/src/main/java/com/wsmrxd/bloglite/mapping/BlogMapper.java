@@ -1,8 +1,6 @@
 package com.wsmrxd.bloglite.mapping;
 
-import com.wsmrxd.bloglite.entity.Blog;
-import com.wsmrxd.bloglite.entity.BlogTag;
-import com.wsmrxd.bloglite.entity.BlogTagMapping;
+import com.wsmrxd.bloglite.entity.*;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import org.apache.ibatis.annotations.*;
 
@@ -30,11 +28,23 @@ public interface BlogMapper {
             "WHERE btm.blog_id = #{id}")
     List<String> selectTagNamesByBlogID(int id);
 
+    @Select("SELECT bc.* FROM blog_collection_mapping bcm\n" +
+            "INNER JOIN blog_collection bc ON bcm.collection_id = bc.id\n" +
+            "WHERE bcm.blog_id = #{id}")
+    List<BlogCollection> selectBlogCollectionByBlogID(int id);
+    @Select("SELECT bc.collection_name FROM blog_collection_mapping bcm\n" +
+            "INNER JOIN blog_collection bc ON bcm.collection_id = bc.id\n" +
+            "WHERE bcm.blog_id = #{id}")
+    List<String> selectCollectionNamesByBlogID(int id);
+
     @Select("SELECT views FROM blog WHERE id = #{id}")
     int selectViewsByBlogID(int id);
 
     @Insert("INSERT INTO blog_tag_mapping VALUES (#{blog_id}, #{tag_id})")
     void insertBlogTagMapping(BlogTagMapping mapping);
+
+    @Insert("INSERT INTO blog_collection_mapping VALUES (#{blogID}, #{collectionID})")
+    void insertBlogCollectionMapping(BlogCollectionMapping mapping);
 
     @Insert("INSERT INTO blog (title, content_abstract, content) " +
             "VALUES (#{title}, #{contentAbstract}, #{content})")
@@ -52,7 +62,10 @@ public interface BlogMapper {
     boolean deleteBlogByID(int id);
 
     @Delete("DELETE FROM blog_tag_mapping WHERE blog_id = #{blogID}")
-    boolean deleteTagMappingByBlogID(int blogID);
+    void deleteTagMappingByBlogID(int blogID);
+
+    @Delete("DELETE FROM blog_collection_mapping WHERE blog_id = #{blogID}")
+    void deleteCollectionMappingByBlogID(int blogID);
 
     @Update("UPDATE blog set title = #{newTitle} WHERE id = #{id}")
     boolean updateBlogTitleByID(@Param("id") int id, @Param("newTitle") String newTitle);

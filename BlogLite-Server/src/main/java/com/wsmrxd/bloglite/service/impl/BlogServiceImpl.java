@@ -3,10 +3,13 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
+import com.wsmrxd.bloglite.cache.BlogCollectionCache;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
+import com.wsmrxd.bloglite.entity.BlogCollectionMapping;
 import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.entity.BlogTagMapping;
+import com.wsmrxd.bloglite.mapping.BlogCollectionMapper;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.BlogService;
@@ -28,6 +31,10 @@ public class BlogServiceImpl implements BlogService {
 
     private BlogTagMapper tagMapper;
 
+    private BlogCollectionMapper collectionMapper;
+
+    private BlogCollectionCache blogCollectionCache;
+
     private RedisService redisService;
 
     private MarkDownUtil markDownUtil;
@@ -40,6 +47,16 @@ public class BlogServiceImpl implements BlogService {
     @Autowired
     public void setTagMapper(BlogTagMapper tagMapper) {
         this.tagMapper = tagMapper;
+    }
+
+    @Autowired
+    public void setCollectionMapper(BlogCollectionMapper collectionMapper) {
+        this.collectionMapper = collectionMapper;
+    }
+
+    @Autowired
+    public void setBlogCollectionCache(BlogCollectionCache blogCollectionCache) {
+        this.blogCollectionCache = blogCollectionCache;
     }
 
     @Autowired
@@ -63,8 +80,9 @@ public class BlogServiceImpl implements BlogService {
         var blog = blogMapper.selectBlogByID(id);
         if(blog == null) return null;
 
-        var blogTags = blogMapper.selectTagsByBlogID(id);
-        return new BlogAdminDetail(blog, blogTags);
+        var blogTagNames = blogMapper.selectTagNamesByBlogID(id);
+        var blogCollectionNames = blogMapper.selectCollectionNamesByBlogID(id);
+        return new BlogAdminDetail(blog, blogTagNames, blogCollectionNames);
     }
 
     @Override
@@ -117,6 +135,10 @@ public class BlogServiceImpl implements BlogService {
         if(tagList != null && tagList.size() > 0)
             arrangeTagList(newBlogID, tagList);
 
+        var collectionNames = newBlog.getCollections();
+        if(collectionNames != null && collectionNames.size() > 0)
+            arrangeCollectionList(newBlogID, collectionNames);
+
         redisService.flushSiteInfo();
         redisService.addBlogIDtoZSet(newBlogID);
         return newBlogID;
@@ -125,8 +147,20 @@ public class BlogServiceImpl implements BlogService {
     @CacheEvict(value = "BlogAdminDetail", key = "#blogID")
     public void reArrangeBlogTag(int blogID, List<String> tagNames){
         blogMapper.deleteTagMappingByBlogID(blogID);
-        if(tagNames != null)
+        if(tagNames != null && tagNames.size() > 0)
             arrangeTagList(blogID, tagNames);
+    }
+
+    @Override
+    @CacheEvict(value = "BlogAdminDetail", key = "#blogID")
+    public void reArrangeBlogCollection(int blogID, List<String> collectionNames){
+        var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
+        for(var blogCollection : blogCollections)
+            blogCollectionCache.removeBlogIDFromSet(blogCollection.getId(), blogID);
+
+        blogMapper.deleteCollectionMappingByBlogID(blogID);
+        if(collectionNames != null && collectionNames.size() > 0)
+            arrangeCollectionList(blogID, collectionNames);
     }
 
     @Override
@@ -172,6 +206,16 @@ public class BlogServiceImpl implements BlogService {
                 tagMapper.insertTag(newTag);
                 int newTagID = newTag.getId();
                 blogMapper.insertBlogTagMapping(new BlogTagMapping(newBlogID, newTagID));
+            }
+        }
+    }
+
+    private void arrangeCollectionList(int newBlogID, List<String> collectionNames){
+        for(String collectionName: collectionNames){
+            var blogCollection = collectionMapper.selectBlogCollectionByName(collectionName);
+            if(blogCollection != null) {
+                blogMapper.insertBlogCollectionMapping(new BlogCollectionMapping(newBlogID, blogCollection.getId()));
+                blogCollectionCache.addBlogIDToSet(blogCollection.getId(), newBlogID);
             }
         }
     }

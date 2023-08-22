@@ -1,7 +1,6 @@
 package com.wsmrxd.bloglite.vo;
 
 import com.wsmrxd.bloglite.entity.Blog;
-import com.wsmrxd.bloglite.entity.BlogTag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,9 +16,11 @@ public class BlogAdminDetail {
 
     private List<String> tagNames = new ArrayList<>();
 
-    public BlogAdminDetail(Blog blog, List<BlogTag> blogTags) {
+    private List<String> collections = new ArrayList<>();
+
+    public BlogAdminDetail(Blog blog, List<String> blogTagNames, List<String> blogCollectionNames) {
         this.blog = blog;
-        for(var tag : blogTags)
-            tagNames.add(tag.getTagName());
+        tagNames = blogTagNames;
+        this.collections = blogCollectionNames;
     }
 }

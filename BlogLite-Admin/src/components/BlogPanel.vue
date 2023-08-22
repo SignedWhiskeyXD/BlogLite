@@ -3,8 +3,14 @@ import {editBlog, getBlogByID, pushNewBlog} from "@/fetch/BlogAPI";
 import {ElMessage} from "element-plus";
 import router from "@/router";
 import {makeRequest} from "@/fetch/FetchTemplate";
+import {getAllBlogCollections} from "@/fetch/BlogCollectionAPI";
 export default {
     created() {
+        getAllBlogCollections()
+          .then(collections => {
+              this.availableCollections = collections
+          })
+
         if(this.$route.params.blog_id)
             this.getBlog(this.$route.params.blog_id)
     },
@@ -15,6 +21,7 @@ export default {
                     if(blogInfo){
                         this.blogInfo = blogInfo.blog
                         this.tagNames = blogInfo.tagNames
+                        this.blogInfo.collections = blogInfo.collections;
                     }else{
                         ElMessage.error('无法加载该文章')
                     }
@@ -25,7 +32,8 @@ export default {
                 title: this.blogInfo.title,
                 contentAbstract: this.blogInfo.contentAbstract,
                 content: this.blogInfo.content,
-                tagNames: this.tagNames
+                tagNames: this.tagNames,
+                collections: this.blogInfo.collections
             }
 
             if(this.$route.params.blog_id){
@@ -57,11 +65,22 @@ export default {
         handleClose(tagName){
             this.blogInfo.tagNames.splice(this.blogInfo.tagNames.indexOf(tagName), 1)
         },
+        handleCloseCollectionTag(tagName){
+            this.blogInfo.collections.splice(this.blogInfo.collections.indexOf(tagName), 1)
+        },
         handleTagInputConfirm(){
             if(this.tagInputValue.length > 0)
                 this.tagNames.push(this.tagInputValue)
             this.tagInputValue = ""
             this.tagInputVisible = false
+        },
+        handleSelectorChange(){
+            const collectionName = this.currentSelectedCollectionName
+            if(this.blogInfo.collections.includes(collectionName) === false) {
+                this.blogInfo.collections.push(collectionName)
+
+            }
+            this.currentSelectedCollectionName = ""
         },
         $imgAdd(pos, $file){
             const formData = new FormData();
@@ -82,11 +101,15 @@ export default {
                 contentAbstract: "",
                 content: "",
                 views: 0,
-                publishTime: ""
+                publishTime: "",
+                collections: [],
             },
             tagNames: [],
             tagInputVisible: false,
-            tagInputValue: ""
+            tagInputValue: "",
+
+            availableCollections: [],
+            currentSelectedCollectionName: ""
         }
     }
 }
@@ -124,6 +147,31 @@ export default {
     <el-button v-else class="button-new-tag ml-1" size="small" @click="showTagInput">
         + New Tag
     </el-button>
+
+    <h3>添加文章至专栏</h3>
+
+    <div class="chosen-collections">
+        <el-tag
+          v-for="collectionName in blogInfo.collections"
+          :key="collectionName"
+          class="mx-1"
+          type="success"
+          closable
+          @close="handleCloseCollectionTag(collectionName)"
+          :disable-transitions="false"
+        >
+            {{ collectionName }}
+        </el-tag>
+    </div>
+
+    <el-select placeholder="选择一个专栏" size="large"
+               v-model="currentSelectedCollectionName" @change="handleSelectorChange">
+        <el-option
+            v-for="collection in availableCollections"
+            :key="collection.id"
+            :value="collection.collectionName"
+        />
+    </el-select>
 
     <el-form-item style="text-align: right;">
         <el-button type="primary" @click="handleSubmit">发布文章</el-button>

@@ -26,6 +26,8 @@ public interface BlogService {
 
     void reArrangeBlogTag(int blogID, List<String> tagNames);
 
+    void reArrangeBlogCollection(int blogID, List<String> collectionNames);
+
     boolean renameBlogTitle(int id, String newTitle);
 
     boolean editBlogAbstract(int id, String newAbstract);

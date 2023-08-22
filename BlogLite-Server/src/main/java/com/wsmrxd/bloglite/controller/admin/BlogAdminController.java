@@ -41,6 +41,7 @@ public class BlogAdminController {
         result &= blogService.editBlogAbstract(id, modifyInfo.getContentAbstract());
         result &= blogService.editBlogContent(id, modifyInfo.getContent());
         blogService.reArrangeBlogTag(id, modifyInfo.getTagNames());
+        blogService.reArrangeBlogCollection(id, modifyInfo.getCollections());
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Modify The Blog");
 

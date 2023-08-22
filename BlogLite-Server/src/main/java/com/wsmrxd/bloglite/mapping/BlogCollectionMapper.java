@@ -11,6 +11,9 @@ public interface BlogCollectionMapper {
     @Select("SELECT * FROM blog_collection WHERE id = #{collectionID}")
     BlogCollection selectBlogCollectionByID(int collectionID);
 
+    @Select("SELECT * FROM blog_collection WHERE collection_name = #{collectionName}")
+    BlogCollection selectBlogCollectionByName(String collectionName);
+
     @Select("SELECT * FROM blog_collection ORDER BY id DESC")
     List<BlogCollection> selectAllBlogCollection();
 

@@ -14,4 +14,6 @@ public class BlogUploadInfo {
     private String content;
 
     private List<String> tagNames;
+
+    private List<String> collections;
 }
