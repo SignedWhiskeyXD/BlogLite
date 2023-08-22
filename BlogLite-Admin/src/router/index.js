@@ -6,6 +6,7 @@ import BlogTagPanel from "@/components/BlogTagPanel.vue";
 import BlogListPanel from "@/components/BlogListPanel.vue";
 import BlogPanel from "@/components/BlogPanel.vue";
 import Layout from '@/layout/index.vue';
+import BlogCollectionPanel from "@/components/BlogCollectionPanel.vue";
 
 const routes = [
     {path: '/hello', component: Hello},
@@ -32,6 +33,10 @@ const routes = [
             {
                 path: '/blog/edit/:blog_id',
                 component: BlogPanel
+            },
+            {
+                path: '/collection',
+                component: BlogCollectionPanel
             }
         ]
     },

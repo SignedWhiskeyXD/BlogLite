@@ -1,12 +1,15 @@
 package com.wsmrxd.bloglite.service.impl;
 
 import com.wsmrxd.bloglite.cache.BlogCollectionCache;
+import com.wsmrxd.bloglite.dto.BlogCollectionCreateInfo;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.mapping.BlogCollectionMapper;
 import com.wsmrxd.bloglite.service.BlogCollectionService;
 import com.wsmrxd.bloglite.service.RedisService;
 import com.wsmrxd.bloglite.vo.BlogCollectionVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,8 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
     private RedisService redisService;
 
     private BlogCollectionCache cacheService;
+
+    private String defaultCollectionImageUrl;
 
     @Autowired
     public void setMapper(BlogCollectionMapper mapper) {
@@ -37,6 +42,11 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
         this.cacheService = cacheService;
     }
 
+    @Value("${myConfig.image.defaultCollectionImage}")
+    public void setDefaultCollectionImageUrl(String defaultCollectionImageUrl) {
+        this.defaultCollectionImageUrl = defaultCollectionImageUrl;
+    }
+
     @Override
     public List<BlogCollectionVO> getAllBlogCollectionWithStatistic() {
         var collections = getAllBlogCollection();
@@ -50,6 +60,37 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
             ret.add(collectionVO);
         }
         return ret;
+    }
+
+    @Override
+    public void modifyCollectionInfo(BlogCollection modifyInfo) {
+        String imageUrl = modifyInfo.getImageLink();
+        if(imageUrl == null || imageUrl.isEmpty())
+            modifyInfo.setImageLink(defaultCollectionImageUrl);
+
+        mapper.updateBlogCollection(modifyInfo);
+    }
+
+    @Override
+    @CacheEvict("AllBlogCollection")
+    public void createNewCollection(BlogCollectionCreateInfo newCollection) {
+        var newCollectionEntity = new BlogCollection();
+        newCollectionEntity.setCollectionName(newCollection.getCollectionName());
+        newCollectionEntity.setDescription(newCollection.getDescription());
+        String imageLink = newCollection.getImageLink();
+        if(imageLink != null && imageLink.length() > 0)
+            newCollectionEntity.setImageLink(imageLink);
+        else
+            newCollectionEntity.setImageLink(defaultCollectionImageUrl);
+
+        mapper.insertBlogCollection(newCollectionEntity);
+    }
+
+    @Override
+    @CacheEvict("AllBlogCollection")
+    public void removeBlogCollection(int collectionID) {
+        mapper.deleteBlogCollectionMapping(collectionID);
+        mapper.deleteBlogCollectionByID(collectionID);
     }
 
     @Cacheable("AllBlogCollection")

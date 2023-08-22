@@ -35,6 +35,9 @@
                             <router-link to="/tag">
                                 <el-menu-item index="1-3">标签管理</el-menu-item>
                             </router-link>
+                            <router-link to="/collection">
+                                <el-menu-item index="1-4">专栏管理</el-menu-item>
+                            </router-link>
                         </el-sub-menu>
                     </el-menu>
                 </el-scrollbar>
@@ -57,29 +60,6 @@ import { Menu as IconMenu, Message, Setting } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
-/*.layout-container-demo .el-header {
-    position: relative;
-    background-color: var(--el-color-primary-light-7);
-    color: var(--el-text-color-primary);
-}
-.layout-container-demo .el-aside {
-    color: var(--el-text-color-primary);
-    background: var(--el-color-primary-light-8);
-}
-.layout-container-demo .el-menu {
-    border-right: none;
-    background: var(--el-color-primary-light-8);
-}
-.layout-container-demo .el-main {
-    padding: 0;
-}
-.layout-container-demo .toolbar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    right: 20px;
-}*/
 .el-header{
     background: #79bbff;
 }

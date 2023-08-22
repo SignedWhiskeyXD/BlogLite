@@ -22,3 +22,4 @@ myConfig:
   image:
     repositoryPath: D://dev/nginx-1.25.1/html/image
     nginxContext: http://127.0.0.1/image/
+    defaultCollectionImage: https://picx.zhimg.com/4b70deef7_l.jpg?source=d16d100b

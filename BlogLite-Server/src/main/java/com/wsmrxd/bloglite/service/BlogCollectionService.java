@@ -1,5 +1,7 @@
 package com.wsmrxd.bloglite.service;
 
+import com.wsmrxd.bloglite.dto.BlogCollectionCreateInfo;
+import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.vo.BlogCollectionVO;
 
 import java.util.List;
@@ -7,4 +9,10 @@ import java.util.List;
 public interface BlogCollectionService {
 
     List<BlogCollectionVO> getAllBlogCollectionWithStatistic();
+
+    void modifyCollectionInfo(BlogCollection modifyInfo);
+
+    void createNewCollection(BlogCollectionCreateInfo newCollection);
+
+    void removeBlogCollection(int collectionID);
 }

@@ -29,8 +29,11 @@ public interface BlogCollectionMapper {
     @Delete("DELETE FROM blog_collection WHERE id = #{collectionID}")
     void deleteBlogCollectionByID(int collectionID);
 
+    @Delete("DELETE FROM blog_collection_mapping WHERE collection_id = #{collectionID}")
+    void deleteBlogCollectionMapping(int collectionID);
+
     @Update("UPDATE blog_collection SET " +
-            "image_link = #{imageLink}, collection_name = #{collectionName}, description = {description}" +
+            "image_link = #{imageLink}, collection_name = #{collectionName}, description = #{description}" +
             "WHERE id = #{id}")
     void updateBlogCollection(BlogCollection modifyInfo);
 }
