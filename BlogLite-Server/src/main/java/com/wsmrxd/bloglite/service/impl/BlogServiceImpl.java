@@ -3,6 +3,7 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
+import com.wsmrxd.bloglite.entity.provider.EntityProvider;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
@@ -46,20 +47,22 @@ public class BlogServiceImpl implements BlogService {
     private BlogCollectionMapper collectionMapper;
 
     @Autowired
+    private EntityProvider entityProvider;
+
+    @Autowired
     private CacheService cacheService;
 
     @Autowired
     private MarkDownUtil markDownUtil;
 
     @Override
-    @Cacheable(value = "BlogAdminDetail", key = "#id")
     public BlogAdminDetail getBlogAdminDetailByID(int id) {
-        var blog = blogMapper.selectBlogByID(id);
+        var blog = entityProvider.getBlogEntityByID(id);
         if(blog == null) return null;
 
-        var blogTagNames = blogMapper.selectTagNamesByBlogID(id);
-        var blogCollectionNames = blogMapper.selectCollectionNamesByBlogID(id);
-        return new BlogAdminDetail(blog, blogTagNames, blogCollectionNames);
+        return new BlogAdminDetail(blog,
+                entityProvider.getTagNamesByBlogID(id),
+                entityProvider.getCollectionNamesByBlogID(id));
     }
 
     @Override
@@ -73,26 +76,21 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @Cacheable(value = "BlogDetail", key = "#id")
     public BlogDetail getBlogDetail(int id) {
-        Blog blog = blogMapper.selectBlogByID(id);
-        List<String> tagNames = blogMapper.selectTagNamesByBlogID(id);
+        Blog blog = entityProvider.getBlogEntityByID(id);
         var ret = new BlogDetail(blog);
         ret.setContentHTML(markDownUtil.toHtml(blog.getContent()));
-        ret.setTagNames(tagNames);
+        ret.setTagNames(entityProvider.getTagNamesByBlogID(id));
         return ret;
     }
 
     @Override
-    @Cacheable(value = "BlogCard", key = "#blogID")
     public BlogCard getBlogCard(int blogID){
-        var blog = blogMapper.selectBlogByID(blogID);
+        var blog = entityProvider.getBlogEntityByID(blogID);
         if(blog == null) return null;
-        var blogTagNames = blogMapper.selectTagNamesByBlogID(blogID);
 
         var ret = new BlogCard(blog);
-        ret.setContentAbstract(blog.getContentAbstract());
-        ret.setTagNames(blogTagNames);
+        ret.setTagNames(entityProvider.getTagNamesByBlogID(blogID));
 
         return ret;
     }
@@ -128,38 +126,32 @@ public class BlogServiceImpl implements BlogService {
         return newBlogID;
     }
 
-    // TODO: 缓存牵一发而动全身，提取其中的共同点
     @Override
     @Transactional(rollbackFor = {Exception.class})
     @Caching(evict = {
-            @CacheEvict(value = "BlogAdminDetail", key = "#id"),
             @CacheEvict(value = "BlogPaging", allEntries = true),
             @CacheEvict(value = "allBlogTags", allEntries = true),
-            @CacheEvict(value = "BlogDetail", key = "#id"),
-            @CacheEvict(value = "BlogCard", key="#id")
+            @CacheEvict(value = "Blog", key = "#id"),
+            @CacheEvict(value = "TagNamesOfBlog", key = "#id"),
+            @CacheEvict(value = "CollectionNamesOfBlog", key = "#id")
     })
     public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
         blogMapper.updateBlogByModifyInfo(id, new Blog(modifyInfo));
         reArrangeBlogTag(id, modifyInfo.getTagNames());
         reArrangeBlogCollection(id, modifyInfo.getCollections());
-
-        cacheService.removeZSetValueByScore(BlogDetail_ByID.name(), id);
-        cacheService.removeZSetValueByScore(BlogCard_ByID.name(), id);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Caching(evict = {
-            @CacheEvict(value = "BlogAdminDetail", key = "#id"),
-            @CacheEvict(value = "BlogDetail", key = "#id"),
             @CacheEvict(value = "BlogPaging", allEntries = true),
-            @CacheEvict(value = "BlogCard", key="#id")
+            @CacheEvict(value = "Blog", key = "#id"),
+            @CacheEvict(value = "TagNamesOfBlog", key = "#id"),
+            @CacheEvict(value = "CollectionNamesOfBlog", key = "#id")
     })
     public boolean deleteBlog(int id) {
         flushSiteInfo();
         removeBlogIDFromZSet(id);
-        cacheService.removeZSetValueByScore(BlogDetail_ByID.name(), id);
-        cacheService.removeZSetValueByScore(BlogCard_ByID.name(), id);
         blogMapper.deleteTagMappingByBlogID(id);
         blogMapper.deleteCollectionMappingByBlogID(id);
         return blogMapper.deleteBlogByID(id);

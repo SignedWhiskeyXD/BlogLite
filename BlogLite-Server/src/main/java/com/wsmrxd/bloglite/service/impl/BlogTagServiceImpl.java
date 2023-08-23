@@ -15,18 +15,9 @@ import java.util.List;
 
 @Service
 public class BlogTagServiceImpl implements BlogTagService {
-    private BlogTagMapper mapper;
 
     @Autowired
-    public void setMapper(BlogTagMapper mapper) {
-        this.mapper = mapper;
-    }
-
-    @Override
-    @Cacheable(value = "BlogTag", key = "#id")
-    public BlogTag getTagByID(int id) {
-        return mapper.selectTagByID(id);
-    }
+    private BlogTagMapper mapper;
 
     @Override
     @Cacheable("allBlogTags")
@@ -56,9 +47,9 @@ public class BlogTagServiceImpl implements BlogTagService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "BlogTag", key = "#id"),
             @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
-            @CacheEvict(value = "allBlogTags", allEntries = true)
+            @CacheEvict(value = "allBlogTags", allEntries = true),
+            @CacheEvict(value = "TagNamesOfBlog", allEntries = true),
     })
     public boolean removeTag(int id) {
         boolean result = mapper.deleteTagByID(id);
@@ -68,9 +59,9 @@ public class BlogTagServiceImpl implements BlogTagService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "BlogTag", key = "#id"),
             @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
-            @CacheEvict(value = "allBlogTags", allEntries = true)
+            @CacheEvict(value = "allBlogTags", allEntries = true),
+            @CacheEvict(value = "TagNamesOfBlog", allEntries = true),
     })
     public boolean renameTag(int id, String newName) {
         return mapper.updateTagNameByID(id, newName);

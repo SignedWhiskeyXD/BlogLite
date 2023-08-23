@@ -30,6 +30,7 @@ public interface BlogMapper {
             "INNER JOIN blog_collection bc ON bcm.collection_id = bc.id\n" +
             "WHERE bcm.blog_id = #{id}")
     List<BlogCollection> selectBlogCollectionByBlogID(int id);
+
     @Select("SELECT bc.collection_name FROM blog_collection_mapping bcm\n" +
             "INNER JOIN blog_collection bc ON bcm.collection_id = bc.id\n" +
             "WHERE bcm.blog_id = #{id}")

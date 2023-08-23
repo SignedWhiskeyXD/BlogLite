@@ -6,7 +6,6 @@ import com.wsmrxd.bloglite.entity.BlogTag;
 import java.util.List;
 
 public interface BlogTagService {
-    BlogTag getTagByID(int id);
 
     List<BlogTag> getAllTags();
 

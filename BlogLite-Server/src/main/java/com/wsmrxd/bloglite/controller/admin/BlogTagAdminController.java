@@ -1,6 +1,5 @@
 package com.wsmrxd.bloglite.controller.admin;
 
-import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.BlogTagService;
@@ -11,21 +10,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin/blogtag")
 public class BlogTagAdminController {
-    private BlogTagService tagService;
 
     @Autowired
-    public void setTagService(BlogTagService tagService) {
-        this.tagService = tagService;
-    }
-
-    @GetMapping("/{id}")
-    public RestResponse serveBlogTagByID(@PathVariable Integer id){
-        BlogTag ret = tagService.getTagByID(id);
-        if(ret == null)
-            throw new BlogException(ErrorCode.TAG_NOT_FOUND, "Blog Tag Not Found!");
-
-        return RestResponse.ok(ret);
-    }
+    private BlogTagService tagService;
 
     @GetMapping
     public RestResponse getTagsByPage(@RequestParam(defaultValue = "1") int pageNum,
