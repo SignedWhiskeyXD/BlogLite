@@ -6,6 +6,7 @@ CREATE TABLE blog (
     content longtext NOT NULL,
     views int NOT NULL DEFAULT 0,
     publish_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    preview_image varchar(255),
     PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 

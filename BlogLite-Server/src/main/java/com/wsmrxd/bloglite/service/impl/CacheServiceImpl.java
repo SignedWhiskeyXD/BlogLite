@@ -1,5 +1,6 @@
-package com.wsmrxd.bloglite.cache;
+package com.wsmrxd.bloglite.service.impl;
 
+import com.wsmrxd.bloglite.service.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

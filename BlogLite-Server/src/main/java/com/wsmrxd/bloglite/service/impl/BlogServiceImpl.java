@@ -3,8 +3,7 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
-import com.wsmrxd.bloglite.cache.BlogCollectionCache;
-import com.wsmrxd.bloglite.cache.CacheService;
+import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogCollectionMapping;
@@ -15,6 +14,7 @@ import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.vo.BlogAdminDetail;
+import com.wsmrxd.bloglite.vo.BlogCard;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static com.wsmrxd.bloglite.enums.RedisKeyForHash.*;
 import static com.wsmrxd.bloglite.enums.RedisKeyForHash.SiteInfo_TotalViews;
+import static com.wsmrxd.bloglite.enums.RedisKeyForSet.Integer_BlogIDs_ByCollectionID_;
 import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.*;
 
 @Service
@@ -43,9 +44,6 @@ public class BlogServiceImpl implements BlogService {
 
     @Autowired
     private BlogCollectionMapper collectionMapper;
-
-    @Autowired
-    private BlogCollectionCache blogCollectionCache;
 
     @Autowired
     private CacheService cacheService;
@@ -74,25 +72,28 @@ public class BlogServiceImpl implements BlogService {
         return ret;
     }
 
-    // TODO: 使用缓存自动配置
     @Override
+    @Cacheable(value = "BlogDetail", key = "#id")
     public BlogDetail getBlogDetail(int id) {
-        BlogDetail ret = cacheService.getZSetValueByScore(BlogDetail_ByID.name(), id);
-        if(ret != null) {
-            ret.setViews(getBlogViewsAsCached(id) + 1);
-            increaseBlogViews(id);
-            return ret;
-        }
-
         Blog blog = blogMapper.selectBlogByID(id);
         List<String> tagNames = blogMapper.selectTagNamesByBlogID(id);
-        ret = new BlogDetail(blog);
+        var ret = new BlogDetail(blog);
         ret.setContentHTML(markDownUtil.toHtml(blog.getContent()));
         ret.setTagNames(tagNames);
-        ret.setViews(getBlogViewsAsCached(id) + 1);
+        return ret;
+    }
 
-        cacheService.addValueToZSet(BlogDetail_ByID.name(), ret, id);
-        increaseBlogViews(id);
+    @Override
+    @Cacheable(value = "BlogCard", key = "#blogID")
+    public BlogCard getBlogCard(int blogID){
+        var blog = blogMapper.selectBlogByID(blogID);
+        if(blog == null) return null;
+        var blogTagNames = blogMapper.selectTagNamesByBlogID(blogID);
+
+        var ret = new BlogCard(blog);
+        ret.setContentAbstract(blog.getContentAbstract());
+        ret.setTagNames(blogTagNames);
+
         return ret;
     }
 
@@ -127,12 +128,15 @@ public class BlogServiceImpl implements BlogService {
         return newBlogID;
     }
 
+    // TODO: 缓存牵一发而动全身，提取其中的共同点
     @Override
     @Transactional(rollbackFor = {Exception.class})
     @Caching(evict = {
             @CacheEvict(value = "BlogAdminDetail", key = "#id"),
             @CacheEvict(value = "BlogPaging", allEntries = true),
-            @CacheEvict(value = "allBlogTags", allEntries = true)
+            @CacheEvict(value = "allBlogTags", allEntries = true),
+            @CacheEvict(value = "BlogDetail", key = "#id"),
+            @CacheEvict(value = "BlogCard", key="#id")
     })
     public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
         blogMapper.updateBlogByModifyInfo(id, new Blog(modifyInfo));
@@ -147,7 +151,9 @@ public class BlogServiceImpl implements BlogService {
     @Transactional(rollbackFor = Exception.class)
     @Caching(evict = {
             @CacheEvict(value = "BlogAdminDetail", key = "#id"),
-            @CacheEvict(value = "BlogPaging", allEntries = true)
+            @CacheEvict(value = "BlogDetail", key = "#id"),
+            @CacheEvict(value = "BlogPaging", allEntries = true),
+            @CacheEvict(value = "BlogCard", key="#id")
     })
     public boolean deleteBlog(int id) {
         flushSiteInfo();
@@ -200,6 +206,28 @@ public class BlogServiceImpl implements BlogService {
         else return new ArrayList<>();
     }
 
+    @Override
+    public List<Integer> getBlogIDsByCollectionIDAsCached(int collectionID){
+        List<Integer> cached = cacheService
+                .getSetAsList(Integer_BlogIDs_ByCollectionID_.name() + collectionID);
+
+        if(cached != null && cached.size() > 0)
+            return cached;
+
+        var blogIDs = collectionMapper.selectBlogIDsByCollectionID(collectionID);
+        for(Integer blogID : blogIDs)
+            cacheService.addValueToSet(Integer_BlogIDs_ByCollectionID_.name() + collectionID, blogID);
+
+        return blogIDs;
+    }
+
+    @Override
+    public void increaseBlogViews(int blogID) {
+        cacheService.increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
+        cacheService.increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
+        cacheService.increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
+    }
+
     private void reArrangeBlogTag(int blogID, List<String> tagNames){
         blogMapper.deleteTagMappingByBlogID(blogID);
         if(tagNames != null && tagNames.size() > 0)
@@ -208,8 +236,9 @@ public class BlogServiceImpl implements BlogService {
 
     private void reArrangeBlogCollection(int blogID, List<String> collectionNames){
         var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
-        for(var blogCollection : blogCollections)
-            blogCollectionCache.removeBlogIDFromSet(blogCollection.getId(), blogID);
+        for(var blogCollection : blogCollections) {
+            cacheService.removeSetValue(Integer_BlogIDs_ByCollectionID_.name() + blogCollection.getId(), blogID);
+        }
 
         blogMapper.deleteCollectionMappingByBlogID(blogID);
         if(collectionNames != null && collectionNames.size() > 0)
@@ -236,7 +265,7 @@ public class BlogServiceImpl implements BlogService {
             var blogCollection = collectionMapper.selectBlogCollectionByName(collectionName);
             if(blogCollection != null) {
                 blogMapper.insertBlogCollectionMapping(new BlogCollectionMapping(newBlogID, blogCollection.getId()));
-                blogCollectionCache.addBlogIDToSet(blogCollection.getId(), newBlogID);
+                cacheService.addValueToSet(Integer_BlogIDs_ByCollectionID_.name() + blogCollection.getId(), newBlogID);
             }
         }
     }
@@ -257,12 +286,6 @@ public class BlogServiceImpl implements BlogService {
             blogMapper.updateBlogViewsByID(key, addNum);
         }
         cacheService.delete(Integer_AddBlogViewsByID.name());
-    }
-
-    private void increaseBlogViews(int blogID) {
-        cacheService.increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
-        cacheService.increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
-        cacheService.increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
     }
 
     private void addBlogIDtoZSet(int blogID) {

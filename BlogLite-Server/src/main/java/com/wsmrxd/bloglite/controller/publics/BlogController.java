@@ -27,6 +27,9 @@ public class BlogController {
         BlogDetail ret = blogService.getBlogDetail(id);
         if(ret == null)
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
+
+        blogService.increaseBlogViews(id);
+        ret.setViews(blogService.getBlogViewsAsCached(id));
         return RestResponse.ok(ret);
     }
 }

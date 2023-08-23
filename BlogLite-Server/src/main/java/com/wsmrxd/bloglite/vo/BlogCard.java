@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -16,6 +17,8 @@ public class BlogCard {
     public BlogCard(Blog blog){
         this.id = blog.getId();
         this.title = blog.getTitle();
+        this.contentAbstract = blog.getContentAbstract();
+        this.previewImage = Objects.requireNonNullElse(blog.getPreviewImage(), "");
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         this.publishTime = formatter.format(blog.getPublishTime());

@@ -1,6 +1,5 @@
 package com.wsmrxd.bloglite.service.impl;
 
-import com.wsmrxd.bloglite.cache.BlogCollectionCache;
 import com.wsmrxd.bloglite.dto.BlogCollectionCreateInfo;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.mapping.BlogCollectionMapper;
@@ -25,9 +24,6 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
     @Autowired
     private BlogService blogService;
 
-    @Autowired
-    private BlogCollectionCache cacheService;
-
     private String defaultCollectionImageUrl;
 
     @Value("${myConfig.image.defaultCollectionImage}")
@@ -41,7 +37,7 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
         List<BlogCollectionVO> ret = new ArrayList<>(collections.size());
         for(BlogCollection collection : collections){
             BlogCollectionVO collectionVO = new BlogCollectionVO(collection);
-            List<Integer> blogIDs = cacheService.getBlogIDsByCollectionIDAsCached(collection.getId());
+            List<Integer> blogIDs = blogService.getBlogIDsByCollectionIDAsCached(collection.getId());
 
             collectionVO.setBlogNum(blogIDs.size());
             collectionVO.setTotalViews(getCollectionTotalViewsByBlogIDs(blogIDs));

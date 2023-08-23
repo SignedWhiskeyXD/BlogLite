@@ -1,4 +1,4 @@
-package com.wsmrxd.bloglite.cache;
+package com.wsmrxd.bloglite.service;
 
 import java.util.List;
 import java.util.Map;
