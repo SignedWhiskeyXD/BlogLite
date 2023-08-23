@@ -1,117 +1,66 @@
 package com.wsmrxd.bloglite.service.impl;
 
+import com.wsmrxd.bloglite.cache.CacheService;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.RedisService;
 import com.wsmrxd.bloglite.vo.BlogCard;
-import com.wsmrxd.bloglite.vo.BlogDetail;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static com.wsmrxd.bloglite.enums.RedisKeyForHash.*;
+import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.*;
 
 @Service
 public class RedisServiceImpl implements RedisService {
 
-    private RedisTemplate<String, Object> redisTemplate;
-
+    @Autowired
     private BlogMapper blogMapper;
 
     @Autowired
-    public void setRedisTemplate(@Qualifier("redisJsonTemplate") RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-
-    @Autowired
-    public void setBlogMapper(BlogMapper blogMapper) {
-        this.blogMapper = blogMapper;
-    }
-
+    private CacheService cacheService;
 
     @Override
     public int getBlogViewsAsCached(int blogID) {
-        var redisHashOps = redisTemplate.opsForHash();
-        Integer ret = (Integer) redisHashOps.get(blogViewsKey, Integer.toString(blogID));
+        Integer ret = cacheService.getValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID));
         if(ret != null) return ret;
 
         ret = blogMapper.selectViewsByBlogID(blogID);
-        redisHashOps.put(blogViewsKey, Integer.toString(blogID), ret);
+        cacheService.putKeyValToHash(Integer_BlogViewsByID.name(), Integer.toString(blogID), ret);
         return ret;
     }
 
     @Override
-    public void increaseBlogViews(int blogID) {
-        var redisHashOps = redisTemplate.opsForHash();
-
-        if(redisHashOps.hasKey(blogViewsKey, Integer.toString(blogID)))
-            redisHashOps.increment(blogViewsKey, Integer.toString(blogID), 1);
-
-        if(redisHashOps.hasKey(siteInfoKey, totalViewsKey))
-            redisHashOps.increment(siteInfoKey, totalViewsKey, 1);
-
-        redisHashOps.increment(blogAddViewsKey, Integer.toString(blogID), 1);
-    }
-
-    @Override
-    public BlogDetail getBlogDetail(int blogID) {
-        var redisValOps = redisTemplate.opsForValue();
-        final String redisKey = blogDetailPrefix + blogID;
-
-        return (BlogDetail) redisValOps.get(redisKey);
-    }
-
-    @Override
-    public void setBlogDetail(int blogID, BlogDetail toCache) {
-        var redisValOps = redisTemplate.opsForValue();
-        final String redisKey = blogDetailPrefix + blogID;
-
-        redisValOps.set(redisKey, toCache);
-    }
-
-    @Override
-    public void flushBlogCache(int blogID) {
-        redisTemplate.delete(blogDetailPrefix + blogID);
-        redisTemplate.delete(blogCardPrefix + blogID);
-    }
-
-    @Override
     public BlogCard getBlogCard(int blogID) {
-        var redisValOps = redisTemplate.opsForValue();
-        final String redisKey = blogCardPrefix + blogID;
-
-        return (BlogCard) redisValOps.get(redisKey);
+        return cacheService.getZSetValueByScore(BlogCard_ByID.name(), blogID);
     }
 
     @Override
     public void setBlogCard(int blogID, BlogCard toCache) {
-        var redisValOps = redisTemplate.opsForValue();
-        final String redisKey = blogCardPrefix + blogID;
-
-        redisValOps.set(redisKey, toCache);
+        cacheService.addValueToZSet(BlogCard_ByID.name(), toCache, blogID);
     }
 
     @Override
     public Integer getTotalBlogsAsCached() {
-        var redisHashOps = redisTemplate.opsForHash();
-        Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalBlogsKey);
+        Integer ret = cacheService.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name());
         if(ret == null){
             ret = blogMapper.selectBlogCount();
-            redisHashOps.put(siteInfoKey, totalBlogsKey, ret);
+            cacheService.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name(), ret);
         }
         return ret;
     }
 
     @Override
     public Integer getTotalViewsAsCached() {
-        var redisHashOps = redisTemplate.opsForHash();
-        Integer ret = (Integer) redisHashOps.get(siteInfoKey, totalViewsKey);
+        Integer ret = cacheService.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name());
         if(ret == null){
             ret = blogMapper.selectViewsCount();
             if(ret == null)
                 ret = 0;
-            redisHashOps.put(siteInfoKey, totalViewsKey, ret);
+            cacheService.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), ret);
         }
         return ret;
     }
@@ -119,12 +68,12 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void flushSiteInfo() {
         updateBlogViewsFromCache();
-        redisTemplate.delete(siteInfoKey);
+        cacheService.delete(Integer_SiteInfo.name());
     }
 
     @Override
     public List<Integer> getBlogIDsStartAt(int startID, int blogNum) {
-        if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
+        /*if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
             cacheAllBlogIDs();
         var redisZSetOps = redisTemplate.opsForZSet();
 
@@ -136,45 +85,35 @@ public class RedisServiceImpl implements RedisService {
         for(Object id : idSet)
             ret.add((Integer) id);
 
-        return ret;
-    }
+        return ret;*/
 
-    @Override
-    public void addBlogIDtoZSet(int blogID) {
-        if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
+        if(!cacheService.hasKey(Integer_AllBlogIDs.name()))
             cacheAllBlogIDs();
-        var redisZSetOps = redisTemplate.opsForZSet();
 
-        redisZSetOps.add(allBlogIDsKey, blogID, blogID);
-    }
+        List<Integer> blogIDs = cacheService.getListByReversedScoreRange(
+                Integer_AllBlogIDs.name(), Double.NEGATIVE_INFINITY, startID, 0, blogNum);
 
-    @Override
-    public void removeBlogIDFromZSet(int blogID) {
-        if(Boolean.FALSE.equals(redisTemplate.hasKey(allBlogIDsKey)))
-            cacheAllBlogIDs();
-        var redisZSetOps = redisTemplate.opsForZSet();
+        if(blogIDs != null)
+            return blogIDs;
+        else return new ArrayList<>();
 
-        redisZSetOps.remove(allBlogIDsKey, blogID);
     }
 
     private void cacheAllBlogIDs(){
-        redisTemplate.delete(allBlogIDsKey);
-        var redisZSetOps = redisTemplate.opsForZSet();
+        cacheService.delete(Integer_AllBlogIDs.name());
 
         List<Integer> allBlogIDs = blogMapper.selectAllBlogID();
         for(Integer id : allBlogIDs)
-            redisZSetOps.add(allBlogIDsKey, id, id);
+            cacheService.addValueToZSet(Integer_AllBlogIDs.name(), id, id);
     }
 
     private void updateBlogViewsFromCache(){
-        var redisHashOps = redisTemplate.opsForHash();
-        var viewsMap = redisHashOps.entries(blogAddViewsKey);
+        Map<Integer, Integer> viewsMap = cacheService.getHashEntriesByKey(Integer_AddBlogViewsByID.name());
         var keySet = viewsMap.keySet();
-        for(var key : keySet){
-            String blogIDString = (String) key;
-            Integer addNum = (Integer) viewsMap.get(key);
-            blogMapper.updateBlogViewsByID(Integer.parseInt(blogIDString), addNum);
+        for(Integer key : keySet){
+            Integer addNum = viewsMap.get(key);
+            blogMapper.updateBlogViewsByID(key, addNum);
         }
-        redisTemplate.delete(blogAddViewsKey);
+        cacheService.delete(Integer_AddBlogViewsByID.name());
     }
 }

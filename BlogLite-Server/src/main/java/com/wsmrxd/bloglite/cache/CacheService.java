@@ -15,6 +15,8 @@ public interface CacheService {
 
     Map getHashEntriesByKey(String key);
 
+    void increaseValueByHashKey(String key, String hashKey, long delta);
+
     <T> T getZSetValueByScore(String key, double score);
 
     <T> void addValueToSet(String key, T value);
@@ -32,6 +34,8 @@ public interface CacheService {
     Set getZSet(String key);
 
     List getZSetAsList(String key);
+
+    List getListByReversedScoreRange(String key, double min, double max, int offset, int num);
 
     void delete(String key);
 

@@ -47,6 +47,13 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
+    public void increaseValueByHashKey(String key, String hashKey, long delta) {
+        var redisHashOps = redisTemplate.opsForHash();
+        if(redisHashOps.hasKey(key, hashKey) && delta > 0)
+            redisHashOps.increment(key, hashKey, delta);
+    }
+
+    @Override
     public <T> T getZSetValueByScore(String key, double score){
         var redisZSetOps = redisTemplate.opsForZSet();
         Set<Object> set = redisZSetOps.rangeByScore(key, score, score, 0, 1);
@@ -100,6 +107,16 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public List getZSetAsList(String key){
         return new ArrayList<>(getZSet(key));
+    }
+
+    @Override
+    public List getListByReversedScoreRange(String key, double min, double max, int offset, int num) {
+        var redisZSetOps = redisTemplate.opsForZSet();
+        Set<Object> set = redisZSetOps.reverseRangeByScore(key, min, max, offset, num);
+        if (set != null) {
+            return new ArrayList<>(set);
+        }else
+            return null;
     }
 
     @Override

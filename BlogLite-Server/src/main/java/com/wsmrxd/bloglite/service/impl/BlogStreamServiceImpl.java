@@ -79,8 +79,13 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         var initBlogStream = new BlogStream();
         initBlogStream.setBlogNum(blogItems.size());
         initBlogStream.setBlogList(blogItems);
-        if(!latestBlogIDList.isEmpty())
-            initBlogStream.setNextRequestParam(latestBlogIDList.get(latestBlogIDList.size() - 1));
+        if(!latestBlogIDList.isEmpty()) {
+            int nextRequestParam = latestBlogIDList.get(latestBlogIDList.size() - 1) - 1;
+            if(nextRequestParam < 1)
+                initBlogStream.setNextRequestParam(null);
+            else
+                initBlogStream.setNextRequestParam(nextRequestParam);
+        }
         else
             initBlogStream.setNextRequestParam(null);
 
