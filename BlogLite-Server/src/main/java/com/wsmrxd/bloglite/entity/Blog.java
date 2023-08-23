@@ -1,11 +1,21 @@
 package com.wsmrxd.bloglite.entity;
 
+import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Data
+@NoArgsConstructor
 public class Blog {
+
+    public Blog(BlogUploadInfo uploadInfo){
+        this.title = uploadInfo.getTitle();
+        this.contentAbstract = uploadInfo.getContentAbstract();
+        this.content = uploadInfo.getContent();
+        this.previewImage = uploadInfo.getPreviewImage();
+    }
 
     private int id;
 

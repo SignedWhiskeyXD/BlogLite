@@ -26,9 +26,4 @@ public class BlogController {
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
         return RestResponse.ok(ret);
     }
-
-    @GetMapping("/gettags/{blogID}")
-    public RestResponse getTagsByBlogID(@PathVariable int blogID){
-        return RestResponse.ok(blogService.getAllTagsByBlogID(blogID));
-    }
 }

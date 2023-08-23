@@ -16,28 +16,12 @@ public class RedisConfig {
 
         // 所有的键依据字符串序列化，所有的值基于JSON序列化
         StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+
         GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
-
-        template.setKeySerializer(stringSerializer);
         template.setValueSerializer(jsonSerializer);
-        template.setHashKeySerializer(stringSerializer);
         template.setHashValueSerializer(jsonSerializer);
-        template.afterPropertiesSet();
-        return template;
-    }
-
-    @Bean
-    public RedisTemplate<String, String> redisStringTemplate(RedisConnectionFactory redisConnectionFactory){
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-
-        // 完全的字符串序列化
-        StringRedisSerializer stringSerializer = new StringRedisSerializer();
-
-        template.setKeySerializer(stringSerializer);
-        template.setValueSerializer(stringSerializer);
-        template.setHashKeySerializer(stringSerializer);
-        template.setHashValueSerializer(stringSerializer);
         template.afterPropertiesSet();
         return template;
     }

@@ -1,17 +1,18 @@
 package com.wsmrxd.bloglite.vo;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RestResponse {
-    private final Integer code;
+    private Integer code;
 
-    private final String message;
+    private String message;
 
-    private final Object body;
-
-    public RestResponse(Integer code, String message, Object body) {
-        this.code = code;
-        this.message = message;
-        this.body = body;
-    }
+    private Object body;
 
     public static RestResponse ok(Object response){
         return new RestResponse(200, "OK", response);
@@ -21,24 +22,4 @@ public class RestResponse {
         return new RestResponse(code, msg, null);
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Object getBody() {
-        return body;
-    }
-
-    @Override
-    public String toString() {
-        return "RestResponse{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                ", responseBody=" + body +
-                '}';
-    }
 }
