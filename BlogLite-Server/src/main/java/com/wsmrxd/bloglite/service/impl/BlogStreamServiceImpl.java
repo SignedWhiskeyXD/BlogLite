@@ -1,9 +1,10 @@
 package com.wsmrxd.bloglite.service.impl;
 
 import com.wsmrxd.bloglite.cache.BlogCollectionCache;
+import com.wsmrxd.bloglite.cache.CacheService;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
+import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.BlogStreamService;
-import com.wsmrxd.bloglite.service.RedisService;
 import com.wsmrxd.bloglite.vo.BlogCard;
 import com.wsmrxd.bloglite.vo.BlogStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.BlogCard_ByID;
+
 @Service
 public class BlogStreamServiceImpl implements BlogStreamService {
 
+    @Autowired
     private BlogMapper mapper;
 
-    private RedisService redisService;
+    @Autowired
+    private BlogService blogService;
 
+    @Autowired
     private BlogCollectionCache blogCollectionCache;
+
+    @Autowired
+    private CacheService cacheService;
 
     private String defaultBlogCardImage;
 
@@ -30,30 +39,15 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         this.defaultBlogCardImage = defaultBlogCardImage;
     }
 
-    @Autowired
-    public void setMapper(BlogMapper mapper) {
-        this.mapper = mapper;
-    }
-
-    @Autowired
-    public void setRedisService(RedisService redisService) {
-        this.redisService = redisService;
-    }
-
-    @Autowired
-    public void setBlogCollectionCache(BlogCollectionCache blogCollectionCache) {
-        this.blogCollectionCache = blogCollectionCache;
-    }
-
     @Override
     public BlogStream getInitStream(int num) {
-        List<Integer> latestBlogIDList = redisService.getBlogIDsStartAt(Integer.MAX_VALUE, num);
+        List<Integer> latestBlogIDList = blogService.getBlogIDsStartAt(Integer.MAX_VALUE, num);
         return constructBlogStream(latestBlogIDList);
     }
 
     @Override
     public BlogStream getBlogStream(int startID, int num) {
-        List<Integer> latestBlogIDList = redisService.getBlogIDsStartAt(startID, num);
+        List<Integer> latestBlogIDList = blogService.getBlogIDsStartAt(startID, num);
         return constructBlogStream(latestBlogIDList);
     }
 
@@ -93,9 +87,9 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     }
 
     private BlogCard getBlogCard(int blogID){
-        BlogCard blogCache = redisService.getBlogCard(blogID);
+        BlogCard blogCache = cacheService.getZSetValueByScore(BlogCard_ByID.name(), blogID);
         if(blogCache != null) {
-            blogCache.setViews(redisService.getBlogViewsAsCached(blogID));
+            blogCache.setViews(blogService.getBlogViewsAsCached(blogID));
             return blogCache;
         }
 
@@ -106,12 +100,12 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         var ret = new BlogCard(blog);
         ret.setContentAbstract(blog.getContentAbstract());
         ret.setTagNames(blogTagNames);
-        ret.setViews(redisService.getBlogViewsAsCached(blogID));
+        ret.setViews(blogService.getBlogViewsAsCached(blogID));
         ret.setPreviewImage(Objects.requireNonNullElse(blog.getPreviewImage(), defaultBlogCardImage));
         if(ret.getPreviewImage().isEmpty())
             ret.setPreviewImage(defaultBlogCardImage);
 
-        redisService.setBlogCard(blogID, ret);
+        cacheService.addValueToZSet(BlogCard_ByID.name(), ret, blogID);
         return ret;
     }
 }

@@ -24,6 +24,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -134,7 +135,7 @@ public class BlogServiceImpl implements BlogService {
             @CacheEvict(value = "allBlogTags", allEntries = true)
     })
     public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
-        blogMapper.updateBlogByModifyInfo(id, modifyInfo);
+        blogMapper.updateBlogByModifyInfo(id, new Blog(modifyInfo));
         reArrangeBlogTag(id, modifyInfo.getTagNames());
         reArrangeBlogCollection(id, modifyInfo.getCollections());
 
@@ -162,6 +163,41 @@ public class BlogServiceImpl implements BlogService {
     public void flushSiteInfo() {
         updateBlogViewsFromCache();
         cacheService.delete(Integer_SiteInfo.name());
+    }
+
+    @Override
+    public Integer getTotalBlogsAsCached() {
+        Integer ret = cacheService.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name());
+        if(ret == null){
+            ret = blogMapper.selectBlogCount();
+            cacheService.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name(), ret);
+        }
+        return ret;
+    }
+
+    @Override
+    public Integer getTotalViewsAsCached() {
+        Integer ret = cacheService.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name());
+        if(ret == null){
+            ret = blogMapper.selectViewsCount();
+            if(ret == null)
+                ret = 0;
+            cacheService.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), ret);
+        }
+        return ret;
+    }
+
+    @Override
+    public List<Integer> getBlogIDsStartAt(int startID, int blogNum) {
+        if(!cacheService.hasKey(Integer_AllBlogIDs.name()))
+            cacheAllBlogIDs();
+
+        List<Integer> blogIDs = cacheService.getListByReversedScoreRange(
+                Integer_AllBlogIDs.name(), Double.NEGATIVE_INFINITY, startID, 0, blogNum);
+
+        if(blogIDs != null)
+            return blogIDs;
+        else return new ArrayList<>();
     }
 
     private void reArrangeBlogTag(int blogID, List<String> tagNames){

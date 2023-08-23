@@ -13,7 +13,9 @@ public class Blog {
 
     public Blog(BlogUploadInfo uploadInfo){
         this.title = uploadInfo.getTitle();
-        this.contentAbstract = uploadInfo.getContentAbstract();
+        var uploadedAbstract = uploadInfo.getContentAbstract();
+        if(uploadedAbstract != null && !uploadedAbstract.isEmpty())
+            this.contentAbstract = uploadedAbstract;
         this.content = uploadInfo.getContent();
         this.previewImage = Objects.requireNonNullElse(uploadInfo.getPreviewImage(), "");
     }

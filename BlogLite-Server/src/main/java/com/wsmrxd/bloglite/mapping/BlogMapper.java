@@ -1,6 +1,5 @@
 package com.wsmrxd.bloglite.mapping;
 
-import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.entity.BlogCollectionMapping;
@@ -75,5 +74,5 @@ public interface BlogMapper {
             "content_abstract = #{modified.contentAbstract}, " +
             "preview_image = #{modified.previewImage} " +
             "WHERE id = #{id}")
-    void updateBlogByModifyInfo(@Param("id") int id, @Param("modified") BlogUploadInfo modified);
+    void updateBlogByModifyInfo(@Param("id") int id, @Param("modified") Blog modified);
 }

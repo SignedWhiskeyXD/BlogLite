@@ -6,6 +6,8 @@ import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 
+import java.util.List;
+
 public interface BlogService {
 
     BlogAdminDetail getBlogAdminDetailByID(int id);
@@ -23,4 +25,10 @@ public interface BlogService {
     int getBlogViewsAsCached(int blogID);
 
     void flushSiteInfo();
+
+    Integer getTotalBlogsAsCached();
+
+    Integer getTotalViewsAsCached();
+
+    List<Integer> getBlogIDsStartAt(int startID, int blogNum);
 }

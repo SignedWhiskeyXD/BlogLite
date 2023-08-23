@@ -5,7 +5,7 @@ import com.wsmrxd.bloglite.dto.BlogCollectionCreateInfo;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.mapping.BlogCollectionMapper;
 import com.wsmrxd.bloglite.service.BlogCollectionService;
-import com.wsmrxd.bloglite.service.RedisService;
+import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.vo.BlogCollectionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,28 +19,16 @@ import java.util.List;
 @Service
 public class BlogCollectionServiceImpl implements BlogCollectionService {
 
+    @Autowired
     private BlogCollectionMapper mapper;
 
-    private RedisService redisService;
+    @Autowired
+    private BlogService blogService;
 
+    @Autowired
     private BlogCollectionCache cacheService;
 
     private String defaultCollectionImageUrl;
-
-    @Autowired
-    public void setMapper(BlogCollectionMapper mapper) {
-        this.mapper = mapper;
-    }
-
-    @Autowired
-    public void setRedisService(RedisService redisService) {
-        this.redisService = redisService;
-    }
-
-    @Autowired
-    public void setCacheService(BlogCollectionCache cacheService) {
-        this.cacheService = cacheService;
-    }
 
     @Value("${myConfig.image.defaultCollectionImage}")
     public void setDefaultCollectionImageUrl(String defaultCollectionImageUrl) {
@@ -101,7 +89,7 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
     private int getCollectionTotalViewsByBlogIDs(List<Integer> blogIDs){
         int ret = 0;
         for(int blogID : blogIDs)
-            ret += redisService.getBlogViewsAsCached(blogID);
+            ret += blogService.getBlogViewsAsCached(blogID);
 
         return ret;
     }
