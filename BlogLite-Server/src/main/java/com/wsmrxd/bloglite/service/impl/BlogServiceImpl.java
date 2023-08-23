@@ -20,9 +20,11 @@ import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -124,10 +126,12 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    @CacheEvict("allBlogTags")
     public int addNewBlog(BlogUploadInfo newBlog) {
         var newBlogEntity = new Blog();
         newBlogEntity.setTitle(newBlog.getTitle());
         newBlogEntity.setContent(newBlog.getContent());
+        newBlogEntity.setPreviewImage(Objects.requireNonNullElse(newBlog.getPreviewImage(), ""));
         blogMapper.insertBlog(newBlogEntity);
 
         int newBlogID = newBlogEntity.getId();
@@ -144,7 +148,11 @@ public class BlogServiceImpl implements BlogService {
         return newBlogID;
     }
     @Override
-    @CacheEvict(value = "BlogAdminDetail", key = "#blogID")
+
+    @Caching(evict = {
+            @CacheEvict(value = "BlogAdminDetail", key = "#blogID"),
+            @CacheEvict("allBlogTags")
+    })
     public void reArrangeBlogTag(int blogID, List<String> tagNames){
         blogMapper.deleteTagMappingByBlogID(blogID);
         if(tagNames != null && tagNames.size() > 0)

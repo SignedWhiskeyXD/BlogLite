@@ -31,5 +31,7 @@ public class BlogCard {
 
     private String contentAbstract;
 
+    private String previewImage;
+
     private List<String> tagNames;
 }

@@ -1,3 +1,75 @@
+<template>
+    <h2>写新文章</h2>
+    <el-row gutter="20">
+        <el-col :span="12">
+            <h3>标题</h3>
+            <el-input v-model="blogInfo.title"></el-input>
+        </el-col>
+        <el-col :span="12">
+            <h3>首图链接</h3>
+            <el-input v-model="blogInfo.previewImage"></el-input>
+        </el-col>
+    </el-row>
+
+    <h3>文章摘要</h3>
+    <el-input v-model="blogInfo.contentAbstract"></el-input>
+    <h3>文章正文</h3>
+    <mavon-editor ref="md" v-model="blogInfo.content" @imgAdd="$imgAdd"></mavon-editor>
+
+    <h3>添加标签</h3>
+    <el-tag
+      v-for="tag in tagNames"
+      :key="tag"
+      class="mx-1"
+      closable
+      :disable-transitions="false"
+      @close="handleClose(tag)"
+    >
+        {{ tag }}
+    </el-tag>
+    <el-input
+      v-if="tagInputVisible"
+      ref="InputRef"
+      v-model="tagInputValue"
+      class="ml-1 w-20"
+      size="small"
+      @keyup.enter="handleTagInputConfirm"
+      @blur="handleTagInputConfirm"
+    />
+    <el-button v-else class="button-new-tag ml-1" size="small" @click="showTagInput">
+        + New Tag
+    </el-button>
+
+    <h3>添加文章至专栏</h3>
+
+    <div class="chosen-collections">
+        <el-tag
+          v-for="collectionName in blogInfo.collections"
+          :key="collectionName"
+          class="mx-1"
+          type="success"
+          closable
+          @close="handleCloseCollectionTag(collectionName)"
+          :disable-transitions="false"
+        >
+            {{ collectionName }}
+        </el-tag>
+    </div>
+
+    <el-select placeholder="选择一个专栏" size="large"
+               v-model="currentSelectedCollectionName" @change="handleSelectorChange">
+        <el-option
+          v-for="collection in availableCollections"
+          :key="collection.id"
+          :value="collection.collectionName"
+        />
+    </el-select>
+
+    <el-form-item style="text-align: right;">
+        <el-button type="primary" @click="handleSubmit">发布文章</el-button>
+    </el-form-item>
+</template>
+
 <script>
 import {editBlog, getBlogByID, pushNewBlog} from "@/fetch/BlogAPI";
 import {ElMessage} from "element-plus";
@@ -103,6 +175,7 @@ export default {
                 views: 0,
                 publishTime: "",
                 collections: [],
+                previewImage: ""
             },
             tagNames: [],
             tagInputVisible: false,
@@ -114,69 +187,6 @@ export default {
     }
 }
 </script>
-
-<template>
-    <h2>写新文章</h2>
-    <h3>标题</h3>
-    <el-input v-model="blogInfo.title"></el-input>
-    <h3>文章摘要</h3>
-    <el-input v-model="blogInfo.contentAbstract"></el-input>
-    <h3>文章正文</h3>
-    <mavon-editor ref="md" v-model="blogInfo.content" @imgAdd="$imgAdd"></mavon-editor>
-
-    <h3>添加标签</h3>
-    <el-tag
-            v-for="tag in tagNames"
-            :key="tag"
-            class="mx-1"
-            closable
-            :disable-transitions="false"
-            @close="handleClose(tag)"
-    >
-        {{ tag }}
-    </el-tag>
-    <el-input
-            v-if="tagInputVisible"
-            ref="InputRef"
-            v-model="tagInputValue"
-            class="ml-1 w-20"
-            size="small"
-            @keyup.enter="handleTagInputConfirm"
-            @blur="handleTagInputConfirm"
-    />
-    <el-button v-else class="button-new-tag ml-1" size="small" @click="showTagInput">
-        + New Tag
-    </el-button>
-
-    <h3>添加文章至专栏</h3>
-
-    <div class="chosen-collections">
-        <el-tag
-          v-for="collectionName in blogInfo.collections"
-          :key="collectionName"
-          class="mx-1"
-          type="success"
-          closable
-          @close="handleCloseCollectionTag(collectionName)"
-          :disable-transitions="false"
-        >
-            {{ collectionName }}
-        </el-tag>
-    </div>
-
-    <el-select placeholder="选择一个专栏" size="large"
-               v-model="currentSelectedCollectionName" @change="handleSelectorChange">
-        <el-option
-            v-for="collection in availableCollections"
-            :key="collection.id"
-            :value="collection.collectionName"
-        />
-    </el-select>
-
-    <el-form-item style="text-align: right;">
-        <el-button type="primary" @click="handleSubmit">发布文章</el-button>
-    </el-form-item>
-</template>
 
 <style>
 </style>

@@ -46,8 +46,8 @@ public interface BlogMapper {
     @Insert("INSERT INTO blog_collection_mapping VALUES (#{blogID}, #{collectionID})")
     void insertBlogCollectionMapping(BlogCollectionMapping mapping);
 
-    @Insert("INSERT INTO blog (title, content_abstract, content) " +
-            "VALUES (#{title}, #{contentAbstract}, #{content})")
+    @Insert("INSERT INTO blog (title, content_abstract, content, preview_image) " +
+            "VALUES (#{title}, #{contentAbstract}, #{content}, #{previewImage})")
     @SelectKey(statement="SELECT LAST_INSERT_ID()",
             keyProperty="id", before=false, resultType=int.class)
     void insertBlog(Blog newBlog);

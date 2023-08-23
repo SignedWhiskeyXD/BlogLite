@@ -8,7 +8,7 @@
       <el-text size="large">WhiskeyXD的个人博客</el-text>
     </el-row>
     <el-row class="my-avatar center">
-      <el-avatar size="large" src="src/assets/my-avatar.jpg"/>
+      <el-avatar size="large" src="https://avatars.githubusercontent.com/u/108565494"/>
     </el-row>
     <el-divider class="about-me-divider"/>
     <el-row class="statistic center">

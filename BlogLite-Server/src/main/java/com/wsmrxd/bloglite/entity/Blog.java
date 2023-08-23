@@ -18,4 +18,6 @@ public class Blog {
     private int views;
 
     private Date publishTime;
+
+    private String previewImage;
 }

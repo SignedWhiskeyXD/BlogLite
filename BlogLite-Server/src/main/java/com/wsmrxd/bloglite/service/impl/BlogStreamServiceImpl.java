@@ -7,10 +7,12 @@ import com.wsmrxd.bloglite.service.RedisService;
 import com.wsmrxd.bloglite.vo.BlogStream;
 import com.wsmrxd.bloglite.vo.BlogCard;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BlogStreamServiceImpl implements BlogStreamService {
@@ -20,6 +22,13 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     private RedisService redisService;
 
     private BlogCollectionCache blogCollectionCache;
+
+    private String defaultBlogCardImage;
+
+    @Value("${myConfig.image.defaultBlogCardImage}")
+    public void setDefaultBlogCardImage(String defaultBlogCardImage) {
+        this.defaultBlogCardImage = defaultBlogCardImage;
+    }
 
     @Autowired
     public void setMapper(BlogMapper mapper) {
@@ -93,6 +102,7 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         ret.setContentAbstract(blog.getContentAbstract());
         ret.setTagNames(blogTagNames);
         ret.setViews(redisService.getBlogViewsAsCached(blogID));
+        ret.setPreviewImage(Objects.requireNonNullElse(blog.getPreviewImage(), defaultBlogCardImage));
 
         redisService.setBlogCard(blogID, ret);
         return ret;

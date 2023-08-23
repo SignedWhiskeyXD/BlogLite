@@ -1,5 +1,6 @@
 <script setup>
 import 'element-plus/dist/index.css'
+import { Picture as IconPicture } from '@element-plus/icons-vue'
 </script>
 
 <template>
@@ -20,10 +21,17 @@ import 'element-plus/dist/index.css'
           </el-col>
         </el-row>
 
-        <el-divider class="title-content-divider" border-style="dashed"/>
+        <el-divider class="title-content-divider"/>
         <div class="blog-content" @click="routeToBlogDetail(blog.id)">
           {{ blog.contentAbstract }}
         </div>
+        <el-image lazy class="blog-preview-image"
+                  :src="blog.previewImage"
+                  :preview-src-list="blog.previewImage">
+          <template #error>
+            <el-icon class="image-error"><IconPicture/></el-icon>
+          </template>
+        </el-image>
         <el-divider class="title-content-divider" border-style="dashed"/>
         <div class="blog-tags">
           <el-tag v-for="tag in blog.tagNames" class="blog-tag"
@@ -92,8 +100,8 @@ export default {
 
 <style scoped>
 .blog-item {
-    border: 1px solid var(--el-border-color);
-    border-radius: 8px;
+    //border: 1px solid var(--el-border-color);
+    border-radius: 20px;
     padding: 20px;
     margin-bottom: 40px;
     background-color: #ffffff;
@@ -135,5 +143,27 @@ export default {
 .blog-views {
     text-align: center;
     padding-right: 10%;
+}
+
+.blog-preview-image {
+    width: 100%;
+    margin-top: 20px;
+    scale: 95%;
+}
+
+.image-error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 300px;
+    background: var(--el-fill-color-light);
+    color: var(--el-text-color-secondary);
+}
+
+@media screen and (min-width: 1600px) {
+    .image-error {
+        min-height: 480px;
+    }
 }
 </style>

@@ -23,3 +23,4 @@ myConfig:
     repositoryPath: D://dev/nginx-1.25.1/html/image
     nginxContext: http://127.0.0.1/image/
     defaultCollectionImage: https://picx.zhimg.com/4b70deef7_l.jpg?source=d16d100b
+    defaultBlogCardImage: https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg
