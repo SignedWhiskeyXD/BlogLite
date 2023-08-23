@@ -18,7 +18,7 @@
 
     <h3>添加标签</h3>
     <el-tag
-      v-for="tag in tagNames"
+      v-for="tag in blogInfo.tagNames"
       :key="tag"
       class="mx-1"
       closable
@@ -92,24 +92,25 @@ export default {
                 .then(blogInfo => {
                     if(blogInfo){
                         this.blogInfo = blogInfo.blog
-                        this.tagNames = blogInfo.tagNames
-                        this.blogInfo.collections = blogInfo.collections;
+                        this.blogInfo.tagNames = blogInfo.tagNames
+                        this.blogInfo.collections = blogInfo.collections
                     }else{
                         ElMessage.error('无法加载该文章')
                     }
                 })
         },
         handleSubmit(){
-            const blogModifyInfo = {
+            const blogUploadInfo = {
                 title: this.blogInfo.title,
                 contentAbstract: this.blogInfo.contentAbstract,
                 content: this.blogInfo.content,
-                tagNames: this.tagNames,
+                previewImage: this.blogInfo.previewImage,
+                tagNames: this.blogInfo.tagNames,
                 collections: this.blogInfo.collections
             }
 
             if(this.$route.params.blog_id){
-                editBlog(this.$route.params.blog_id, blogModifyInfo)
+                editBlog(this.$route.params.blog_id, blogUploadInfo)
                     .then(result => {
                         if(result){
                             ElMessage.success('修改成功！')
@@ -120,7 +121,7 @@ export default {
                     })
             }
             else{
-                pushNewBlog(this.blogInfo)
+                pushNewBlog(blogUploadInfo)
                     .then(result => {
                         if (result) {
                             ElMessage.success('发布成功！')
@@ -142,7 +143,7 @@ export default {
         },
         handleTagInputConfirm(){
             if(this.tagInputValue.length > 0)
-                this.tagNames.push(this.tagInputValue)
+                this.blogInfo.tagNames.push(this.tagInputValue)
             this.tagInputValue = ""
             this.tagInputVisible = false
         },
@@ -170,14 +171,15 @@ export default {
             blogInfo:{
                 id: 0,
                 title: "",
+                previewImage: "",
                 contentAbstract: "",
                 content: "",
                 views: 0,
                 publishTime: "",
-                collections: [],
-                previewImage: ""
+
+                tagNames: [],
+                collections: []
             },
-            tagNames: [],
             tagInputVisible: false,
             tagInputValue: "",
 

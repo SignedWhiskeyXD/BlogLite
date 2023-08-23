@@ -1,8 +1,8 @@
 package com.wsmrxd.bloglite.Utils;
 
+import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Component;
-import org.commonmark.parser.Parser;
 
 @Component
 public class MarkDownUtil {

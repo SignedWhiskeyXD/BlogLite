@@ -1,7 +1,7 @@
 package com.wsmrxd.bloglite.service;
 
-import com.github.pagehelper.PageInfo;
-import com.wsmrxd.bloglite.vo.*;
+import com.wsmrxd.bloglite.vo.BlogCard;
+import com.wsmrxd.bloglite.vo.BlogDetail;
 
 import java.util.List;
 
@@ -17,8 +17,6 @@ public interface RedisService {
 
     String blogAddViewsKey = "BlogAddViews";
 
-    String blogPreviewPageKey = "BlogPreviewPageInfo";
-
     String siteInfoKey = "SiteInfo";
 
     String totalBlogsKey = "totalBlogs";
@@ -33,13 +31,7 @@ public interface RedisService {
 
     void setBlogDetail(int blogID, BlogDetail toCache);
 
-    PageInfo<BlogPreview> getBlogPreviewPage(int pageNum, int pageSize);
-
-    void setBlogPreviewPage(int pageNum, int pageSize, PageInfo<BlogPreview> toCache);
-
     void flushBlogCache(int blogID);
-
-    void flushBlogPagingCache();
 
     BlogCard getBlogCard(int blogID);
 

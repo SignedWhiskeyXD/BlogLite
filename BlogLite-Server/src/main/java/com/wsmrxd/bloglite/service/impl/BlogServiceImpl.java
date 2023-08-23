@@ -14,17 +14,17 @@ import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.mapping.BlogTagMapper;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.RedisService;
+import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
-import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -109,29 +109,20 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    @Cacheable(value = "BlogPaging", key = "#pageNum + '_' + #pageSize")
     public PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize) {
-        PageInfo<BlogPreview> blogPageInfoCache = redisService.getBlogPreviewPage(pageNum, pageSize);
-        if(blogPageInfoCache != null) return blogPageInfoCache;
-
         PageHelper.startPage(pageNum, pageSize);
-        var ret = new PageInfo<>(blogMapper.selectAllBlogs());
-
-        redisService.setBlogPreviewPage(pageNum, pageSize, ret);
-        return ret;
+        return new PageInfo<>(blogMapper.selectAllBlogs());
     }
 
     @Override
-    public List<BlogTag> getAllTagsByBlogID(int blogID) {
-        return blogMapper.selectTagsByBlogID(blogID);
-    }
-
-    @Override
-    @CacheEvict("allBlogTags")
+    @Transactional(rollbackFor = {Exception.class})
+    @Caching(evict = {
+            @CacheEvict(value = "BlogPaging", allEntries = true),
+            @CacheEvict(value = "allBlogTags", allEntries = true)
+    })
     public int addNewBlog(BlogUploadInfo newBlog) {
-        var newBlogEntity = new Blog();
-        newBlogEntity.setTitle(newBlog.getTitle());
-        newBlogEntity.setContent(newBlog.getContent());
-        newBlogEntity.setPreviewImage(Objects.requireNonNullElse(newBlog.getPreviewImage(), ""));
+        var newBlogEntity = new Blog(newBlog);
         blogMapper.insertBlog(newBlogEntity);
 
         int newBlogID = newBlogEntity.getId();
@@ -147,21 +138,43 @@ public class BlogServiceImpl implements BlogService {
         redisService.addBlogIDtoZSet(newBlogID);
         return newBlogID;
     }
-    @Override
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
     @Caching(evict = {
-            @CacheEvict(value = "BlogAdminDetail", key = "#blogID"),
-            @CacheEvict("allBlogTags")
+            @CacheEvict(value = "BlogAdminDetail", key = "#id"),
+            @CacheEvict(value = "BlogPaging", allEntries = true),
+            @CacheEvict(value = "allBlogTags", allEntries = true)
     })
-    public void reArrangeBlogTag(int blogID, List<String> tagNames){
+    public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
+        blogMapper.updateBlogByModifyInfo(id, modifyInfo);
+        reArrangeBlogTag(id, modifyInfo.getTagNames());
+        reArrangeBlogCollection(id, modifyInfo.getCollections());
+        redisService.flushBlogCache(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @Caching(evict = {
+            @CacheEvict(value = "BlogAdminDetail", key = "#id"),
+            @CacheEvict(value = "BlogPaging", allEntries = true)
+    })
+    public boolean deleteBlog(int id) {
+        redisService.flushSiteInfo();
+        redisService.removeBlogIDFromZSet(id);
+        redisService.flushBlogCache(id);
+        blogMapper.deleteTagMappingByBlogID(id);
+        blogMapper.deleteCollectionMappingByBlogID(id);
+        return blogMapper.deleteBlogByID(id);
+    }
+
+    private void reArrangeBlogTag(int blogID, List<String> tagNames){
         blogMapper.deleteTagMappingByBlogID(blogID);
         if(tagNames != null && tagNames.size() > 0)
             arrangeTagList(blogID, tagNames);
     }
 
-    @Override
-    @CacheEvict(value = "BlogAdminDetail", key = "#blogID")
-    public void reArrangeBlogCollection(int blogID, List<String> collectionNames){
+    private void reArrangeBlogCollection(int blogID, List<String> collectionNames){
         var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
         for(var blogCollection : blogCollections)
             blogCollectionCache.removeBlogIDFromSet(blogCollection.getId(), blogID);
@@ -169,38 +182,6 @@ public class BlogServiceImpl implements BlogService {
         blogMapper.deleteCollectionMappingByBlogID(blogID);
         if(collectionNames != null && collectionNames.size() > 0)
             arrangeCollectionList(blogID, collectionNames);
-    }
-
-    @Override
-    public boolean renameBlogTitle(int id, String newTitle) {
-        return blogMapper.updateBlogTitleByID(id, newTitle);
-    }
-
-    @Override
-    public boolean editBlogAbstract(int id, String newAbstract) {
-        return blogMapper.updateBlogAbstractByID(id, newAbstract);
-    }
-
-    @Override
-    public boolean editBlogContent(int id, String newContent) {
-        return blogMapper.updateBlogContentByID(id, newContent);
-    }
-
-    @Override
-    public boolean deleteBlog(int id) {
-        redisService.flushSiteInfo();
-        redisService.removeBlogIDFromZSet(id);
-        return blogMapper.deleteBlogByID(id);
-    }
-
-    @Override
-    public void flushBlogCache(int blogID){
-        redisService.flushBlogCache(blogID);
-    }
-
-    @Override
-    public void flushBlogPagingCache(){
-        redisService.flushBlogPagingCache();
     }
 
     private void arrangeTagList(int newBlogID, List<String> tagList) {

@@ -34,18 +34,9 @@ public class BlogAdminController {
         return RestResponse.ok(blogService.getAllBlogsByPage(pageNum, pageSize));
     }
 
-    // TODO: 聚合其中的三个更新方法
     @PostMapping("/{id}")
     public RestResponse modifyBlog(@RequestBody BlogUploadInfo modifyInfo, @PathVariable int id){
-        boolean result = blogService.renameBlogTitle(id, modifyInfo.getTitle());
-        result &= blogService.editBlogAbstract(id, modifyInfo.getContentAbstract());
-        result &= blogService.editBlogContent(id, modifyInfo.getContent());
-        blogService.reArrangeBlogTag(id, modifyInfo.getTagNames());
-        blogService.reArrangeBlogCollection(id, modifyInfo.getCollections());
-        if(!result)
-            throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Modify The Blog");
-
-        blogService.flushBlogCache(id);
+        blogService.modifyBlog(id, modifyInfo);
         return RestResponse.ok(null);
     }
 
@@ -55,7 +46,6 @@ public class BlogAdminController {
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Add The Blog");
 
-        blogService.flushBlogPagingCache();
         return RestResponse.ok(null);
     }
 
@@ -64,9 +54,6 @@ public class BlogAdminController {
         boolean result = blogService.deleteBlog(id);
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Delete The Blog");
-
-        blogService.flushBlogCache(id);
-        blogService.flushBlogPagingCache();
         return RestResponse.ok(null);
     }
 }

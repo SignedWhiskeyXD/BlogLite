@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +15,7 @@ public class Blog {
         this.title = uploadInfo.getTitle();
         this.contentAbstract = uploadInfo.getContentAbstract();
         this.content = uploadInfo.getContent();
-        this.previewImage = uploadInfo.getPreviewImage();
+        this.previewImage = Objects.requireNonNullElse(uploadInfo.getPreviewImage(), "");
     }
 
     private int id;

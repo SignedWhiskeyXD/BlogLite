@@ -1,9 +1,9 @@
 package com.wsmrxd.bloglite.service.impl;
 
-import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.RedisService;
-import com.wsmrxd.bloglite.vo.*;
+import com.wsmrxd.bloglite.vo.BlogCard;
+import com.wsmrxd.bloglite.vo.BlogDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -71,30 +71,9 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public PageInfo<BlogPreview> getBlogPreviewPage(int pageNum, int pageSize) {
-        var redisHashOps = redisTemplate.opsForHash();
-        final String hashKey = pageNum + "_" + pageSize;
-
-        return (PageInfo<BlogPreview>) redisHashOps.get(blogPreviewPageKey, hashKey);
-    }
-
-    @Override
-    public void setBlogPreviewPage(int pageNum, int pageSize, PageInfo<BlogPreview> toCache) {
-        var redisHashOps = redisTemplate.opsForHash();
-        final String hashKey = pageNum + "_" + pageSize;
-
-        redisHashOps.put(blogPreviewPageKey, hashKey, toCache);
-    }
-
-    @Override
     public void flushBlogCache(int blogID) {
         redisTemplate.delete(blogDetailPrefix + blogID);
         redisTemplate.delete(blogCardPrefix + blogID);
-    }
-
-    @Override
-    public void flushBlogPagingCache() {
-        redisTemplate.delete(blogPreviewPageKey);
     }
 
     @Override

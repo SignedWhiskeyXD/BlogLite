@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SpringBootTest
 public class BlogTest {
 
@@ -25,33 +22,8 @@ public class BlogTest {
     }
 
     @Test
-    public void testSelect(){
-        var blog = blogService.getBlogByID(1);
-        System.out.println(blog);
-
-        blogService.renameBlogTitle(1, "修改标题");
-        blogService.editBlogContent(1, "修改正文");
-        var newBlog = blogService.getBlogByID(1);
-        System.out.println(newBlog);
-    }
-
-    @Test
     public void testDelete(){
         var result = blogService.deleteBlog(1);
         System.out.println(result);
-    }
-
-    @Test
-    public void testBlogTags(){
-        var result = blogService.getAllTagsByBlogID(22);
-        System.out.println(result);
-    }
-
-    @Test
-    public void testBlogTagRemapping(){
-        List<String> newTagNames = new ArrayList<>();
-        newTagNames.add("测试");
-        newTagNames.add("test");
-        blogService.reArrangeBlogTag(46, newTagNames);
     }
 }

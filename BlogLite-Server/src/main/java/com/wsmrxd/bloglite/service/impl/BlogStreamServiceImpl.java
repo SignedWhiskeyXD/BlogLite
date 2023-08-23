@@ -4,8 +4,8 @@ import com.wsmrxd.bloglite.cache.BlogCollectionCache;
 import com.wsmrxd.bloglite.mapping.BlogMapper;
 import com.wsmrxd.bloglite.service.BlogStreamService;
 import com.wsmrxd.bloglite.service.RedisService;
-import com.wsmrxd.bloglite.vo.BlogStream;
 import com.wsmrxd.bloglite.vo.BlogCard;
+import com.wsmrxd.bloglite.vo.BlogStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -103,6 +103,8 @@ public class BlogStreamServiceImpl implements BlogStreamService {
         ret.setTagNames(blogTagNames);
         ret.setViews(redisService.getBlogViewsAsCached(blogID));
         ret.setPreviewImage(Objects.requireNonNullElse(blog.getPreviewImage(), defaultBlogCardImage));
+        if(ret.getPreviewImage().isEmpty())
+            ret.setPreviewImage(defaultBlogCardImage);
 
         redisService.setBlogCard(blogID, ret);
         return ret;

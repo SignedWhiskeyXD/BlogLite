@@ -3,14 +3,10 @@ package com.wsmrxd.bloglite.service;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
-import com.wsmrxd.bloglite.entity.BlogTag;
+import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
-import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 
-import java.util.List;
-
-// TODO: 这个类承担了太多职责，应当重构
 public interface BlogService {
     Blog getBlogByID(int id);
 
@@ -20,23 +16,9 @@ public interface BlogService {
 
     PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize);
 
-    List<BlogTag> getAllTagsByBlogID(int blogID);
-
     int addNewBlog(BlogUploadInfo newBlog);
 
-    void reArrangeBlogTag(int blogID, List<String> tagNames);
-
-    void reArrangeBlogCollection(int blogID, List<String> collectionNames);
-
-    boolean renameBlogTitle(int id, String newTitle);
-
-    boolean editBlogAbstract(int id, String newAbstract);
-
-    boolean editBlogContent(int id, String newContent);
+    void modifyBlog(int id, BlogUploadInfo modifyInfo);
 
     boolean deleteBlog(int id);
-
-    void flushBlogCache(int blogID);
-
-    void flushBlogPagingCache();
 }

@@ -1,6 +1,10 @@
 package com.wsmrxd.bloglite.mapping;
 
-import com.wsmrxd.bloglite.entity.*;
+import com.wsmrxd.bloglite.dto.BlogUploadInfo;
+import com.wsmrxd.bloglite.entity.Blog;
+import com.wsmrxd.bloglite.entity.BlogCollection;
+import com.wsmrxd.bloglite.entity.BlogCollectionMapping;
+import com.wsmrxd.bloglite.entity.BlogTagMapping;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import org.apache.ibatis.annotations.*;
 
@@ -17,11 +21,6 @@ public interface BlogMapper {
 
     @Select("SELECT id FROM blog ORDER BY id DESC")
     List<Integer> selectAllBlogID();
-
-    @Select("SELECT bt.* FROM blog_tag_mapping btm\n" +
-            "INNER JOIN blog_tag bt ON btm.tag_id = bt.id\n" +
-            "WHERE btm.blog_id = #{id}")
-    List<BlogTag> selectTagsByBlogID(int id);
 
     @Select("SELECT bt.tag_name FROM blog_tag_mapping btm\n" +
             "INNER JOIN blog_tag bt ON btm.tag_id = bt.id\n" +
@@ -67,15 +66,14 @@ public interface BlogMapper {
     @Delete("DELETE FROM blog_collection_mapping WHERE blog_id = #{blogID}")
     void deleteCollectionMappingByBlogID(int blogID);
 
-    @Update("UPDATE blog set title = #{newTitle} WHERE id = #{id}")
-    boolean updateBlogTitleByID(@Param("id") int id, @Param("newTitle") String newTitle);
-
-    @Update("UPDATE blog set content_abstract = #{newAbstract} WHERE id = #{id}")
-    boolean updateBlogAbstractByID(@Param("id") int id, @Param("newAbstract") String newAbstract);
-
-    @Update("UPDATE blog set content = #{content} WHERE id = #{id}")
-    boolean updateBlogContentByID(@Param("id") int id, @Param("content") String content);
-
     @Update("UPDATE blog set views = views + #{views} WHERE id = #{id}")
-    boolean updateBlogViewsByID(@Param("id") int id, @Param("views") int views);
+    void updateBlogViewsByID(@Param("id") int id, @Param("views") int views);
+
+    @Update("UPDATE blog SET " +
+            "title = #{modified.title}, " +
+            "content = #{modified.content}, " +
+            "content_abstract = #{modified.contentAbstract}, " +
+            "preview_image = #{modified.previewImage} " +
+            "WHERE id = #{id}")
+    void updateBlogByModifyInfo(@Param("id") int id, @Param("modified") BlogUploadInfo modified);
 }

@@ -45,7 +45,7 @@ public class BlogTagServiceImpl implements BlogTagService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
-            @CacheEvict("allBlogTags")
+            @CacheEvict(value = "allBlogTags", allEntries = true)
     })
     public int addTag(String name) {
         var newTag = new BlogTag();
@@ -58,7 +58,7 @@ public class BlogTagServiceImpl implements BlogTagService {
     @Caching(evict = {
             @CacheEvict(value = "BlogTag", key = "#id"),
             @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
-            @CacheEvict("allBlogTags")
+            @CacheEvict(value = "allBlogTags", allEntries = true)
     })
     public boolean removeTag(int id) {
         boolean result = mapper.deleteTagByID(id);
@@ -70,7 +70,7 @@ public class BlogTagServiceImpl implements BlogTagService {
     @Caching(evict = {
             @CacheEvict(value = "BlogTag", key = "#id"),
             @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
-            @CacheEvict("allBlogTags")
+            @CacheEvict(value = "allBlogTags", allEntries = true)
     })
     public boolean renameTag(int id, String newName) {
         return mapper.updateTagNameByID(id, newName);
