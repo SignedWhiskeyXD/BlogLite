@@ -1,5 +1,6 @@
 <template>
     <h2>写新文章</h2>
+    <input type="file" @change="handleFileUpload" accept=".md">
     <el-row gutter="20">
         <el-col :span="12">
             <h3>标题</h3>
@@ -14,7 +15,7 @@
     <h3>文章摘要</h3>
     <el-input v-model="blogInfo.contentAbstract"></el-input>
     <h3>文章正文</h3>
-    <mavon-editor ref="md" v-model="blogInfo.content" @imgAdd="$imgAdd"></mavon-editor>
+    <mavon-editor ref="md" v-model="blogInfo.content" @imgAdd="$imgAdd" class="md-editor"></mavon-editor>
 
     <h3>添加标签</h3>
     <el-tag
@@ -98,6 +99,25 @@ export default {
                         ElMessage.error('无法加载该文章')
                     }
                 })
+        },
+        handleFileUpload(event){
+            const file = event.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                if (fileExtension === 'md') {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        this.blogInfo.title = fileName.split('.')[0];
+                        this.blogInfo.content = reader.result;
+                    };
+
+                    reader.readAsText(file);
+                } else {
+                    ElMessage.error('请选择一个Markdown文件（.md）');
+                }
+            }
         },
         handleSubmit(){
             const blogUploadInfo = {
@@ -191,4 +211,7 @@ export default {
 </script>
 
 <style>
+.md-editor {
+    max-height: 1000px;
+}
 </style>
