@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,12 @@ public class CacheServiceImpl implements CacheService {
     public <T> void setKeyValue(String key, T value){
         var redisValOps = redisTemplate.opsForValue();
         redisValOps.set(key, value);
+    }
+
+    @Override
+    public <T> boolean setKeyValueIfAbsent(String key, T value, Duration timeout){
+        var redisValOps = redisTemplate.opsForValue();
+        return Boolean.TRUE.equals(redisValOps.setIfAbsent(key, value, timeout));
     }
 
     @Override

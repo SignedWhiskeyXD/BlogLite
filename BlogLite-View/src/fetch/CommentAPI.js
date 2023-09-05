@@ -13,5 +13,8 @@ export async function publishComment(id, commentInfo) {
         },
         body: JSON.stringify(commentInfo)
     });
-    return payload.code;
+    return {
+        code: payload.code,
+        message: payload.message
+    };
 }

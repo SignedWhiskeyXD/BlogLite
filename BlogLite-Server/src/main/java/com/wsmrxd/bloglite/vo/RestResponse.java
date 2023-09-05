@@ -22,4 +22,8 @@ public class RestResponse<T> {
         return new RestResponse<>(code, msg, null);
     }
 
+    public static RestResponse<Object> ok(){
+        return new RestResponse<>(200, "OK", null);
+    }
+
 }

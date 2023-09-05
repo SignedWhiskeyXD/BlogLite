@@ -16,7 +16,6 @@ CREATE TABLE comment (
     identify int NOT NULL DEFAULT 0,
     nickname varchar(30) NOT NULL DEFAULT 'Unknown',
     email varchar(30) NOT NULL DEFAULT '',
-    ipv4 varchar(15) NOT NULL DEFAULT '',
     enable boolean NOT NULL DEFAULT false,
     publish_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     content varchar(200) NOT NULL DEFAULT '',

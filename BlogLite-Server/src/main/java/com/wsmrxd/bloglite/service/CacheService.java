@@ -1,11 +1,14 @@
 package com.wsmrxd.bloglite.service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public interface CacheService {
     <T> void setKeyValue(String key, T value);
+
+    <T> boolean setKeyValueIfAbsent(String key, T value, Duration timeout);
 
     <T> T getValueByKey(String key);
 

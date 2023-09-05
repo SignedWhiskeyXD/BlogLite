@@ -2,22 +2,34 @@ package com.wsmrxd.bloglite.controller.publics;
 
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.CommentUploadInfo;
+import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
 import com.wsmrxd.bloglite.vo.CommentVO;
 import com.wsmrxd.bloglite.vo.RestResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
+import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
+
 @RestController
 @RequestMapping("/api/comment")
 public class CommentAPI {
 
-    public static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 10;
+
+    @Value("${myConfig.comment.needReview}")
+    private boolean needReview;
+
+    @Value("${myConfig.comment.coolDownMinutes}")
+    private int coolDownMinutes;
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private CacheService cacheService;
 
     @GetMapping
     public RestResponse<PageInfo<CommentVO>> serveCommentPageByID(@RequestParam("id") int id,
@@ -28,8 +40,18 @@ public class CommentAPI {
 
     @PostMapping("/{id}")
     public RestResponse<Object> uploadCommentByID(@PathVariable Integer id,
-                                                  @RequestBody CommentUploadInfo newComment){
-        log.trace("Comment Uploaded: \n{}", newComment.toString());
-        return RestResponse.build(201, "Comment needs to be Reviewed");
+                                                  @RequestBody CommentUploadInfo newComment,
+                                                  HttpServletRequest request){
+        String ipKey = "CommentIPV4::" + request.getRemoteAddr();
+        if(!cacheService.setKeyValueIfAbsent(ipKey, " ", Duration.ofMinutes(coolDownMinutes)))
+            return RestResponse.build(50400, Integer.toString(coolDownMinutes));
+
+        if(needReview) {
+            commentService.enqueueCommentToReview(id, newComment);
+            return RestResponse.build(201, "Comment needs to be Reviewed");
+        }else{
+            commentService.addNewComment(id, newComment);
+            return RestResponse.ok();
+        }
     }
 }

@@ -1,11 +1,21 @@
 package com.wsmrxd.bloglite.entity;
 
+import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Data
+@NoArgsConstructor
 public class Comment {
+
+    public Comment(int blogID, CommentUploadInfo newComment){
+        this.identify = blogID;
+        this.nickname = newComment.getNickname();
+        this.email = newComment.getEmail();
+        this.content = newComment.getContent();
+    }
 
     private int id;
 
@@ -14,8 +24,6 @@ public class Comment {
     private String nickname;
 
     private String email;
-
-    private String ipv4;
 
     private boolean enable;
 

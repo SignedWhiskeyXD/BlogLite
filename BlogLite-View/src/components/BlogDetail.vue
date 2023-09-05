@@ -116,15 +116,19 @@ export default {
 
             this.commentButtonDisabled = true;
             publishComment(this.blogDetail.id, this.commentInput)
-                .then(code => {
-                    if(code === 200) {
+                .then(response => {
+                    if(response.code === 200) {
                         ElMessage.success('评论已发送');
                         this.clearCommentInput();
+                        this.currentPage = 1;
+                        this.getComments(this.blogDetail.id, 1);
                     }
-                    else if(code === 201){
+                    else if(response.code === 201){
                         ElMessage.warning('已发送，请等待站长审核')
                         this.clearCommentInput()
                     }
+                    else if(response.code === 50400)
+                        ElMessage.error(`操作太频繁，每${response.message}分钟才能发送一条评论`)
                     else
                         ElMessage.error('发送评论时出现错误');
                 })
