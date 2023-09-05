@@ -4,44 +4,45 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
 </script>
 
 <template>
-  <el-scrollbar ref="scrollbarRef" always @scroll="onScroll" max-height="95vh">
-    <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
-        infinite-scroll-delay="500">
-      <li v-for="blog in blogs" :key="blog.id"
-          class="blog-item" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-        <div class="blog-title">
-          <h2>{{ blog.title }}</h2>
-        </div>
-        <el-row class="blog-date-views">
-          <el-col :span="12" class="blog-date">
-            <el-text>发布时间 {{ blog.publishTime }}</el-text>
-          </el-col>
-          <el-col :span="12" class="blog-views">
-            <el-text>浏览次数 {{ blog.views }}</el-text>
-          </el-col>
-        </el-row>
+  <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
+      infinite-scroll-delay="500">
+    <li v-for="blog in blogs" :key="blog.id"
+        class="blog-item" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+      <div class="blog-title">
+        <h2>{{ blog.title }}</h2>
+      </div>
+      <el-row class="blog-date-views">
+        <el-col :span="12" class="blog-date">
+          <el-text>发布时间 {{ blog.publishTime }}</el-text>
+        </el-col>
+        <el-col :span="12" class="blog-views">
+          <el-text>浏览次数 {{ blog.views }}</el-text>
+        </el-col>
+      </el-row>
 
-        <el-divider class="title-content-divider"/>
-        <div class="blog-content" @click="routeToBlogDetail(blog.id)">
-          {{ blog.contentAbstract }}
-        </div>
-        <el-image lazy class="blog-preview-image"
-                  :src="blog.previewImage"
-                  :preview-src-list="blog.previewImage">
-          <template #error>
-            <el-icon class="image-error"><IconPicture/></el-icon>
-          </template>
-        </el-image>
-        <el-divider class="title-content-divider" border-style="dashed"/>
-        <div class="blog-tags">
-          <el-tag v-for="tag in blog.tagNames" class="blog-tag"
-                  :key="tag" size="large">
-            {{ tag }}
-          </el-tag>
-        </div>
-      </li>
-    </ul>
-  </el-scrollbar>
+      <el-divider class="title-content-divider"/>
+      <div class="blog-content" @click="routeToBlogDetail(blog.id)">
+        {{ blog.contentAbstract }}
+      </div>
+      <el-image class="blog-preview-image"
+                :src="blog.previewImage"
+                :preview-src-list="blog.previewImage">
+        <template #error>
+          <el-icon class="image-error"><IconPicture/></el-icon>
+        </template>
+      </el-image>
+      <el-divider class="title-content-divider" border-style="dashed"/>
+      <div class="blog-tags">
+        <el-tag v-for="tag in blog.tagNames" class="blog-tag"
+                :key="tag" size="large">
+          {{ tag }}
+        </el-tag>
+      </div>
+    </li>
+  </ul>
+  <div class="at-bottom"  v-if="requestParams.nextRequestParam == null">
+    作者是条懒狗，就写了这么多！
+  </div>
 </template>
 
 <script>
@@ -57,10 +58,6 @@ export default {
                 this.scrollDisabled = false
             })
     },
-    activated() {
-        const scrollBar = this.$refs.scrollbarRef
-        scrollBar.setScrollTop(this.scrollBarPos)
-    },
     methods: {
         getMoreBlogs(){
             this.scrollDisabled = true
@@ -74,9 +71,6 @@ export default {
         routeToBlogDetail(blogID){
             router.push(`/blog/${blogID}`)
         },
-        onScroll({ scrollTop }){
-            this.scrollBarPos = scrollTop
-        }
     },
     data() {
         return {
@@ -165,5 +159,10 @@ export default {
     .image-error {
         min-height: 480px;
     }
+}
+
+.at-bottom {
+    text-align: center;
+    margin-bottom: 30px;
 }
 </style>

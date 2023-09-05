@@ -12,4 +12,6 @@ public class BlogPreview {
     private int id;
 
     private String title;
+
+    private int views;
 }

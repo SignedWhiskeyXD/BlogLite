@@ -15,8 +15,11 @@ public interface BlogMapper {
     @Select("SELECT * FROM blog WHERE id = #{id}")
     Blog selectBlogByID(int id);
 
-    @Select("SELECT id, title FROM blog ORDER BY id DESC")
+    @Select("SELECT id, title, views FROM blog ORDER BY id DESC")
     List<BlogPreview> selectAllBlogs();
+
+    @Select("SELECT id, title, views FROM blog ORDER BY views DESC LIMIT #{limit}")
+    List<BlogPreview> selectBlogsOrderByViews(int limit);
 
     @Select("SELECT id FROM blog ORDER BY id DESC")
     List<Integer> selectAllBlogID();

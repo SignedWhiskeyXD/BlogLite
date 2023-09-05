@@ -1,25 +1,48 @@
 <script setup>
 import AboutMe from "@/components/AboutMe.vue";
 import MainPageTags from "@/components/MainPageTags.vue";
+import BlogRanking from "@/components/BlogRanking.vue";
 </script>
 
 <template>
-  <div class="home-page-wrapper">
-    <aside class="left-side-wrapper">
-      <AboutMe/>
-    </aside>
-    <main class="main-wrapper">
-      <router-view v-slot="{ Component }">
-        <keep-alive include="BlogStream">
-          <component :is="Component"/>
-        </keep-alive>
-      </router-view>
-    </main>
-    <aside class="right-side-wrapper">
-      <main-page-tags/>
-    </aside>
-  </div>
+  <el-scrollbar ref="scrollbarRef" always @scroll="onScroll" max-height="95vh">
+    <div class="home-page-wrapper">
+      <aside class="left-side-wrapper">
+        <AboutMe/>
+      </aside>
+      <main class="main-wrapper">
+        <router-view v-slot="{ Component }">
+          <keep-alive include="BlogStream">
+            <component :is="Component"/>
+          </keep-alive>
+        </router-view>
+      </main>
+      <aside class="right-side-wrapper">
+        <main-page-tags/>
+        <blog-ranking/>
+      </aside>
+    </div>
+  </el-scrollbar>
 </template>
+
+<script>
+export default {
+    activated() {
+        const scrollBar = this.$refs.scrollbarRef
+        scrollBar.setScrollTop(this.scrollBarPos)
+    },
+    methods: {
+        onScroll({ scrollTop }){
+            this.scrollBarPos = scrollTop
+        }
+    },
+    data(){
+        return {
+            scrollBarPos: 0
+        }
+    }
+}
+</script>
 
 <style scoped>
 .home-page-wrapper{

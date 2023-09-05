@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -100,6 +101,12 @@ public class BlogServiceImpl implements BlogService {
     public PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         return new PageInfo<>(blogMapper.selectAllBlogs());
+    }
+
+    @Override
+    public List<BlogPreview> getBlogRanking(int limit) {
+        if(limit < 0) return Collections.emptyList();
+        return blogMapper.selectBlogsOrderByViews(limit);
     }
 
     @Override

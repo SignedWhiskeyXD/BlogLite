@@ -19,6 +19,8 @@ public interface BlogService {
 
     PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize);
 
+    List<BlogPreview> getBlogRanking(int limit);
+
     int addNewBlog(BlogUploadInfo newBlog);
 
     void modifyBlog(int id, BlogUploadInfo modifyInfo);
