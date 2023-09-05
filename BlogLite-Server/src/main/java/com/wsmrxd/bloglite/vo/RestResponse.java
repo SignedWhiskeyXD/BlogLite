@@ -18,7 +18,7 @@ public class RestResponse<T> {
         return new RestResponse<>(200, "OK", response);
     }
 
-    public static <T> RestResponse<T> build(Integer code, String msg){
+    public static RestResponse<Object> build(Integer code, String msg){
         return new RestResponse<>(code, msg, null);
     }
 

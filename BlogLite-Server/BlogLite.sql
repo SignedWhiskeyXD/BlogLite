@@ -10,6 +10,19 @@ CREATE TABLE blog (
     PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS comment;
+CREATE TABLE comment (
+    id int NOT NULL AUTO_INCREMENT,
+    identify int NOT NULL DEFAULT 0,
+    nickname varchar(30) NOT NULL DEFAULT 'Unknown',
+    email varchar(30) NOT NULL DEFAULT '',
+    ipv4 varchar(15) NOT NULL DEFAULT '',
+    enable boolean NOT NULL DEFAULT false,
+    publish_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    content varchar(200) NOT NULL DEFAULT '',
+    PRIMARY KEY (id) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
 DROP TABLE IF EXISTS blog_tag;
 CREATE TABLE blog_tag (
     id int NOT NULL AUTO_INCREMENT,
@@ -50,7 +63,7 @@ CREATE TABLE blog_collection_mapping(
 ) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS user;
-CREATE TABLE `user`(
+CREATE TABLE user(
     id int NOT NULL AUTO_INCREMENT,
     email varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
     username varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
