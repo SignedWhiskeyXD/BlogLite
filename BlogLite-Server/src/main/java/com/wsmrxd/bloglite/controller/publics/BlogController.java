@@ -23,7 +23,7 @@ public class BlogController {
     }
 
     @GetMapping("/{id}")
-    public RestResponse serveBlogByID(@PathVariable int id){
+    public RestResponse<BlogDetail> serveBlogByID(@PathVariable int id){
         BlogDetail ret = blogService.getBlogDetail(id);
         if(ret == null)
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");

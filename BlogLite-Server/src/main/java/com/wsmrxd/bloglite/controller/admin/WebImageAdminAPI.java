@@ -47,7 +47,7 @@ public class WebImageAdminAPI {
 
     // TODO: 理论上这个API能够存储任何上传的文件，应加入过滤
     @PutMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public RestResponse uploadImage(MultipartFile uploadImage) throws IOException {
+    public RestResponse<String> uploadImage(MultipartFile uploadImage) throws IOException {
         String targetFolderName = getYearMonthPrefix();
         File targetFolder = checkTargetDir(targetFolderName);
         var uploadImageStream = uploadImage.getInputStream();

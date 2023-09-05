@@ -3,7 +3,6 @@ package com.wsmrxd.bloglite.service.impl;
 import com.wsmrxd.bloglite.service.JWTService;
 import com.wsmrxd.bloglite.service.LoginService;
 import com.wsmrxd.bloglite.vo.LoginSuccessInfo;
-import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,13 +28,13 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public RestResponse doLogin(String email, String password) {
+    public LoginSuccessInfo doLogin(String email, String password) {
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtService.generateToken(email);
 
-        return RestResponse.ok(new LoginSuccessInfo(email, jwt));
+        return new LoginSuccessInfo(email, jwt);
     }
 }

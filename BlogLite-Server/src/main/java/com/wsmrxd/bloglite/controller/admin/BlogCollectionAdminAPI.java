@@ -19,19 +19,19 @@ public class BlogCollectionAdminAPI {
     }
 
     @PostMapping
-    public RestResponse modifyCollectionInfo(@RequestBody BlogCollection modifyInfo){
+    public RestResponse<Object> modifyCollectionInfo(@RequestBody BlogCollection modifyInfo){
         service.modifyCollectionInfo(modifyInfo);
         return RestResponse.ok(null);
     }
 
     @PutMapping
-    public RestResponse createNewCollection(@RequestBody BlogCollectionCreateInfo newCollection){
+    public RestResponse<Object> createNewCollection(@RequestBody BlogCollectionCreateInfo newCollection){
         service.createNewCollection(newCollection);
         return RestResponse.ok(null);
     }
 
     @DeleteMapping("/{id}")
-    public RestResponse deleteBlogCollection(@PathVariable Integer id){
+    public RestResponse<Object> deleteBlogCollection(@PathVariable Integer id){
         service.removeBlogCollection(id);
         return RestResponse.ok(null);
     }

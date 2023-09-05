@@ -1,5 +1,7 @@
 package com.wsmrxd.bloglite.controller.admin;
 
+import com.github.pagehelper.PageInfo;
+import com.wsmrxd.bloglite.entity.BlogTag;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.BlogTagService;
@@ -9,19 +11,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/blogtag")
-public class BlogTagAdminController {
+public class BlogTagAdminAPI {
 
     @Autowired
     private BlogTagService tagService;
 
     @GetMapping
-    public RestResponse getTagsByPage(@RequestParam(defaultValue = "1") int pageNum,
-                                       @RequestParam(defaultValue = "10") int pageSize) {
+    public RestResponse<PageInfo<BlogTag>> getTagsByPage(@RequestParam(defaultValue = "1") int pageNum,
+                                                         @RequestParam(defaultValue = "10") int pageSize) {
         return RestResponse.ok(tagService.getAllTagsByPage(pageNum, pageSize));
     }
 
     @PostMapping
-    public RestResponse renameTagByID(@RequestParam int renamedID,
+    public RestResponse<Object> renameTagByID(@RequestParam int renamedID,
                                       @RequestParam String newName){
         boolean result = tagService.renameTag(renamedID, newName);
         if(!result)
@@ -31,7 +33,7 @@ public class BlogTagAdminController {
     }
 
     @PutMapping
-    public RestResponse addTag(@RequestParam String tagName){
+    public RestResponse<Object> addTag(@RequestParam String tagName){
         int newTagID = tagService.addTag(tagName);
         if(newTagID < 1)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot add this tag");
@@ -40,7 +42,7 @@ public class BlogTagAdminController {
     }
 
     @DeleteMapping("/{id}")
-    public RestResponse deleteBlogTagByID(@PathVariable int id){
+    public RestResponse<Object> deleteBlogTagByID(@PathVariable int id){
         boolean result = tagService.removeTag(id);
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot delete the tag");
