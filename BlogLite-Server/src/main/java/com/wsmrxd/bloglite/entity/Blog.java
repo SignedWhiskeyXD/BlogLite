@@ -20,6 +20,13 @@ public class Blog {
         this.previewImage = Objects.requireNonNullElse(uploadInfo.getPreviewImage(), "");
     }
 
+    public boolean isModified(BlogUploadInfo modifyInfo){
+        return  !this.title.equals(modifyInfo.getTitle()) ||
+                !this.content.equals(modifyInfo.getContent()) ||
+                !this.contentAbstract.equals(modifyInfo.getContentAbstract()) ||
+                !this.previewImage.equals(modifyInfo.getPreviewImage());
+    }
+
     private int id;
 
     private String title;

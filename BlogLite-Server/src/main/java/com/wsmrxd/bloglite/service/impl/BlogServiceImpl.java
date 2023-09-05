@@ -3,7 +3,7 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
-import com.wsmrxd.bloglite.entity.provider.EntityProvider;
+import com.wsmrxd.bloglite.mapping.EntityProvider;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
@@ -79,7 +79,7 @@ public class BlogServiceImpl implements BlogService {
     public BlogDetail getBlogDetail(int id) {
         Blog blog = entityProvider.getBlogEntityByID(id);
         var ret = new BlogDetail(blog);
-        ret.setContentHTML(markDownUtil.toHtml(blog.getContent()));
+        ret.setContentHTML(markDownUtil.toHtml(blog));
         ret.setTagNames(entityProvider.getTagNamesByBlogID(id));
         return ret;
     }
@@ -103,7 +103,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = Exception.class)
     @Caching(evict = {
             @CacheEvict(value = "BlogPaging", allEntries = true),
             @CacheEvict(value = "allBlogTags", allEntries = true)
@@ -127,18 +127,36 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class})
     @Caching(evict = {
             @CacheEvict(value = "BlogPaging", allEntries = true),
-            @CacheEvict(value = "allBlogTags", allEntries = true),
             @CacheEvict(value = "Blog", key = "#id"),
-            @CacheEvict(value = "TagNamesOfBlog", key = "#id"),
-            @CacheEvict(value = "CollectionNamesOfBlog", key = "#id")
     })
     public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
         blogMapper.updateBlogByModifyInfo(id, new Blog(modifyInfo));
-        reArrangeBlogTag(id, modifyInfo.getTagNames());
-        reArrangeBlogCollection(id, modifyInfo.getCollections());
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "TagNamesOfBlog", key = "#blogID"),
+            @CacheEvict(value = "allBlogTags", allEntries = true)
+    })
+    public void reArrangeBlogTag(int blogID, List<String> tagNames){
+        blogMapper.deleteTagMappingByBlogID(blogID);
+        if(tagNames != null && tagNames.size() > 0)
+            arrangeTagList(blogID, tagNames);
+    }
+
+    @Override
+    @CacheEvict(value = "CollectionNamesOfBlog", key = "#blogID")
+    public void reArrangeBlogCollection(int blogID, List<String> collectionNames){
+        var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
+        for(var blogCollection : blogCollections) {
+            cacheService.removeSetValue(Integer_BlogIDs_ByCollectionID_.name() + blogCollection.getId(), blogID);
+        }
+
+        blogMapper.deleteCollectionMappingByBlogID(blogID);
+        if(collectionNames != null && collectionNames.size() > 0)
+            arrangeCollectionList(blogID, collectionNames);
     }
 
     @Override
@@ -218,23 +236,6 @@ public class BlogServiceImpl implements BlogService {
         cacheService.increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
         cacheService.increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
         cacheService.increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
-    }
-
-    private void reArrangeBlogTag(int blogID, List<String> tagNames){
-        blogMapper.deleteTagMappingByBlogID(blogID);
-        if(tagNames != null && tagNames.size() > 0)
-            arrangeTagList(blogID, tagNames);
-    }
-
-    private void reArrangeBlogCollection(int blogID, List<String> collectionNames){
-        var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
-        for(var blogCollection : blogCollections) {
-            cacheService.removeSetValue(Integer_BlogIDs_ByCollectionID_.name() + blogCollection.getId(), blogID);
-        }
-
-        blogMapper.deleteCollectionMappingByBlogID(blogID);
-        if(collectionNames != null && collectionNames.size() > 0)
-            arrangeCollectionList(blogID, collectionNames);
     }
 
     private void arrangeTagList(int newBlogID, List<String> tagList) {

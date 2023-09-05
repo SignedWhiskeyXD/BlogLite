@@ -1,6 +1,10 @@
 server:
   port: 52480
 
+logging:
+  level:
+    com.wsmrxd.bloglite.controller: TRACE
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -23,6 +23,10 @@ public interface BlogService {
 
     void modifyBlog(int id, BlogUploadInfo modifyInfo);
 
+    void reArrangeBlogTag(int blogID, List<String> tagNames);
+
+    void reArrangeBlogCollection(int blogID, List<String> collectionNames);
+
     boolean deleteBlog(int id);
 
     int getBlogViewsAsCached(int blogID);
