@@ -57,7 +57,7 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public void increaseValueByHashKey(String key, String hashKey, long delta) {
         var redisHashOps = redisTemplate.opsForHash();
-        if(redisHashOps.hasKey(key, hashKey) && delta > 0)
+        if(delta > 0)
             redisHashOps.increment(key, hashKey, delta);
     }
 

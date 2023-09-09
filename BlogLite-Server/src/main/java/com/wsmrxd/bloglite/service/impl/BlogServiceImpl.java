@@ -279,11 +279,13 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private void updateBlogViewsFromCache(){
-        Map<Integer, Integer> viewsMap = cacheService.getHashEntriesByKey(Integer_AddBlogViewsByID.name());
-        var keySet = viewsMap.keySet();
-        for(Integer key : keySet){
-            Integer addNum = viewsMap.get(key);
-            blogMapper.updateBlogViewsByID(key, addNum);
+        Map<String,Integer> viewsMap = cacheService.getHashEntriesByKey(Integer_AddBlogViewsByID.name());
+        if(viewsMap != null){
+            var keySet = viewsMap.keySet();
+            for (String key : keySet) {
+                Integer addNum = viewsMap.get(key);
+                blogMapper.updateBlogViewsByID(Integer.parseInt(key), addNum);
+            }
         }
         cacheService.delete(Integer_AddBlogViewsByID.name());
     }
