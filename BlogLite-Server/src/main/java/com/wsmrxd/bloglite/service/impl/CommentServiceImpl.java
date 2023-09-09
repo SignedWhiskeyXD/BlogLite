@@ -23,7 +23,22 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public PageInfo<CommentVO> getCommentsByBlogID(int blogID, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        return new PageInfo<>(commentMapper.selectAllCommentByIdent(blogID));
+        var ret = new PageInfo<>(commentMapper.selectAllCommentByIdent(blogID));
+
+        var commentList = ret.getList();
+        for(var comment : commentList){
+            String originalEmail = comment.getEmail();
+            var split = originalEmail.split("@");
+            if(split.length == 2){
+                if(split[0].length() <= 3)
+                    comment.setEmail("***@" + split[1]);
+                else
+                    comment.setEmail("***" + split[0].substring(3) + "@" + split[1]);
+            }
+        }
+
+        ret.setList(commentList);
+        return ret;
     }
 
     @Override

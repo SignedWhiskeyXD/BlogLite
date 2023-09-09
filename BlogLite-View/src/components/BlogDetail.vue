@@ -143,6 +143,8 @@ export default {
                 errorMessage = '请输入昵称';
             else if (this.commentInput.email.length === 0)
                 errorMessage = '请输入邮箱';
+            else if (!this.commentInput.email.match("[A-Za-z0-9]+([_\\.][A-Za-z0-9]+)*@([A-Za-z0-9\\-]+\\.)+[A-Za-z]{2,6}"))
+                errorMessage = '请输入合法的邮箱地址'
             else if (this.commentInput.content.length === 0)
                 errorMessage = '评论内容不可为空';
             else if (this.commentInput.content.length > 200)

@@ -86,6 +86,7 @@ export default {
     },
     computed: {
         isScrollDisabled(){
+            if(this.$route.path !== '/') return true;
             return this.scrollDisabled || this.requestParams.nextRequestParam == null;
         }
     }
