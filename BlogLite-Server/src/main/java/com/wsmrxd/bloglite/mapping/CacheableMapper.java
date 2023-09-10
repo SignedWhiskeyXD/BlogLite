@@ -1,7 +1,7 @@
 package com.wsmrxd.bloglite.mapping;
 
 import com.wsmrxd.bloglite.entity.Blog;
-import com.wsmrxd.bloglite.mapping.BlogMapper;
+import com.wsmrxd.bloglite.entity.Comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class EntityProvider {
+public class CacheableMapper {
 
     /*
     * 有一个问题，如果我希望以装饰模式构建其它的VO对象，那么最好缓存装饰所需要的材料，也就是各种实体类
@@ -20,9 +20,17 @@ public class EntityProvider {
     @Autowired
     private BlogMapper blogMapper;
 
+    @Autowired
+    private CommentMapper commentMapper;
+
     @Cacheable(value = "Blog", key = "#blogID")
     public Blog getBlogEntityByID(int blogID){
         return blogMapper.selectBlogByID(blogID);
+    }
+
+    @Cacheable(value = "Comment", key = "#commentID")
+    public Comment getCommentByID(int commentID) {
+        return commentMapper.selectCommentByID(commentID);
     }
 
     @Cacheable(value = "TagNamesOfBlog", key = "#blogID")

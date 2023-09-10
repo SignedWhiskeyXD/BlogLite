@@ -6,10 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 // 在一个强类型语言和JSON打交道，那大概率是没类型安全什么事了(逃)
 @Service
@@ -58,6 +55,18 @@ public class CacheServiceImpl implements CacheService {
     public List getList(String key) {
         var redisListOps = redisTemplate.opsForList();
         return redisListOps.range(key, 0, -1);
+    }
+
+    @Override
+    public List getListByRange(String key, long startIndex, long endIndex) {
+        var redisListOps = redisTemplate.opsForList();
+        return redisListOps.range(key, startIndex, endIndex);
+    }
+
+    @Override
+    public long getListSize(String key) {
+        var redisListOps = redisTemplate.opsForList();
+        return Objects.requireNonNullElse(redisListOps.size(key), 0L);
     }
 
     @Override
@@ -125,6 +134,12 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
+    public long getZSetSize(String key) {
+        var redisZSetOps = redisTemplate.opsForZSet();
+        return Objects.requireNonNullElse(redisZSetOps.size(key), 0L);
+    }
+
+    @Override
     public List getZSetAsList(String key){
         return new ArrayList<>(getZSet(key));
     }
@@ -133,9 +148,19 @@ public class CacheServiceImpl implements CacheService {
     public List getListByReversedScoreRange(String key, double min, double max, int offset, int num) {
         var redisZSetOps = redisTemplate.opsForZSet();
         Set<Object> set = redisZSetOps.reverseRangeByScore(key, min, max, offset, num);
-        if (set != null) {
+        if (set != null)
             return new ArrayList<>(set);
-        }else
+        else
+            return null;
+    }
+
+    @Override
+    public List getListByReversedIndexRange(String key, long start, long end){
+        var redisZSetOps = redisTemplate.opsForZSet();
+        Set<Object> set = redisZSetOps.reverseRange(key, start, end);
+        if (set != null)
+            return new ArrayList<>(set);
+        else
             return null;
     }
 

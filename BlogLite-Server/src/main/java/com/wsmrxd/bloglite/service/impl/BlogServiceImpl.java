@@ -3,7 +3,7 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
-import com.wsmrxd.bloglite.mapping.EntityProvider;
+import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
@@ -48,7 +48,7 @@ public class BlogServiceImpl implements BlogService {
     private BlogCollectionMapper collectionMapper;
 
     @Autowired
-    private EntityProvider entityProvider;
+    private CacheableMapper cacheableMapper;
 
     @Autowired
     private CacheService cacheService;
@@ -58,12 +58,12 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogAdminDetail getBlogAdminDetailByID(int id) {
-        var blog = entityProvider.getBlogEntityByID(id);
+        var blog = cacheableMapper.getBlogEntityByID(id);
         if(blog == null) return null;
 
         return new BlogAdminDetail(blog,
-                entityProvider.getTagNamesByBlogID(id),
-                entityProvider.getCollectionNamesByBlogID(id));
+                cacheableMapper.getTagNamesByBlogID(id),
+                cacheableMapper.getCollectionNamesByBlogID(id));
     }
 
     @Override
@@ -78,20 +78,20 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogDetail getBlogDetail(int id) {
-        Blog blog = entityProvider.getBlogEntityByID(id);
+        Blog blog = cacheableMapper.getBlogEntityByID(id);
         var ret = new BlogDetail(blog);
         ret.setContentHTML(markDownUtil.toHtml(blog));
-        ret.setTagNames(entityProvider.getTagNamesByBlogID(id));
+        ret.setTagNames(cacheableMapper.getTagNamesByBlogID(id));
         return ret;
     }
 
     @Override
     public BlogCard getBlogCard(int blogID){
-        var blog = entityProvider.getBlogEntityByID(blogID);
+        var blog = cacheableMapper.getBlogEntityByID(blogID);
         if(blog == null) return null;
 
         var ret = new BlogCard(blog);
-        ret.setTagNames(entityProvider.getTagNamesByBlogID(blogID));
+        ret.setTagNames(cacheableMapper.getTagNamesByBlogID(blogID));
 
         return ret;
     }

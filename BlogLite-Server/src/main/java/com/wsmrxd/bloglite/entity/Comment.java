@@ -4,7 +4,7 @@ import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
@@ -14,8 +14,8 @@ public class Comment {
         this.identify = blogID;
         this.nickname = newComment.getNickname();
         this.email = newComment.getEmail();
-        this.publish_time = newComment.getPublishTime();
         this.content = newComment.getContent();
+        this.publishTime = new Timestamp(newComment.getPublishTime().getTime());
     }
 
     private int id;
@@ -28,7 +28,7 @@ public class Comment {
 
     private boolean enable = false;
 
-    private Date publish_time;
+    private Timestamp publishTime;
 
     private String content;
 }

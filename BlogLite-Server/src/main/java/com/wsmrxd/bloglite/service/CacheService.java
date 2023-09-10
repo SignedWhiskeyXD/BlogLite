@@ -20,6 +20,10 @@ public interface CacheService {
 
     List getList(String key);
 
+    List getListByRange(String key, long startIndex, long endIndex);
+
+    long getListSize(String key);
+
     Map getHashEntriesByKey(String key);
 
     void increaseValueByHashKey(String key, String hashKey, long delta);
@@ -40,9 +44,13 @@ public interface CacheService {
 
     Set getZSet(String key);
 
+    long getZSetSize(String key);
+
     List getZSetAsList(String key);
 
     List getListByReversedScoreRange(String key, double min, double max, int offset, int num);
+
+    List getListByReversedIndexRange(String key, long start, long end);
 
     void delete(String key);
 

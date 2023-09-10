@@ -1,9 +1,9 @@
 package com.wsmrxd.bloglite.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import com.wsmrxd.bloglite.entity.Comment;
+import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.mapping.CommentMapper;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
@@ -12,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.Integer_CommentIDByBlogID;
 import static com.wsmrxd.bloglite.enums.RedisKeyForList.Comment_CommentToReview;
 
 @Service
@@ -23,15 +26,26 @@ public class CommentServiceImpl implements CommentService {
     private CommentMapper commentMapper;
 
     @Autowired
+    private CacheableMapper cacheableMapper;
+
+    @Autowired
     private CacheService cacheService;
 
+    // 我希望直接通过缓存项来分页，这样的话startPage方法就没用了，那就手动分页
     @Override
-    // TODO: 启用缓存
     public PageInfo<CommentVO> getCommentsByBlogID(int blogID, int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        var ret = new PageInfo<>(commentMapper.selectAllCommentByIdent(blogID));
+        long startIndex = (long) (pageNum - 1) * pageSize;
+        long endIndex = startIndex + pageSize - 1;
 
-        hideCommentEmail(ret);
+        if(endIndex < startIndex)
+            return new PageInfo<>();
+
+        List<CommentVO> comments = getCommentsByBlogID(blogID, startIndex, endIndex);
+        hideCommentEmail(comments);
+        var ret = new PageInfo<>(comments);
+        ret.setPageNum(pageNum);
+        ret.setPageSize(pageSize);
+        ret.setTotal(getCommentNumByBlogID(blogID));
 
         return ret;
     }
@@ -47,6 +61,9 @@ public class CommentServiceImpl implements CommentService {
         var comment = new Comment(blogID, newComment);
         comment.setEnable(true);
         commentMapper.insertComment(comment);
+
+        String redisZSetKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
+        cacheService.addValueToZSet(redisZSetKey, comment.getId(), comment.getPublishTime().getTime());
     }
 
     @Override
@@ -61,8 +78,7 @@ public class CommentServiceImpl implements CommentService {
         cacheService.delete(Comment_CommentToReview.name());
     }
 
-    private static void hideCommentEmail(PageInfo<CommentVO> commentPage){
-        var commentList = commentPage.getList();
+    private static void hideCommentEmail(List<CommentVO> commentList){
         for(var comment : commentList){
             String originalEmail = comment.getEmail();
             var split = originalEmail.split("@");
@@ -73,6 +89,34 @@ public class CommentServiceImpl implements CommentService {
                     comment.setEmail("***" + split[0].substring(3) + "@" + split[1]);
             }
         }
-        commentPage.setList(commentList);
+    }
+
+    private List<CommentVO> getCommentsByBlogID(int blogID, long startIndex, long endIndex){
+        ensureCommentIDListCached(blogID);
+        String redisListKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
+
+        List<Integer> commentIDs = cacheService.getListByReversedIndexRange(redisListKey, startIndex, endIndex);
+        if(commentIDs == null || commentIDs.isEmpty()) return Collections.emptyList();
+
+        List<CommentVO> ret = new ArrayList<>(commentIDs.size());
+        for(Integer commentID : commentIDs){
+            Comment comment = cacheableMapper.getCommentByID(commentID);
+            ret.add(new CommentVO(comment));
+        }
+        return ret;
+    }
+
+    private long getCommentNumByBlogID(int blogID){
+        String redisListKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
+        return cacheService.getZSetSize(redisListKey);
+    }
+
+    private void ensureCommentIDListCached(int blogID){
+        String redisListKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
+        if(cacheService.hasKey(redisListKey)) return;
+
+        List<Comment> comments = commentMapper.selectAllCommentByIdent(blogID);
+        for(Comment comment : comments)
+            cacheService.addValueToZSet(redisListKey, comment.getId(), comment.getPublishTime().getTime());
     }
 }

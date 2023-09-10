@@ -17,7 +17,7 @@ CREATE TABLE comment (
     nickname varchar(30) NOT NULL DEFAULT 'Unknown',
     email varchar(30) NOT NULL DEFAULT '',
     enable boolean NOT NULL DEFAULT false,
-    publish_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    publish_time timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     content varchar(200) NOT NULL DEFAULT '',
     PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;

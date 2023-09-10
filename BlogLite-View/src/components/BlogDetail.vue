@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <el-pagination v-if="commentPageInfo.total > 0"
+    <el-pagination v-if="commentPageInfo.total > 10"
                    layout="prev, pager, next" :total="commentPageInfo.total" background
                    vmodel:current-page="currentPage" class="comment-pagination"
                    @current-change="handlePageNumChanged"
