@@ -14,6 +14,7 @@ public class Comment {
         this.identify = blogID;
         this.nickname = newComment.getNickname();
         this.email = newComment.getEmail();
+        this.publish_time = newComment.getPublishTime();
         this.content = newComment.getContent();
     }
 
@@ -25,7 +26,7 @@ public class Comment {
 
     private String email;
 
-    private boolean enable;
+    private boolean enable = false;
 
     private Date publish_time;
 

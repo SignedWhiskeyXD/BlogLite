@@ -15,8 +15,8 @@ public interface CommentMapper {
     @Select("SELECT id, nickname, email, content FROM comment WHERE identify = #{ident} ORDER BY id DESC")
     List<CommentVO> selectAllCommentByIdent(int ident);
 
-    @Insert("INSERT INTO comment (identify, nickname, email, enable, content) " +
-            "VALUES (#{identify}, #{nickname}, #{email}, #{enable}, #{content})")
+    @Insert("INSERT INTO comment (identify, nickname, email, enable, publish_time, content) " +
+            "VALUES (#{identify}, #{nickname}, #{email}, #{enable}, #{publish_time}, #{content})")
     void insertComment(Comment comment);
 
     @Update("UPDATE comment SET enable = #{enable} WHERE id = #{id}")

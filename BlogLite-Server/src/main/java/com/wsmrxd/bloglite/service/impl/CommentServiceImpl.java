@@ -10,6 +10,11 @@ import com.wsmrxd.bloglite.service.CommentService;
 import com.wsmrxd.bloglite.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.wsmrxd.bloglite.enums.RedisKeyForList.Comment_CommentToReview;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -21,11 +26,43 @@ public class CommentServiceImpl implements CommentService {
     private CacheService cacheService;
 
     @Override
+    // TODO: 启用缓存
     public PageInfo<CommentVO> getCommentsByBlogID(int blogID, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         var ret = new PageInfo<>(commentMapper.selectAllCommentByIdent(blogID));
 
-        var commentList = ret.getList();
+        hideCommentEmail(ret);
+
+        return ret;
+    }
+
+    @Override
+    public void enqueueCommentToReview(int blogID, CommentUploadInfo newComment) {
+        Comment comment = new Comment(blogID, newComment);
+        cacheService.rPushValToList(Comment_CommentToReview.name(), comment);
+    }
+
+    @Override
+    public void addNewComment(int blogID, CommentUploadInfo newComment) {
+        var comment = new Comment(blogID, newComment);
+        comment.setEnable(true);
+        commentMapper.insertComment(comment);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void syncCommentsForReview() {
+        List<Comment> comments = cacheService.getList(Comment_CommentToReview.name());
+        if(comments == null || comments.isEmpty()) return;
+
+        for(Comment comment : comments)
+            commentMapper.insertComment(comment);
+
+        cacheService.delete(Comment_CommentToReview.name());
+    }
+
+    private static void hideCommentEmail(PageInfo<CommentVO> commentPage){
+        var commentList = commentPage.getList();
         for(var comment : commentList){
             String originalEmail = comment.getEmail();
             var split = originalEmail.split("@");
@@ -36,20 +73,6 @@ public class CommentServiceImpl implements CommentService {
                     comment.setEmail("***" + split[0].substring(3) + "@" + split[1]);
             }
         }
-
-        ret.setList(commentList);
-        return ret;
-    }
-
-    @Override
-    public void enqueueCommentToReview(int blogID, CommentUploadInfo newComment) {
-
-    }
-
-    @Override
-    public void addNewComment(int blogID, CommentUploadInfo newComment) {
-        var comment = new Comment(blogID, newComment);
-        comment.setEnable(true);
-        commentMapper.insertComment(comment);
+        commentPage.setList(commentList);
     }
 }

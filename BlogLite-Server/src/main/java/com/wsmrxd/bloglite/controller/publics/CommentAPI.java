@@ -43,7 +43,7 @@ public class CommentAPI {
                                                   @RequestBody CommentUploadInfo newComment,
                                                   HttpServletRequest request){
         String ipKey = "CommentIPV4::" + request.getRemoteAddr();
-        if(!cacheService.setKeyValueIfAbsent(ipKey, " ", Duration.ofMinutes(coolDownMinutes)))
+        if(coolDownMinutes > 0 && !cacheService.setKeyValueIfAbsent(ipKey, " ", Duration.ofMinutes(coolDownMinutes)))
             return RestResponse.build(50400, Integer.toString(coolDownMinutes));
 
         if(needReview) {

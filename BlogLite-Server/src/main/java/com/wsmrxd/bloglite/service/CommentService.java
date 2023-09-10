@@ -12,4 +12,6 @@ public interface CommentService {
     void enqueueCommentToReview(int blogID, CommentUploadInfo newComment);
 
     void addNewComment(int blogID, CommentUploadInfo newComment);
+
+    void syncCommentsForReview();
 }

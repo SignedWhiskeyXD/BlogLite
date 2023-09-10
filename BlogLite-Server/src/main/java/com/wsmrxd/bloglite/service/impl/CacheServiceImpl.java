@@ -49,6 +49,18 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
+    public <T> void rPushValToList(String key, T value) {
+        var redisListOps = redisTemplate.opsForList();
+        redisListOps.rightPush(key, value);
+    }
+
+    @Override
+    public List getList(String key) {
+        var redisListOps = redisTemplate.opsForList();
+        return redisListOps.range(key, 0, -1);
+    }
+
+    @Override
     public Map getHashEntriesByKey(String key){
         var redisHashOps = redisTemplate.opsForHash();
         return redisHashOps.entries(key);

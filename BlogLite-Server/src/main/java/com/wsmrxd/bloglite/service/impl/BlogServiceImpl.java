@@ -137,6 +137,7 @@ public class BlogServiceImpl implements BlogService {
     @Caching(evict = {
             @CacheEvict(value = "BlogPaging", allEntries = true),
             @CacheEvict(value = "Blog", key = "#id"),
+            @CacheEvict(value = "BlogHTML", key = "#id")
     })
     public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
         blogMapper.updateBlogByModifyInfo(id, new Blog(modifyInfo));

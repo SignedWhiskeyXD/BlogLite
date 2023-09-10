@@ -1,0 +1,33 @@
+server:
+  port: 52480
+
+logging:
+  level:
+    com.wsmrxd.bloglite.controller: TRACE
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bloglite
+    password: wsmrxd
+    username: root
+  redis:
+    host: localhost
+    port: 6379
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+myConfig:
+  jwt:
+    expireTime: 259200000 # 3 days
+    secretKey: DoNotUseThisAsYourSecretKey
+  image:
+    repositoryPath: D://dev/nginx-1.25.1/html/image
+    nginxContext: http://127.0.0.1/image/
+    defaultCollectionImage: https://picx.zhimg.com/4b70deef7_l.jpg?source=d16d100b
+    defaultBlogCardImage: https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg
+  comment:
+    coolDownMinutes: 1
+    needReview: true

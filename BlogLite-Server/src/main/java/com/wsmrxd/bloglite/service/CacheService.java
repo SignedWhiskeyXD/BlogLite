@@ -16,6 +16,10 @@ public interface CacheService {
 
     <T> T getValueByHashKey(String key, String hashKey);
 
+    <T> void rPushValToList(String key, T value);
+
+    List getList(String key);
+
     Map getHashEntriesByKey(String key);
 
     void increaseValueByHashKey(String key, String hashKey, long delta);

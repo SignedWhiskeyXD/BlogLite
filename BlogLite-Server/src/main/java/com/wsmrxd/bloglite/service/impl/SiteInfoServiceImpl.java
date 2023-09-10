@@ -7,7 +7,6 @@ import com.wsmrxd.bloglite.vo.SiteInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +34,6 @@ public class SiteInfoServiceImpl implements SiteInfoService {
     }
 
     @Override
-    @Scheduled(fixedRate = 300000)      // 每五分钟向数据库更新一次浏览次数
     @CacheEvict("BlogRanking")
     public void UpdateSiteInfo() {
         blogService.flushSiteInfo();
