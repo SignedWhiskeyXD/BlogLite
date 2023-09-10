@@ -3,7 +3,10 @@ package com.wsmrxd.bloglite.service;
 
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.CommentUploadInfo;
+import com.wsmrxd.bloglite.vo.CommentAdminDetail;
 import com.wsmrxd.bloglite.vo.CommentVO;
+
+import java.util.List;
 
 public interface CommentService {
 
@@ -12,6 +15,12 @@ public interface CommentService {
     void enqueueCommentToReview(int blogID, CommentUploadInfo newComment);
 
     void addNewComment(int blogID, CommentUploadInfo newComment);
+
+    List<CommentAdminDetail> getCommentsDisabled(int limit);
+
+    void enableComment(int commentID);
+
+    void deleteComment(int commentID);
 
     void syncCommentsForReview();
 }

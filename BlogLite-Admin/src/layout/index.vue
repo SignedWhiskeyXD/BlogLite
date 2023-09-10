@@ -38,6 +38,9 @@
                             <router-link to="/collection">
                                 <el-menu-item index="1-4">专栏管理</el-menu-item>
                             </router-link>
+                            <router-link to="/comment">
+                                <el-menu-item index="1-5">评论管理</el-menu-item>
+                            </router-link>
                         </el-sub-menu>
                     </el-menu>
                 </el-scrollbar>

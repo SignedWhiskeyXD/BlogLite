@@ -7,6 +7,7 @@ import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.mapping.CommentMapper;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
+import com.wsmrxd.bloglite.vo.CommentAdminDetail;
 import com.wsmrxd.bloglite.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public List<CommentAdminDetail> getCommentsDisabled(int limit) {
+        return commentMapper.selectCommentsDisabled(limit);
+    }
+
+    @Override
+    public void enableComment(int commentID) {
+        commentMapper.updateCommentEnabled(commentID, true);
+
+        Comment comment = cacheableMapper.getCommentByID(commentID);
+        if(comment == null) return;      // TODO: 也许应该抛个异常？
+        String redisListKey = Integer_CommentIDByBlogID.name() + "::" + comment.getIdentify();
+        cacheService.addValueToZSet(redisListKey, commentID, comment.getPublishTime().getTime());
+    }
+
+    @Override
+    public void deleteComment(int commentID) {
+        commentMapper.deleteCommentByID(commentID);
+
+        // TODO: 从缓存有序集合删除该ID
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncCommentsForReview() {
         List<Comment> comments = cacheService.getList(Comment_CommentToReview.name());
@@ -115,7 +138,7 @@ public class CommentServiceImpl implements CommentService {
         String redisListKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
         if(cacheService.hasKey(redisListKey)) return;
 
-        List<Comment> comments = commentMapper.selectAllCommentByIdent(blogID);
+        List<Comment> comments = commentMapper.selectAllCommentEnabledByIdent(blogID);
         for(Comment comment : comments)
             cacheService.addValueToZSet(redisListKey, comment.getId(), comment.getPublishTime().getTime());
     }
