@@ -20,14 +20,15 @@ const router = createRouter({
           component: BlogStream,
         },
         {
-          path: 'blog/:blog_id',
-          component: BlogDetail
-        },
-        {
           path: '/collection/:collection_id',
           component: BlogCollectionDetail
         }
       ]
+    },
+    {
+      path: '/blog/:blog_id',
+      component: BlogDetail,
+      props: true
     },
     {
       path: '/collection',
