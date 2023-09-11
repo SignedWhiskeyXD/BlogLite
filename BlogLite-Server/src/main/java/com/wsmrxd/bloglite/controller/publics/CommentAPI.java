@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/comment")
@@ -42,7 +43,8 @@ public class CommentAPI {
     public RestResponse<Object> uploadCommentByID(@PathVariable Integer id,
                                                   @RequestBody CommentUploadInfo newComment,
                                                   HttpServletRequest request){
-        String ipKey = "CommentIPV4::" + request.getRemoteAddr();
+        String sourceIP = request.getHeader("X-Real-IP");
+        String ipKey = "CommentIPV4::" + Objects.requireNonNullElse(sourceIP, "");
         if(coolDownMinutes > 0 && !cacheService.setKeyValueIfAbsent(ipKey, " ", Duration.ofMinutes(coolDownMinutes)))
             return RestResponse.build(50400, Integer.toString(coolDownMinutes));
 

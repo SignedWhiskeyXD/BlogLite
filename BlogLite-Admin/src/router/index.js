@@ -1,13 +1,13 @@
 import {createRouter, createWebHistory} from "vue-router";
-import Hello from "@/components/BlogTagPanel.vue";
-import Login from "@/components/Login.vue";
-import Failed from "@/components/Failed.vue";
-import BlogTagPanel from "@/components/BlogTagPanel.vue";
-import BlogListPanel from "@/components/BlogListPanel.vue";
-import BlogPanel from "@/components/BlogPanel.vue";
-import Layout from '@/layout/index.vue';
-import BlogCollectionPanel from "@/components/BlogCollectionPanel.vue";
-import CommentPanel from "@/components/CommentPanel.vue";
+const Hello = () => import("@/components/BlogTagPanel.vue");
+const Login = () => import("@/components/Login.vue");
+const Failed = () => import("@/components/Failed.vue");
+const BlogTagPanel = () => import("@/components/BlogTagPanel.vue");
+const BlogListPanel = () => import("@/components/BlogListPanel.vue");
+const BlogPanel = () => import("@/components/BlogPanel.vue");
+const  Layout = () => import('@/layout/index.vue');
+const BlogCollectionPanel = () => import("@/components/BlogCollectionPanel.vue");
+const CommentPanel = () => import("@/components/CommentPanel.vue");
 
 const routes = [
     {path: '/hello', component: Hello},

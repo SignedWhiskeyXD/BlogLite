@@ -100,8 +100,6 @@
 <script>
 import {getBlogDetail} from "@/fetch/BlogDetailAPI";
 import 'github-markdown-css/github-markdown.css'
-import hljs from 'highlight.js';
-import 'highlight.js/styles/default.css';
 import {getCommentsByBlogID, publishComment} from "@/fetch/CommentAPI";
 import {ElMessage} from "element-plus";
 
@@ -117,7 +115,6 @@ export default {
             getBlogDetail(this.blogDetail.id)
                 .then(blog => {
                     this.blogDetail = blog
-                    setTimeout(() => hljs.highlightAll(), 100)
                 });
         }
     },
