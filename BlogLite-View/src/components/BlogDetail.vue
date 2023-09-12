@@ -5,77 +5,80 @@
 <template>
   <div class="blog-detail-wrapper">
     <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-      <div class="blog-title">
-        <h2>{{ blogDetail.title }}</h2>
-      </div>
-      <el-row class="blog-date-views">
-        <el-col :span="12" class="blog-date">
-          <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
-        </el-col>
-        <el-col :span="12" class="blog-views">
-          <el-text>浏览次数 {{ blogDetail.views }}</el-text>
-        </el-col>
-      </el-row>
+      <el-skeleton animated :rows="20" v-if="!blogReady" v-loading="!blogReady"/>
+      <div v-else>
+        <div class="blog-title">
+          <h2>{{ blogDetail.title }}</h2>
+        </div>
+        <el-row class="blog-date-views">
+          <el-col :span="12" class="blog-date">
+            <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
+          </el-col>
+          <el-col :span="12" class="blog-views">
+            <el-text>浏览次数 {{ blogDetail.views }}</el-text>
+          </el-col>
+        </el-row>
 
-      <el-divider class="title-content-divider" border-style="dashed"/>
-      <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
-      <el-divider class="title-content-divider" border-style="dashed"/>
+        <el-divider class="title-content-divider" border-style="dashed"/>
+        <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
+        <el-divider class="title-content-divider" border-style="dashed"/>
 
-      <h3 ref="blogCommentTitle">{{ commentPageInfo.total }}条评论</h3>
+        <h3 ref="blogCommentTitle">{{ commentPageInfo.total }}条评论</h3>
 
-      <div class="blog-comment-page">
-        <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
-          <el-avatar :size="50" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
-          <div class="comment-wrapper">
-            <div class="comment-identity">
-              <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
+        <div class="blog-comment-page">
+          <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
+            <el-avatar :size="50" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
+            <div class="comment-wrapper">
+              <div class="comment-identity">
+                <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
+              </div>
+              <div class="comment-content">
+                <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
+              </div>
+              <el-divider/>
             </div>
-            <div class="comment-content">
-              <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
-            </div>
-            <el-divider/>
           </div>
         </div>
-      </div>
 
-      <el-pagination v-if="commentPageInfo.total > 10"
-                     layout="prev, pager, next" :total="commentPageInfo.total" background
-                     vmodel:current-page="currentPage" class="comment-pagination"
-                     @current-change="handlePageNumChanged"
-      />
+        <el-pagination v-if="commentPageInfo.total > 10"
+                       layout="prev, pager, next" :total="commentPageInfo.total" background
+                       vmodel:current-page="currentPage" class="comment-pagination"
+                       @current-change="handlePageNumChanged"
+        />
 
-      <div class="blog-comment-input">
-        <el-row class="comment-input-wrapper">
-          <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
-                    placeholder="说点什么吧" v-model="commentInput.content"></el-input>
-        </el-row>
-        <el-row class="comment-identify" :gutter="20">
-          <el-col :span="10">
-            <el-input placeholder="请输入昵称" v-model="commentInput.nickname">
-              <template #prefix>
-                <el-icon><User /></el-icon>
-              </template>
-            </el-input>
-          </el-col>
-          <el-col :span="10" >
-            <el-input placeholder="请输入邮箱" v-model="commentInput.email">
-              <template #prefix>
-                <el-icon><Message /></el-icon>
-              </template>
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
-              发送 ({{ commentInput.content.length }}/200)
-            </el-button>
-          </el-col>
-        </el-row>
+        <div class="blog-comment-input">
+          <el-row class="comment-input-wrapper">
+            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
+                      placeholder="说点什么吧" v-model="commentInput.content"></el-input>
+          </el-row>
+          <el-row class="comment-identify" :gutter="20">
+            <el-col :span="10">
+              <el-input placeholder="请输入昵称" v-model="commentInput.nickname">
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </el-col>
+            <el-col :span="10" >
+              <el-input placeholder="请输入邮箱" v-model="commentInput.email">
+                <template #prefix>
+                  <el-icon><Message /></el-icon>
+                </template>
+              </el-input>
+            </el-col>
+            <el-col :span="4">
+              <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
+                发送 ({{ commentInput.content.length }}/200)
+              </el-button>
+            </el-col>
+          </el-row>
+        </div>
       </div>
     </main>
     <aside>
       <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
         <h4 style="text-align: center">文章标签</h4>
-        <el-divider/>
+        <el-divider style="margin-bottom: 10px"/>
         <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
                 :key="tag" size="large">
           {{ tag }}
@@ -115,6 +118,7 @@ export default {
             getBlogDetail(this.blogDetail.id)
                 .then(blog => {
                     this.blogDetail = blog
+                    this.blogReady = true
                 });
         }
     },
@@ -126,13 +130,11 @@ export default {
             getBlogDetail(this.blogDetail.id)
                 .then(blog => {
                     this.blogDetail = blog
-                    setTimeout(() => hljs.highlightAll(), 100)
                 });
         }
     },
     methods: {
         getComments(blogID, pageNum){
-            // blogID = 0;
             getCommentsByBlogID(blogID, pageNum)
                 .then(pageInfo => {
                     this.commentPageInfo = pageInfo;
@@ -204,6 +206,7 @@ export default {
     },
     data(){
         return {
+            blogReady: false,
             blogDetail: {
                 id: 0,
                 title: "",
@@ -297,6 +300,7 @@ export default {
 
 .blog-tag {
     margin-right: 10px;
+    margin-bottom: 8px;
 }
 
 .blog-date {

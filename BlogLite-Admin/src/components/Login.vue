@@ -60,10 +60,7 @@ export default {
             login(requestBody)
                 .then(response => {
                     if(response.code === 200) {
-                        ElMessage({
-                            message: "登录成功",
-                            type: "success"
-                        })
+                        ElMessage.success('登录成功')
                         window.localStorage.setItem('token', response.body.token)
                         window.localStorage.setItem('email', response.body.email)
                         router.push('/admin')
@@ -74,10 +71,7 @@ export default {
                             errorMessage = "用户不存在！"
                         else if(response.code === 52403)
                             errorMessage = "用户名或密码错误"
-                        ElMessage({
-                            message: errorMessage,
-                            type: "error"
-                        })
+                        ElMessage.error(errorMessage)
                     }
                 })
             .catch((error) => {

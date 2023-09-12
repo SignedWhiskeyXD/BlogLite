@@ -7,9 +7,6 @@ import BlogRanking from "@/components/BlogRanking.vue";
 <template>
   <el-scrollbar ref="scrollbarRef" always @scroll="onScroll" max-height="95vh">
     <div class="home-page-wrapper">
-      <aside class="left-side-wrapper">
-        <AboutMe/>
-      </aside>
       <main class="main-wrapper">
         <router-view v-slot="{ Component }">
           <keep-alive include="BlogStream">
@@ -18,8 +15,9 @@ import BlogRanking from "@/components/BlogRanking.vue";
         </router-view>
       </main>
       <aside class="right-side-wrapper">
-        <main-page-tags/>
-        <blog-ranking/>
+        <AboutMe class="transition-shadow"/>
+        <main-page-tags class="transition-shadow"/>
+        <blog-ranking class="transition-shadow"/>
       </aside>
     </div>
   </el-scrollbar>
@@ -53,16 +51,20 @@ export default {
     min-height: 95vh;
 }
 
+.transition-shadow {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.transition-shadow:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
 @media screen and (max-width: 1100px) {
   .home-page-wrapper{
       justify-content: flex-start;
 
   }
-}
-
-.left-side-wrapper {
-    width: 250px;
-    position: relative;
 }
 
 .main-wrapper {
@@ -76,33 +78,22 @@ export default {
 }
 
 @media screen and (min-width: 1100px) {
-    .left-side-wrapper {
-        width: 250px;
-    }
-
     .main-wrapper {
-        width: 600px;
+        width: 750px;
     }
 
     .right-side-wrapper {
-        width: 250px;
+        width: 350px;
     }
 }
 
-@media screen and (min-width: 1600px){
-  .left-side-wrapper {
-      width: 300px;
-  }
-
+@media screen and (min-width: 1500px){
   .main-wrapper {
-      width: 1000px;
+      width: 1100px;
   }
 
   .right-side-wrapper {
-      width: 300px;
+      width: 400px;
   }
 }
-
-
-
 </style>

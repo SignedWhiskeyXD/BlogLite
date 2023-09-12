@@ -1,5 +1,6 @@
 <script setup>
 
+import {getRandomColor} from "@/utils/RandomColor";
 </script>
 
 <template>
@@ -7,7 +8,7 @@
     <el-text class="tag-title" size="large" tag="b">所有标签</el-text>
     <el-divider style="scale: 90%; margin: 10px"/>
     <div class="main-page-tags-container">
-      <el-tag v-for="tag in allTags" :key="tag.id" class="main-page-tag">
+      <el-tag v-for="tag in allTags" :key="tag.id" class="main-page-tag" :color="getRandomColor()">
         {{ tag.tagName }}
       </el-tag>
     </div>
@@ -43,6 +44,7 @@ export default {
 .main-page-tag {
     margin-left: 10px;
     margin-bottom: 8px;
+    color: white;
 }
 
 .main-page-tags-container {

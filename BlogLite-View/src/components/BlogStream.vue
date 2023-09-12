@@ -7,7 +7,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
   <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
       infinite-scroll-delay="500">
     <li v-for="blog in blogs" :key="blog.id"
-        class="blog-item" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+        class="blog-item transition-shadow">
       <div class="blog-title">
         <h2>{{ blog.title }}</h2>
       </div>
@@ -40,6 +40,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
       </div>
     </li>
   </ul>
+  <div class="stream-loading" v-loading="streamLoading"/>
   <div class="at-bottom"  v-if="requestParams.nextRequestParam == null">
     作者是条懒狗，就写了这么多！
   </div>
@@ -61,11 +62,13 @@ export default {
     methods: {
         getMoreBlogs(){
             this.scrollDisabled = true
+            this.streamLoading = true
             getBlogStream(this.requestParams.nextRequestParam, this.requestParams.blogNumPerRequest)
                 .then(BlogStream => {
                     this.requestParams.nextRequestParam = BlogStream.nextRequestParam;
                     this.blogs = this.blogs.concat(BlogStream.blogList)
                     this.scrollDisabled = false
+                    this.streamLoading = false
                 })
         },
         routeToBlogDetail(blogID){
@@ -81,7 +84,8 @@ export default {
             },
             blogs: [],
             scrollDisabled: true,
-            scrollBarPos: 0
+            scrollBarPos: 0,
+            streamLoading: false
         }
     },
     computed: {
@@ -100,6 +104,15 @@ export default {
     padding: 20px;
     margin-bottom: 40px;
     background-color: #ffffff;
+}
+
+.transition-shadow {
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.transition-shadow:hover {
+    box-shadow: 0 20px 30px rgba(0,0,0,0.3);
 }
 
 .blog-title {

@@ -23,22 +23,22 @@ public class CacheableMapper {
     @Autowired
     private CommentMapper commentMapper;
 
-    @Cacheable(value = "Blog", key = "#blogID")
+    @Cacheable(value = "Blog", key = "#blogID", unless="#result == null")
     public Blog getBlogEntityByID(int blogID){
         return blogMapper.selectBlogByID(blogID);
     }
 
-    @Cacheable(value = "Comment", key = "#commentID")
+    @Cacheable(value = "Comment", key = "#commentID", unless="#result == null")
     public Comment getCommentByID(int commentID) {
         return commentMapper.selectCommentByID(commentID);
     }
 
-    @Cacheable(value = "TagNamesOfBlog", key = "#blogID")
+    @Cacheable(value = "TagNamesOfBlog", key = "#blogID", unless="#result == null")
     public List<String> getTagNamesByBlogID(int blogID){
         return blogMapper.selectTagNamesByBlogID(blogID);
     }
 
-    @Cacheable(value = "CollectionNamesOfBlog", key = "#blogID")
+    @Cacheable(value = "CollectionNamesOfBlog", key = "#blogID", unless="#result == null")
     public List<String> getCollectionNamesByBlogID(int blogID){
         return blogMapper.selectCollectionNamesByBlogID(blogID);
     }
