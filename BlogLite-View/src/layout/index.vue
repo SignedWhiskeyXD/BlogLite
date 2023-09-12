@@ -17,6 +17,18 @@ import BlogHeader from './Header.vue'
   </div>
 </template>
 
+<script>
+import {makeRequest} from "@/fetch/FetchTemplate";
+
+export default {
+    created() {
+        makeRequest('/api/statistic/siteUV', {
+            method: 'POST'
+        });
+    }
+}
+</script>
+
 <style scoped>
 .blog-header {
     padding: 0;

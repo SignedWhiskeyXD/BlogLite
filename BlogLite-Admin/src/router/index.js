@@ -8,6 +8,8 @@ const BlogPanel = () => import("@/components/BlogPanel.vue");
 const  Layout = () => import('@/layout/index.vue');
 const BlogCollectionPanel = () => import("@/components/BlogCollectionPanel.vue");
 const CommentPanel = () => import("@/components/CommentPanel.vue");
+const DashBoard = () => import('@/components/DashBoard.vue')
+
 
 const routes = [
     {path: '/hello', component: Hello},
@@ -19,6 +21,10 @@ const routes = [
         redirect: '/blog/list',
         component: Layout,
         children:[
+            {
+                path: '/dashboard',
+                component: DashBoard
+            },
             {
                 path: '/tag',
                 component: BlogTagPanel

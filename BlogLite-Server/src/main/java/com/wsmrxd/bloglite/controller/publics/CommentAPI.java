@@ -1,6 +1,7 @@
 package com.wsmrxd.bloglite.controller.publics;
 
 import com.github.pagehelper.PageInfo;
+import com.wsmrxd.bloglite.Utils.HttpUtil;
 import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
@@ -43,8 +44,8 @@ public class CommentAPI {
     public RestResponse<Object> uploadCommentByID(@PathVariable Integer id,
                                                   @RequestBody CommentUploadInfo newComment,
                                                   HttpServletRequest request){
-        String sourceIP = request.getHeader("X-Real-IP");
-        String ipKey = "CommentIPV4::" + Objects.requireNonNullElse(sourceIP, "");
+        String sourceIP = HttpUtil.getIP(request);
+        String ipKey = "CommentIPV4::" + Objects.requireNonNullElse(sourceIP, "UnknownIP");
         if(coolDownMinutes > 0 && !cacheService.setKeyValueIfAbsent(ipKey, " ", Duration.ofMinutes(coolDownMinutes)))
             return RestResponse.build(50400, Integer.toString(coolDownMinutes));
 

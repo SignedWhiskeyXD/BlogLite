@@ -21,26 +21,17 @@
         <el-container>
             <el-aside width="200px">
                 <el-scrollbar>
-                    <el-menu :default-openeds="['1', '3']">
-                        <el-sub-menu index="1">
+                    <el-menu :default-openeds="['1', '3']" :router="true">
+                        <el-menu-item index="/dashboard" style="justify-content: center">
+                            站点统计
+                        </el-menu-item>
+                        <el-sub-menu index="2" >
                             <template #title>
-                                <el-icon><message /></el-icon>内容管理
+                                <el-icon><Message /></el-icon>内容管理
                             </template>
-                            <router-link to="/blog/write">
-                                <el-menu-item index="1-1">写文章</el-menu-item>
-                            </router-link>
-                            <router-link to="/blog/list">
-                                <el-menu-item index="1-2">文章列表</el-menu-item>
-                            </router-link>
-                            <router-link to="/tag">
-                                <el-menu-item index="1-3">标签管理</el-menu-item>
-                            </router-link>
-                            <router-link to="/collection">
-                                <el-menu-item index="1-4">专栏管理</el-menu-item>
-                            </router-link>
-                            <router-link to="/comment">
-                                <el-menu-item index="1-5">评论管理</el-menu-item>
-                            </router-link>
+                            <el-menu-item class="menu-item" v-for="menuItem in contentMenu" :index="menuItem.path">
+                                {{ menuItem.title }}
+                            </el-menu-item>
                         </el-sub-menu>
                     </el-menu>
                 </el-scrollbar>
@@ -56,9 +47,37 @@
     </el-container>
 </template>
 
-<script lang="ts" setup>
+<script>
 import { Menu as IconMenu, Message, Setting } from '@element-plus/icons-vue'
 
+export default {
+    data(){
+        return {
+            contentMenu: [
+                {
+                    title: '写文章',
+                    path: '/blog/write'
+                },
+                {
+                    title: '文章列表',
+                    path: '/blog/list'
+                },
+                {
+                    title: '标签管理',
+                    path: '/tag'
+                },
+                {
+                    title: '专栏管理',
+                    path: '/collection'
+                },
+                {
+                    title: '评论管理',
+                    path: '/comment'
+                },
+            ]
+        }
+    }
+}
 
 </script>
 
