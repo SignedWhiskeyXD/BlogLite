@@ -11,5 +11,5 @@ public interface BlogStreamService {
 
     BlogStream getBlogStream(int startID, int num);
 
-    List<BlogCard> getAllBlogsFromCollection(int collectionID);
+    List<BlogCard> getBlogCardList(List<Integer> blogIDs);
 }

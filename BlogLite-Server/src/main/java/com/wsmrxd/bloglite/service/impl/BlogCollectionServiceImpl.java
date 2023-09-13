@@ -3,6 +3,7 @@ package com.wsmrxd.bloglite.service.impl;
 import com.wsmrxd.bloglite.dto.BlogCollectionCreateInfo;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.mapping.BlogCollectionMapper;
+import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.service.BlogCollectionService;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.CacheService;
@@ -10,7 +11,7 @@ import com.wsmrxd.bloglite.vo.BlogCollectionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import static com.wsmrxd.bloglite.enums.RedisKeyForSet.Integer_BlogIDs_ByCollect
 public class BlogCollectionServiceImpl implements BlogCollectionService {
 
     @Autowired
-    private BlogCollectionMapper mapper;
+    private BlogCollectionMapper collectionMapper;
 
     @Autowired
     private BlogService blogService;
@@ -30,16 +31,14 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
     @Autowired
     private CacheService cacheService;
 
-    private String defaultCollectionImageUrl;
+    @Autowired
+    private CacheableMapper cacheableMapper;
 
     @Value("${myConfig.image.defaultCollectionImage}")
-    public void setDefaultCollectionImageUrl(String defaultCollectionImageUrl) {
-        this.defaultCollectionImageUrl = defaultCollectionImageUrl;
-    }
+    private String defaultCollectionImageUrl;
 
     @Override
-    public List<BlogCollectionVO> getAllBlogCollectionWithStatistic() {
-        var collections = getAllBlogCollection();
+    public List<BlogCollectionVO> getBlogCollectionVOList(List<BlogCollection> collections) {
         List<BlogCollectionVO> ret = new ArrayList<>(collections.size());
         for(BlogCollection collection : collections){
             BlogCollectionVO collectionVO = new BlogCollectionVO(collection);
@@ -53,20 +52,23 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "CollectionNamesOfBlog", allEntries = true),
-            @CacheEvict(value = "AllBlogCollection", allEntries = true)
-    })
+    @Cacheable("AllBlogCollection")
+    public List<BlogCollection> getAllBlogCollection(){
+        return collectionMapper.selectAllBlogCollection();
+    }
+
+    @Override
+    @CacheEvict("AllBlogCollection")
     public void modifyCollectionInfo(BlogCollection modifyInfo) {
         String imageUrl = modifyInfo.getImageLink();
         if(imageUrl == null || imageUrl.isEmpty())
             modifyInfo.setImageLink(defaultCollectionImageUrl);
 
-        mapper.updateBlogCollection(modifyInfo);
+        collectionMapper.updateBlogCollection(modifyInfo);
     }
 
     @Override
-    @CacheEvict(value = "AllBlogCollection", allEntries = true)
+    @CacheEvict("AllBlogCollection")
     public void createNewCollection(BlogCollectionCreateInfo newCollection) {
         var newCollectionEntity = new BlogCollection();
         newCollectionEntity.setCollectionName(newCollection.getCollectionName());
@@ -77,26 +79,15 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
         else
             newCollectionEntity.setImageLink(defaultCollectionImageUrl);
 
-        mapper.insertBlogCollection(newCollectionEntity);
+        collectionMapper.insertBlogCollection(newCollectionEntity);
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "CollectionNamesOfBlog", allEntries = true),
-            @CacheEvict(value = "AllBlogCollection", allEntries = true)
-    })
+    @CacheEvict("AllBlogCollection")
     public void removeBlogCollection(int collectionID) {
-        mapper.deleteBlogCollectionMapping(collectionID);
-        mapper.deleteBlogCollectionByID(collectionID);
+        collectionMapper.deleteBlogCollectionMapping(collectionID);
+        collectionMapper.deleteBlogCollectionByID(collectionID);
         cacheService.delete(Integer_BlogIDs_ByCollectionID_.name() + collectionID);
-    }
-
-    @Caching(evict = {
-            @CacheEvict(value = "CollectionNamesOfBlog", allEntries = true),
-            @CacheEvict(value = "AllBlogCollection", allEntries = true)
-    })
-    public List<BlogCollection> getAllBlogCollection(){
-        return mapper.selectAllBlogCollection();
     }
 
     private int getCollectionTotalViewsByBlogIDs(List<Integer> blogIDs){

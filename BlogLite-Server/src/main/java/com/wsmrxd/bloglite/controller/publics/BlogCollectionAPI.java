@@ -1,5 +1,6 @@
 package com.wsmrxd.bloglite.controller.publics;
 
+import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.service.BlogCollectionService;
 import com.wsmrxd.bloglite.vo.BlogCollectionVO;
 import com.wsmrxd.bloglite.vo.RestResponse;
@@ -23,6 +24,8 @@ public class BlogCollectionAPI {
 
     @GetMapping("/all")
     RestResponse<List<BlogCollectionVO>> serveAllBlogCollections(){
-        return RestResponse.ok(blogCollectionService.getAllBlogCollectionWithStatistic());
+        List<BlogCollection> collections = blogCollectionService.getAllBlogCollection();
+        List<BlogCollectionVO> ret = blogCollectionService.getBlogCollectionVOList(collections);
+        return RestResponse.ok(ret);
     }
 }

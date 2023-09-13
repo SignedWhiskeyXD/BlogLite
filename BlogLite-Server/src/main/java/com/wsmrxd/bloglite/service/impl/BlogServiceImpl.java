@@ -20,11 +20,11 @@ import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +63,7 @@ public class BlogServiceImpl implements BlogService {
 
         return new BlogAdminDetail(blog,
                 cacheableMapper.getTagNamesByBlogID(id),
-                cacheableMapper.getCollectionNamesByBlogID(id));
+                blogMapper.selectCollectionNamesByBlogID(id));
     }
 
     @Override
@@ -86,6 +86,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    @Nullable
     public BlogCard getBlogCard(int blogID){
         var blog = cacheableMapper.getBlogEntityByID(blogID);
         if(blog == null) return null;
@@ -97,7 +98,6 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @Cacheable(value = "BlogPaging", key = "#pageNum + '_' + #pageSize")
     public PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         return new PageInfo<>(blogMapper.selectAllBlogs());
@@ -111,10 +111,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Caching(evict = {
-            @CacheEvict(value = "BlogPaging", allEntries = true),
-            @CacheEvict(value = "allBlogTags", allEntries = true)
-    })
+    @CacheEvict(value = "allBlogTags", allEntries = true)
     public int addNewBlog(BlogUploadInfo newBlog) {
         var newBlogEntity = new Blog(newBlog);
         blogMapper.insertBlog(newBlogEntity);
@@ -135,7 +132,6 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "BlogPaging", allEntries = true),
             @CacheEvict(value = "Blog", key = "#id"),
             @CacheEvict(value = "BlogHTML", key = "#id")
     })
@@ -155,7 +151,6 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @CacheEvict(value = "CollectionNamesOfBlog", key = "#blogID")
     public void reArrangeBlogCollection(int blogID, List<String> collectionNames){
         var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
         for(var blogCollection : blogCollections) {
@@ -170,10 +165,8 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Caching(evict = {
-            @CacheEvict(value = "BlogPaging", allEntries = true),
             @CacheEvict(value = "Blog", key = "#id"),
-            @CacheEvict(value = "TagNamesOfBlog", key = "#id"),
-            @CacheEvict(value = "CollectionNamesOfBlog", key = "#id")
+            @CacheEvict(value = "TagNamesOfBlog", key = "#id")
     })
     public boolean deleteBlog(int id) {
         flushSiteInfo();

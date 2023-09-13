@@ -1,5 +1,7 @@
 package com.wsmrxd.bloglite.controller.publics;
 
+import com.wsmrxd.bloglite.service.BlogSearchService;
+import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.BlogStreamService;
 import com.wsmrxd.bloglite.vo.BlogCard;
 import com.wsmrxd.bloglite.vo.BlogStream;
@@ -13,12 +15,14 @@ import java.util.List;
 @RequestMapping("/api/blogstream")
 public class BlogStreamAPI {
 
+    @Autowired
     private BlogStreamService blogStreamService;
 
     @Autowired
-    public void setBlogStreamService(BlogStreamService blogStreamService) {
-        this.blogStreamService = blogStreamService;
-    }
+    private BlogSearchService blogSearchService;
+
+    @Autowired
+    private BlogService blogService;
 
     @GetMapping("/init")
     public RestResponse<BlogStream> serveBlogStreamInitiation(@RequestParam int initNum){
@@ -33,8 +37,17 @@ public class BlogStreamAPI {
     }
 
     @GetMapping("/collection/{collectionID}")
-    public RestResponse<List<BlogCard>> serveBlogStreamByCollectionID(@PathVariable Integer collectionID){
-        List<BlogCard> ret = blogStreamService.getAllBlogsFromCollection(collectionID);
+    public RestResponse<List<BlogCard>> serveBlogsByCollectionID(@PathVariable Integer collectionID){
+        List<Integer> blogIDs = blogService.getBlogIDsByCollectionIDAsCached(collectionID);
+        List<BlogCard> ret = blogStreamService.getBlogCardList(blogIDs);
+        return RestResponse.ok(ret);
+    }
+
+    @GetMapping("/search")
+    public RestResponse<List<BlogCard>> serveBlogsBySearchingKeyword(@RequestParam("keyword") String keyword){
+
+        List<Integer> blogIDFound = blogSearchService.searchBlogContentFromDB(keyword);
+        List<BlogCard> ret = blogStreamService.getBlogCardList(blogIDFound);
         return RestResponse.ok(ret);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Service
@@ -24,11 +25,13 @@ public class CacheableMapper {
     private CommentMapper commentMapper;
 
     @Cacheable(value = "Blog", key = "#blogID", unless="#result == null")
+    @Nullable
     public Blog getBlogEntityByID(int blogID){
         return blogMapper.selectBlogByID(blogID);
     }
 
     @Cacheable(value = "Comment", key = "#commentID", unless="#result == null")
+    @Nullable
     public Comment getCommentByID(int commentID) {
         return commentMapper.selectCommentByID(commentID);
     }
@@ -36,10 +39,5 @@ public class CacheableMapper {
     @Cacheable(value = "TagNamesOfBlog", key = "#blogID", unless="#result == null")
     public List<String> getTagNamesByBlogID(int blogID){
         return blogMapper.selectTagNamesByBlogID(blogID);
-    }
-
-    @Cacheable(value = "CollectionNamesOfBlog", key = "#blogID", unless="#result == null")
-    public List<String> getCollectionNamesByBlogID(int blogID){
-        return blogMapper.selectCollectionNamesByBlogID(blogID);
     }
 }

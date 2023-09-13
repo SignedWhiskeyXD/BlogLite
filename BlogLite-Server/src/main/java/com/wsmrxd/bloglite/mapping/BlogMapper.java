@@ -24,6 +24,9 @@ public interface BlogMapper {
     @Select("SELECT id FROM blog ORDER BY id DESC")
     List<Integer> selectAllBlogID();
 
+    @Select("SELECT id FROM blog WHERE content LIKE #{pattern} ORDER BY id DESC")
+    List<Integer> selectBlogIDByContentPattern(String pattern);
+
     @Select("SELECT bt.tag_name FROM blog_tag_mapping btm\n" +
             "INNER JOIN blog_tag bt ON btm.tag_id = bt.id\n" +
             "WHERE btm.blog_id = #{id}")

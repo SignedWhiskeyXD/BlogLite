@@ -5,6 +5,7 @@ import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.BlogService;
+import com.wsmrxd.bloglite.service.BlogTagService;
 import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import com.wsmrxd.bloglite.vo.RestResponse;
@@ -18,12 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin/blog")
 public class BlogAdminAPI {
 
+    @Autowired
     private BlogService blogService;
 
     @Autowired
-    public void setBlogService(BlogService blogService) {
-        this.blogService = blogService;
-    }
+    private BlogTagService blogTagService;
 
     @GetMapping("/{id}")
     public RestResponse<BlogAdminDetail> serveBlogByID(@PathVariable int id){
@@ -59,16 +59,20 @@ public class BlogAdminAPI {
             blogService.reArrangeBlogCollection(id, modifyInfo.getCollections());
         }
 
-        return RestResponse.ok(null);
+        return RestResponse.ok();
     }
 
     @PutMapping
     public RestResponse<Object> addNewBlog(@RequestBody BlogUploadInfo newBlog){
-        boolean result =  blogService.addNewBlog(newBlog) > 0;
-        if(!result)
+        int newBlogID = blogService.addNewBlog(newBlog);
+        if(newBlogID < 1)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Add The Blog");
 
-        return RestResponse.ok(null);
+        // 这只是个标志，让缓存自动配置进行刷新
+        if(!newBlog.getTagNames().isEmpty())
+            blogTagService.addTag(null);
+
+        return RestResponse.ok();
     }
 
     @DeleteMapping("/{id}")
@@ -76,6 +80,6 @@ public class BlogAdminAPI {
         boolean result = blogService.deleteBlog(id);
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Delete The Blog");
-        return RestResponse.ok(null);
+        return RestResponse.ok();
     }
 }

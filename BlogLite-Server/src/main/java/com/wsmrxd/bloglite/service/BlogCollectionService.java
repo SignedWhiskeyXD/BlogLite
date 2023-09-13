@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface BlogCollectionService {
 
-    List<BlogCollectionVO> getAllBlogCollectionWithStatistic();
+    List<BlogCollectionVO> getBlogCollectionVOList(List<BlogCollection> collections);
+
+    List<BlogCollection> getAllBlogCollection();
 
     void modifyCollectionInfo(BlogCollection modifyInfo);
 

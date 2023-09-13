@@ -21,10 +21,17 @@ public class Blog {
     }
 
     public boolean isModified(BlogUploadInfo modifyInfo){
-        return  !this.title.equals(modifyInfo.getTitle()) ||
-                !this.content.equals(modifyInfo.getContent()) ||
-                !this.contentAbstract.equals(modifyInfo.getContentAbstract()) ||
-                !this.previewImage.equals(modifyInfo.getPreviewImage());
+        int modifyInfoHash = Objects.hash(
+                modifyInfo.getTitle(), modifyInfo.getPreviewImage(),
+                modifyInfo.getContentAbstract(), modifyInfo.getContent()
+        );
+
+        int originalHash = Objects.hash(
+                this.getTitle(), this.getPreviewImage(),
+                this.getContentAbstract(), this.getContent()
+        );
+
+        return originalHash != modifyInfoHash;
     }
 
     private int id;

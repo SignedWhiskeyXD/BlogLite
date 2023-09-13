@@ -37,9 +37,16 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     }
 
     @Override
-    public List<BlogCard> getAllBlogsFromCollection(int collectionID) {
-        List<Integer> blogIDs = blogService.getBlogIDsByCollectionIDAsCached(collectionID);
-        return getBlogCardList(blogIDs);
+    public List<BlogCard> getBlogCardList(List<Integer> blogIDs) {
+        List<BlogCard> ret = new ArrayList<>();
+        for(int blogID : blogIDs){
+            var blogCard = blogService.getBlogCard(blogID);
+            if(blogCard != null) {
+                setViewsAndImageToBlogCard(blogCard);
+                ret.add(blogCard);
+            }
+        }
+        return ret;
     }
 
     private BlogStream constructBlogStream(List<Integer> latestBlogIDList) {
@@ -59,18 +66,6 @@ public class BlogStreamServiceImpl implements BlogStreamService {
             initBlogStream.setNextRequestParam(null);
 
         return initBlogStream;
-    }
-
-    private List<BlogCard> getBlogCardList(List<Integer> blogIDs) {
-        List<BlogCard> ret = new ArrayList<>();
-        for(int blogID : blogIDs){
-            var blogCard = blogService.getBlogCard(blogID);
-            if(blogCard != null) {
-                setViewsAndImageToBlogCard(blogCard);
-                ret.add(blogCard);
-            }
-        }
-        return ret;
     }
 
     private void setViewsAndImageToBlogCard(BlogCard blogCard){

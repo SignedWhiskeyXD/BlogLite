@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Service
@@ -26,19 +27,16 @@ public class BlogTagServiceImpl implements BlogTagService {
     }
 
     @Override
-    @Cacheable(value = "BlogTagPageInfo", key = "#pageNum + '_' + #pageSize")
     public PageInfo<BlogTag> getAllTagsByPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<BlogTag> userList = mapper.selectAllTags();
-        return new PageInfo<>(userList);
+        return new PageInfo<>(mapper.selectAllTags());
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
-            @CacheEvict(value = "allBlogTags", allEntries = true)
-    })
-    public int addTag(String name) {
+    @CacheEvict(value = "allBlogTags", allEntries = true)
+    public int addTag(@Nullable String name) {
+        if(name == null) return -1;
+
         var newTag = new BlogTag();
         newTag.setTagName(name);
         mapper.insertTag(newTag);
@@ -47,7 +45,6 @@ public class BlogTagServiceImpl implements BlogTagService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
             @CacheEvict(value = "allBlogTags", allEntries = true),
             @CacheEvict(value = "TagNamesOfBlog", allEntries = true),
     })
@@ -59,7 +56,6 @@ public class BlogTagServiceImpl implements BlogTagService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "BlogTagPageInfo", allEntries = true),
             @CacheEvict(value = "allBlogTags", allEntries = true),
             @CacheEvict(value = "TagNamesOfBlog", allEntries = true),
     })
