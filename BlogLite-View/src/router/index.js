@@ -18,10 +18,11 @@ const router = createRouter({
         {
           path: '',
           component: BlogStream,
-        },
-        {
-          path: '/collection/:collection_id',
-          component: BlogCollectionDetail
+          props: (route) => {
+              const id = parseInt(route.query.collectionID);
+              const name = route.query.collectionName;
+              return {collectionID: id, collectionName: name};
+          }
         }
       ]
     },

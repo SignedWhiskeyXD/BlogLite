@@ -6,7 +6,7 @@
   <div class="collection-list-wrapper">
     <ul class="collection-list">
       <li v-for="collection in collectionList" class="collection-item"
-          @click="routeToBlogList(collection.id)">
+          @click="routeToBlogList(collection.id, collection.collectionName)">
         <img class="collection-img" :src="collection.imageLink" alt="img"/>
 
         <div class="collection-info">
@@ -34,8 +34,8 @@ export default {
             })
     },
     methods: {
-        routeToBlogList(collectionID){
-            router.push(`/collection/${collectionID}`)
+        routeToBlogList(collectionID, collectionName){
+            router.push({path: '/', query: {collectionID, collectionName}})
         }
     },
     data(){

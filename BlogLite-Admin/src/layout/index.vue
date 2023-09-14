@@ -21,7 +21,7 @@
         <el-container>
             <el-aside width="200px">
                 <el-scrollbar>
-                    <el-menu :default-openeds="['1', '3']" :router="true">
+                    <el-menu :default-openeds="['2']" :router="true">
                         <el-menu-item index="/dashboard" style="justify-content: center">
                             站点统计
                         </el-menu-item>

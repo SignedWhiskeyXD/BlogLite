@@ -5,7 +5,8 @@
 <template>
   <div class="blog-detail-wrapper">
     <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-      <el-skeleton animated :rows="20" v-if="!blogReady" v-loading="!blogReady"/>
+      <el-skeleton animated :rows="20" v-if="!(blogReady && minLoadTimeFlag)"
+                   v-loading="!(blogReady && minLoadTimeFlag)"/>
       <div v-else>
         <div class="blog-title">
           <h2>{{ blogDetail.title }}</h2>
@@ -83,7 +84,7 @@
                 :key="tag" size="large">
           {{ tag }}
         </el-tag>
-        <el-text v-if="!(blogDetail.tagNames.length > 0)" size="large">
+        <el-text v-if="!(blogDetail.tagNames.length > 0) && blogReady" size="large">
           这篇文章没有标签诶
         </el-text>
       </div>
@@ -114,26 +115,36 @@ export default {
     created() {
         if(this.blog_id > 0) {
             this.blogDetail.id = this.blog_id;
+            this.fetchData();
+        }
+    },
+    // 文章详情页，也就是本组件是被keep-alive缓存的，需要用下面的两个方法，在复用本组件时按需改变内容
+    beforeRouteUpdate(to, from) {
+        // 在不同的文章详情页之间路由时，activated生命周期钩子不会调用，应该使用Vue Router的导航守卫
+        // this 已经可用, props中的id与to route中的路由参数是一致的
+        this.blogDetail.id = to.params.blog_id;
+        this.fetchData();
+    },
+    activated() {
+        // 从主页导航至该组件时，会调用本方法，应当根据路由Boolean Props决定组件的内容
+        if(this.blog_id != this.blogDetail.id){
+            this.blogDetail.id = this.blog_id;
+            this.fetchData();
+        }
+    },
+    methods: {
+        fetchData(){
+            this.blogReady = false;
+            this.minLoadTimeFlag = false;
+            setTimeout(() => {this.minLoadTimeFlag = true}, 400);
+
             this.getComments(this.blogDetail.id, this.currentPage);
             getBlogDetail(this.blogDetail.id)
                 .then(blog => {
                     this.blogDetail = blog
                     this.blogReady = true
                 });
-        }
-    },
-    activated() {
-        if(this.blog_id != this.blogDetail.id){
-            console.log('oops');
-            this.blogDetail.id = this.blog_id;
-            this.getComments(this.blogDetail.id, this.currentPage);
-            getBlogDetail(this.blogDetail.id)
-                .then(blog => {
-                    this.blogDetail = blog
-                });
-        }
-    },
-    methods: {
+        },
         getComments(blogID, pageNum){
             getCommentsByBlogID(blogID, pageNum)
                 .then(pageInfo => {
@@ -207,6 +218,7 @@ export default {
     data(){
         return {
             blogReady: false,
+            minLoadTimeFlag: false,
             blogDetail: {
                 id: 0,
                 title: "",

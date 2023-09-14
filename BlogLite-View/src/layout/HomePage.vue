@@ -27,7 +27,8 @@ import BlogRanking from "@/components/BlogRanking.vue";
 export default {
     activated() {
         const scrollBar = this.$refs.scrollbarRef
-        scrollBar.setScrollTop(this.scrollBarPos)
+        if(this.$route.path === '/')
+            scrollBar.setScrollTop(this.scrollBarPos)
     },
     methods: {
         onScroll({ scrollTop }){

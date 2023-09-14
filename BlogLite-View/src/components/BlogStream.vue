@@ -4,6 +4,11 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
 </script>
 
 <template>
+  <div class="collection-title">
+    <el-text v-if="collectionID && collectionName" size="large">
+      浏览专栏【{{collectionName}}】下的所有文章
+    </el-text>
+  </div>
   <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
       infinite-scroll-delay="500">
     <li v-for="blog in blogs" :key="blog.id"
@@ -25,8 +30,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
         {{ blog.contentAbstract }}
       </div>
       <el-image class="blog-preview-image"
-                :src="blog.previewImage"
-                :preview-src-list="blog.previewImage">
+                :src="blog.previewImage">
         <template #error>
           <el-icon class="image-error"><IconPicture/></el-icon>
         </template>
@@ -49,17 +53,41 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
 <script>
 import {getBlogStream, getBlogStreamInitiation} from "@/fetch/BlogStreamAPI";
 import router from "@/router";
+import {getAllBlogsByCollectionID} from "@/fetch/BlogCollectionAPI";
 
 export default {
+    props:{
+        collectionID: Number,
+        collectionName: String
+    },
     created() {
-        getBlogStreamInitiation(this.requestParams.blogNumOnStart)
-            .then(BlogStream => {
-                this.requestParams.nextRequestParam = BlogStream.nextRequestParam;
-                this.blogs = BlogStream.blogList
-                this.scrollDisabled = false
-            })
+        if(!this.collectionID) {
+            // 是主页，以文章流的形式加载
+            this.initWithBlogStream();
+        }else{
+            // 按专栏ID获取其下所有文章
+            this.initWithBlogCollection();
+        }
     },
     methods: {
+        initWithBlogStream(){
+            this.blogs = [];
+            getBlogStreamInitiation(this.requestParams.blogNumOnStart)
+                .then(BlogStream => {
+                    this.requestParams.nextRequestParam = BlogStream.nextRequestParam;
+                    this.blogs = BlogStream.blogList
+                    this.scrollDisabled = false
+                })
+        },
+        initWithBlogCollection(){
+            this.streamLoading = true
+            this.blogs = [];
+            getAllBlogsByCollectionID(this.collectionID)
+                .then(blogs => {
+                    this.blogs = blogs;
+                    this.streamLoading = false;
+                })
+        },
         getMoreBlogs(){
             this.scrollDisabled = true
             this.streamLoading = true
@@ -84,20 +112,34 @@ export default {
             },
             blogs: [],
             scrollDisabled: true,
-            scrollBarPos: 0,
             streamLoading: false
         }
     },
     computed: {
         isScrollDisabled(){
-            if(this.$route.path !== '/') return true;
+            if(this.$route.path !== '/' || this.collectionID) return true;
             return this.scrollDisabled || this.requestParams.nextRequestParam == null;
+        },
+    },
+    watch: {
+        // 这里千万不能写成箭头函数回调的形式，不然捕获不到this
+        collectionID(newVal){
+            if(newVal) // 应该展示专栏
+                this.initWithBlogCollection()
+            else       // 应该展示首页
+                this.initWithBlogStream()
         }
     }
 }
 </script>
 
 <style scoped>
+.collection-title {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
 .blog-item {
     //border: 1px solid var(--el-border-color);
     border-radius: 20px;
