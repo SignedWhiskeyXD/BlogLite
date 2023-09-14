@@ -31,3 +31,5 @@ myConfig:
   comment:
     coolDownMinutes: 1
     needReview: true
+  blog:
+    pvIncreaseCoolDownMinute: 1    # 同IP访问同一文章，此段时间内的重复访问仅统计一次

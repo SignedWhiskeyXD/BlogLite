@@ -41,13 +41,13 @@ public class SiteInfoAPI {
     }
 
     @PostMapping("/siteUV")
-    public String addSiteUV(HttpServletRequest request){
+    public RestResponse<Object> addSiteUV(HttpServletRequest request){
         // 目前来说，统计UV的策略就是IP + 设备类型 + 操作系统 + 浏览器，共同组成了客户端指纹
         // TODO: 说实话这个日志方案不太行，之后要改为AOP实现
         VisitorLog visitor = HttpUtil.parseVisitor(request);
         log.info("Visitor from {}, {}, {}, {}",
                 visitor.getIp(), visitor.getDevice(), visitor.getOs(), visitor.getBrowser());
         hyperLogLog.add(SITE_PV_KEY, visitor.toString());
-        return "OK";
+        return RestResponse.ok();
     }
 }
