@@ -19,9 +19,12 @@ const router = createRouter({
           path: '',
           component: BlogStream,
           props: (route) => {
-              const id = parseInt(route.query.collectionID);
-              const name = route.query.collectionName;
-              return {collectionID: id, collectionName: name};
+            let queryParams = {};
+            queryParams.collectionID = parseInt(route.query.collectionID);
+            queryParams.collectionName = route.query.collectionName;
+            queryParams.searchKeyword = route.query.search;
+
+            return {queryParams}
           }
         }
       ]
