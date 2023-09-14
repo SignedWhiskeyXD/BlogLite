@@ -45,7 +45,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
     </li>
   </ul>
   <div class="stream-loading" v-loading="streamLoading"/>
-  <div class="at-bottom"  v-if="requestParams.nextRequestParam == null">
+  <div class="at-bottom"  v-if="requestParams.nextRequestParam == null && this.$route.fullPath === '/'">
     作者是条懒狗，就写了这么多！
   </div>
 </template>
@@ -54,22 +54,29 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
 import {getBlogStream, getBlogStreamInitiation} from "@/fetch/BlogStreamAPI";
 import router from "@/router";
 import {getAllBlogsByCollectionID} from "@/fetch/BlogCollectionAPI";
+import {getBlogSearchResult} from "@/fetch/BlogSearchAPI";
 
 export default {
     props:{
-        collectionID: Number,
-        collectionName: String
-    },
-    created() {
-        if(!this.collectionID) {
-            // 是主页，以文章流的形式加载
-            this.initWithBlogStream();
-        }else{
-            // 按专栏ID获取其下所有文章
-            this.initWithBlogCollection();
+        queryParams: {
+            collectionID: Number,
+            collectionName: String,
+            searchKeyword: String
         }
     },
+    created() {
+        this.judgeWhichContent();
+    },
     methods: {
+        judgeWhichContent(){
+            if(this.queryParams.collectionID){
+                this.initWithBlogCollection()
+            }else if(this.queryParams.searchKeyword){
+                this.initWithBlogSearchResult()
+            }else{
+                this.initWithBlogStream()
+            }
+        },
         initWithBlogStream(){
             this.blogs = [];
             getBlogStreamInitiation(this.requestParams.blogNumOnStart)
@@ -82,9 +89,18 @@ export default {
         initWithBlogCollection(){
             this.streamLoading = true
             this.blogs = [];
-            getAllBlogsByCollectionID(this.collectionID)
+            getAllBlogsByCollectionID(this.queryParams.collectionID)
                 .then(blogs => {
                     this.blogs = blogs;
+                    this.streamLoading = false;
+                })
+        },
+        initWithBlogSearchResult(){
+            this.streamLoading = true;
+            this.blogs = [];
+            getBlogSearchResult(this.queryParams.searchKeyword)
+                .then(resultList => {
+                    this.blogs = resultList;
                     this.streamLoading = false;
                 })
         },
@@ -117,17 +133,15 @@ export default {
     },
     computed: {
         isScrollDisabled(){
-            if(this.$route.path !== '/' || this.collectionID) return true;
+            if(this.$route.path !== '/') return true;
             return this.scrollDisabled || this.requestParams.nextRequestParam == null;
         },
     },
     watch: {
-        // 这里千万不能写成箭头函数回调的形式，不然捕获不到this
-        collectionID(newVal){
-            if(newVal) // 应该展示专栏
-                this.initWithBlogCollection()
-            else       // 应该展示首页
-                this.initWithBlogStream()
+        queryParams(newVal, oldVal) {
+            // 似乎JS没有什么好的比较两个对象相等的方式，大概只能用这种歪门邪道了
+            if(JSON.stringify(newVal) !== JSON.stringify(oldVal))
+                this.judgeWhichContent();
         }
     }
 }
