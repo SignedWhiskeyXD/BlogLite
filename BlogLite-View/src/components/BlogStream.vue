@@ -5,8 +5,11 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
 
 <template>
   <div class="collection-title">
-    <el-text v-if="collectionID && collectionName" size="large">
-      浏览专栏【{{collectionName}}】下的所有文章
+    <el-text v-if="queryParams.collectionID && queryParams.collectionName" size="large">
+      浏览专栏【{{queryParams.collectionName}}】下的所有文章
+    </el-text>
+    <el-text v-else-if="queryParams.searchKeyword" size="large">
+      "{{queryParams.searchKeyword}}" 的搜索结果
     </el-text>
   </div>
   <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
@@ -133,7 +136,7 @@ export default {
     },
     computed: {
         isScrollDisabled(){
-            if(this.$route.path !== '/') return true;
+            if(this.$route.fullPath !== '/') return true;
             return this.scrollDisabled || this.requestParams.nextRequestParam == null;
         },
     },

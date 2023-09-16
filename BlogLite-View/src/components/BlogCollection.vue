@@ -75,6 +75,7 @@ export default {
 .collection-list-wrapper {
     display: flex;
     justify-content: center;
+    min-height: 95vh;
 }
 
 .collection-info {

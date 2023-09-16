@@ -5,7 +5,6 @@ const HomePage = () => import('@/layout/HomePage.vue')
 const BlogStream = () => import('@/components/BlogStream.vue')
 const BlogDetail = () => import('@/components/BlogDetail.vue')
 const BlogCollection = () => import('@/components/BlogCollection.vue')
-const BlogCollectionDetail = () => import('@/components/BlogCollectionDetail.vue')
 const Login = () => import('@/components/Login.vue')
 
 const router = createRouter({

@@ -244,6 +244,8 @@ export default {
 .blog-detail-wrapper {
     display: flex;
     justify-content: center;
+    min-width: 1000px;
+    min-height: 95vh;
 }
 
 .blog-detail  {

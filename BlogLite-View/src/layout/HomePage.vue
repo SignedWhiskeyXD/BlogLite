@@ -48,8 +48,7 @@ export default {
     display: flex;
     justify-content: center;
     flex-direction: row;
-    min-width: 1100px;
-    min-height: 95vh;
+    min-width: 850px;
 }
 
 .transition-shadow {
