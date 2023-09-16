@@ -42,12 +42,4 @@ public class BlogStreamAPI {
         List<BlogCard> ret = blogStreamService.getBlogCardList(blogIDs);
         return RestResponse.ok(ret);
     }
-
-    @GetMapping("/search")
-    public RestResponse<List<BlogCard>> serveBlogsBySearchingKeyword(@RequestParam("keyword") String keyword){
-
-        List<Integer> blogIDFound = blogSearchService.searchBlogContentFromDB(keyword);
-        List<BlogCard> ret = blogStreamService.getBlogCardList(blogIDFound);
-        return RestResponse.ok(ret);
-    }
 }
