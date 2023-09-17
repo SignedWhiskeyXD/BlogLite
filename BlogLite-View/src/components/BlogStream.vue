@@ -13,7 +13,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
     </el-text>
   </div>
   <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
-      infinite-scroll-delay="500">
+      infinite-scroll-delay="2000" :infinite-scroll-distance="-300">
     <li v-for="blog in blogs" :key="blog.id"
         class="blog-item transition-shadow">
       <div class="blog-title">
@@ -47,10 +47,11 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
       </div>
     </li>
   </ul>
-  <div class="stream-loading" v-loading="streamLoading"/>
-  <div class="at-bottom"  v-if="requestParams.nextRequestParam == null && $route.fullPath === '/'">
+
+  <div class="at-bottom" v-if="requestParams.nextRequestParam == null && $route.fullPath === '/'">
     作者是条懒狗，就写了这么多！
   </div>
+  <el-skeleton class="blog-item transition-shadow" v-else :rows="6" animated />
 </template>
 
 <script>

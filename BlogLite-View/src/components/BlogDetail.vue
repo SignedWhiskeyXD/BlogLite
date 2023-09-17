@@ -4,99 +4,101 @@
 
 <template>
   <div class="blog-detail-wrapper">
-    <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-      <el-skeleton animated :rows="20" v-if="!(blogReady && minLoadTimeFlag)"
-                   v-loading="!(blogReady && minLoadTimeFlag)"/>
-      <div v-else>
-        <div class="blog-title">
-          <h2>{{ blogDetail.title }}</h2>
-        </div>
-        <el-row class="blog-date-views">
-          <el-col :span="12" class="blog-date">
-            <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
-          </el-col>
-          <el-col :span="12" class="blog-views">
-            <el-text>浏览次数 {{ blogDetail.views }}</el-text>
-          </el-col>
-        </el-row>
+    <div class="blog-detail-wrapper-secondary">
+      <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}" ref="blogDetailSection">
+        <el-skeleton animated :rows="20" v-if="!(blogReady && minLoadTimeFlag)"
+                     v-loading="!(blogReady && minLoadTimeFlag)"/>
+        <div v-else>
+          <div class="blog-title">
+            <h2>{{ blogDetail.title }}</h2>
+          </div>
+          <el-row class="blog-date-views">
+            <el-col :span="12" class="blog-date">
+              <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
+            </el-col>
+            <el-col :span="12" class="blog-views">
+              <el-text>浏览次数 {{ blogDetail.views }}</el-text>
+            </el-col>
+          </el-row>
 
-        <el-divider class="title-content-divider" border-style="dashed"/>
-        <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
-        <el-divider class="title-content-divider" border-style="dashed"/>
+          <el-divider class="title-content-divider" border-style="dashed"/>
+          <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
+          <el-divider class="title-content-divider" border-style="dashed"/>
 
-        <h3 ref="blogCommentTitle">{{ commentPageInfo.total }}条评论</h3>
+          <h3 ref="blogCommentTitle">{{ commentPageInfo.total }}条评论</h3>
 
-        <div class="blog-comment-page">
-          <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
-            <el-avatar :size="50" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
-            <div class="comment-wrapper">
-              <div class="comment-identity">
-                <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
+          <div class="blog-comment-page">
+            <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
+              <el-avatar :size="50" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
+              <div class="comment-wrapper">
+                <div class="comment-identity">
+                  <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
+                </div>
+                <div class="comment-content">
+                  <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
+                </div>
+                <el-divider/>
               </div>
-              <div class="comment-content">
-                <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
-              </div>
-              <el-divider/>
             </div>
           </div>
-        </div>
 
-        <el-pagination v-if="commentPageInfo.total > 10"
-                       layout="prev, pager, next" :total="commentPageInfo.total" background
-                       vmodel:current-page="currentPage" class="comment-pagination"
-                       @current-change="handlePageNumChanged"
-        />
+          <el-pagination v-if="commentPageInfo.total > 10"
+                         layout="prev, pager, next" :total="commentPageInfo.total" background
+                         vmodel:current-page="currentPage" class="comment-pagination"
+                         @current-change="handlePageNumChanged"
+          />
 
-        <div class="blog-comment-input">
-          <el-row class="comment-input-wrapper">
-            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
-                      placeholder="说点什么吧" v-model="commentInput.content"></el-input>
-          </el-row>
-          <el-row class="comment-identify" :gutter="20">
-            <el-col :span="10">
-              <el-input placeholder="请输入昵称" v-model="commentInput.nickname">
-                <template #prefix>
-                  <el-icon><User /></el-icon>
-                </template>
-              </el-input>
-            </el-col>
-            <el-col :span="10" >
-              <el-input placeholder="请输入邮箱" v-model="commentInput.email">
-                <template #prefix>
-                  <el-icon><Message /></el-icon>
-                </template>
-              </el-input>
-            </el-col>
-            <el-col :span="4">
-              <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
-                发送 ({{ commentInput.content.length }}/200)
-              </el-button>
-            </el-col>
-          </el-row>
+          <div class="blog-comment-input">
+            <el-row class="comment-input-wrapper">
+              <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
+                        placeholder="说点什么吧" v-model="commentInput.content"></el-input>
+            </el-row>
+            <el-row class="comment-identify" :gutter="20">
+              <el-col :span="10">
+                <el-input placeholder="请输入昵称" v-model="commentInput.nickname">
+                  <template #prefix>
+                    <el-icon><User /></el-icon>
+                  </template>
+                </el-input>
+              </el-col>
+              <el-col :span="10" >
+                <el-input placeholder="请输入邮箱" v-model="commentInput.email">
+                  <template #prefix>
+                    <el-icon><Message /></el-icon>
+                  </template>
+                </el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
+                  发送 ({{ commentInput.content.length }}/200)
+                </el-button>
+              </el-col>
+            </el-row>
+          </div>
         </div>
-      </div>
-    </main>
-    <aside>
-      <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-        <h4 style="text-align: center">文章标签</h4>
-        <el-divider style="margin-bottom: 10px"/>
-        <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
-                :key="tag" size="large">
-          {{ tag }}
-        </el-tag>
-        <el-text v-if="!(blogDetail.tagNames.length > 0) && blogReady" size="large">
-          这篇文章没有标签诶
-        </el-text>
-      </div>
-    </aside>
-  </div>
-  <div class="fixed-buttons">
-    <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToTop">
-      <el-icon style="scale: 200%"><ArrowUpBold /></el-icon>
+      </main>
+      <aside class="blog-detail-sidebar">
+        <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+          <h4 style="text-align: center">文章标签</h4>
+          <el-divider style="margin-bottom: 10px"/>
+          <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
+                  :key="tag" size="large">
+            {{ tag }}
+          </el-tag>
+          <el-text v-if="!(blogDetail.tagNames.length > 0) && blogReady" size="large">
+            这篇文章没有标签诶
+          </el-text>
+        </div>
+      </aside>
     </div>
-    <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}"
-         @click="scrollToCommentSection">
-      <el-icon style="scale: 200%"><ChatLineSquare /></el-icon>
+    <div class="fixed-buttons">
+      <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToTop">
+        <el-icon style="scale: 200%"><ArrowUpBold /></el-icon>
+      </div>
+      <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}"
+           @click="scrollToCommentSection">
+        <el-icon style="scale: 200%"><ChatLineSquare /></el-icon>
+      </div>
     </div>
   </div>
 </template>
@@ -156,10 +158,8 @@ export default {
             commentSection.scrollIntoView({ behavior: 'smooth' });
         },
         scrollToTop(){
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            const blogDetail = this.$refs.blogDetailSection;
+            blogDetail.scrollIntoView({ behavior: 'smooth' })
         },
         handlePageNumChanged(pageNum){
             this.getComments(this.blogDetail.id, pageNum);
@@ -244,7 +244,11 @@ export default {
 .blog-detail-wrapper {
     display: flex;
     justify-content: center;
-    min-width: 1000px;
+}
+
+.blog-detail-wrapper-secondary {
+    width: 1280px;
+    display: flex;
 }
 
 .blog-detail  {
@@ -252,6 +256,11 @@ export default {
     padding: 20px;
     background-color: #ffffff;
     margin: 20px 40px 30px;
+    width: 75%;
+}
+
+.blog-detail-sidebar {
+    width: 25%;
 }
 
 .blog-tags {
@@ -259,30 +268,6 @@ export default {
     background-color: #ffffff;
     padding: 5px 20px 20px;
     margin-top: 20px;
-}
-
-@media screen and (min-width: 1300px) {
-    .blog-detail {
-        width: 1000px;
-    }
-
-    .blog-tags {
-        width: 300px;
-    }
-}
-
-@media screen and (max-width: 1300px) {
-    .blog-detail-wrapper {
-        justify-content: flex-start;
-    }
-
-    .blog-detail {
-        width: 800px;
-    }
-
-    .blog-tags {
-        width: 200px;
-    }
 }
 
 .blog-title {

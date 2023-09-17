@@ -44,7 +44,6 @@ export default {
 <style scoped>
 .blog-ranking {
     background-color: white;
-    margin-left: 5px;
     margin-top: 20px;
     border: 1px solid var(--el-border-color);;
 }

@@ -12,18 +12,20 @@ import BlogRanking from "@/components/BlogRanking.vue";
     所以，这个组件作为一个路由组件，如果希望保留滚动条的状态，必须在这里自己整一个，这样才有办法在路由更新时，自定义恢复位置的方法-->
   <el-scrollbar ref="scrollbarRef" always @scroll="onScroll">
     <div class="home-page-wrapper">
-      <main class="main-wrapper">
-        <router-view v-slot="{ Component }">
-          <keep-alive include="BlogStream">
-            <component :is="Component"/>
-          </keep-alive>
-        </router-view>
-      </main>
-      <aside class="right-side-wrapper">
-        <AboutMe class="transition-shadow"/>
-        <main-page-tags class="transition-shadow"/>
-        <blog-ranking class="transition-shadow"/>
-      </aside>
+      <div class="home-page-wrapper-secondary">
+        <main class="main-wrapper">
+          <router-view v-slot="{ Component }">
+            <keep-alive include="BlogStream">
+              <component :is="Component"/>
+            </keep-alive>
+          </router-view>
+        </main>
+        <aside class="right-side-wrapper">
+          <AboutMe class="transition-shadow"/>
+          <main-page-tags class="transition-shadow"/>
+          <blog-ranking class="transition-shadow"/>
+        </aside>
+      </div>
     </div>
   </el-scrollbar>
 </template>
@@ -52,8 +54,11 @@ export default {
 .home-page-wrapper{
     display: flex;
     justify-content: center;
-    flex-direction: row;
-    min-width: 850px;
+}
+
+.home-page-wrapper-secondary {
+    display: flex;
+    width: 1280px;
 }
 
 .transition-shadow {
@@ -65,40 +70,13 @@ export default {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-@media screen and (max-width: 1100px) {
-  .home-page-wrapper{
-      justify-content: flex-start;
-
-  }
-}
-
 .main-wrapper {
-    width: 600px;
-    position: relative;
+    width: 75%;
 }
 
 .right-side-wrapper {
-    width: 250px;
-    position: relative;
+    width: 25%;
 }
 
-@media screen and (min-width: 1100px) {
-    .main-wrapper {
-        width: 750px;
-    }
 
-    .right-side-wrapper {
-        width: 350px;
-    }
-}
-
-@media screen and (min-width: 1500px){
-  .main-wrapper {
-      width: 1100px;
-  }
-
-  .right-side-wrapper {
-      width: 400px;
-  }
-}
 </style>

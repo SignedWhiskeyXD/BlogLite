@@ -32,7 +32,7 @@ public class BlogSearchServiceRedisImpl implements BlogSearchService {
             .addTextField("abstract", 2.0)
             .addTextField("content", 1.0);
 
-    private static final String INDEX_NAME = "BlogSearchServiceRedisImpl";
+    private static final String INDEX_NAME = "BlogSearch";
 
     private static final String DOCUMENT_ID_PREFIX = "BlogIndexed::";
 

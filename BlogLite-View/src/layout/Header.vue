@@ -1,30 +1,24 @@
 <script setup>
 import 'element-plus/dist/index.css'
-import {Postcard} from "@element-plus/icons-vue";
 </script>
 
 <template>
   <div class="blog-header">
-    <el-row>
-      <el-col :span="3" class="blog-title">
-        <a class="blog-title-text" href="https://github.com/SignedWhiskeyXD/BlogLite" target="_blank">
-          BlogLite
-        </a>
-      </el-col>
-      <el-col :span="16">
-        <el-menu mode="horizontal" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b"
-                 :default-active="menuDefaultActive" :router="true">
-          <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path">
-            {{ menuItem.title }}
-          </el-menu-item>
-        </el-menu>
-      </el-col>
-      <el-col :span="5" class="search-bar">
-        <el-input class="search-bar-input" v-model="searchInput" :placeholder="'搜索本站内容'"/>
-        <el-button class="search-bar-button" @click="routeToSearchResult">搜索</el-button>
-      </el-col>
-    </el-row>
-
+    <div class="blog-title">
+      <a class="blog-title-text" href="https://github.com/SignedWhiskeyXD/BlogLite" target="_blank">
+        BlogLite
+      </a>
+    </div>
+    <el-menu mode="horizontal" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b"
+             :default-active="menuDefaultActive" :router="true" class="header-menu">
+      <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path">
+        {{ menuItem.title }}
+      </el-menu-item>
+    </el-menu>
+    <div class="search-bar">
+      <el-input class="search-bar-input" v-model="searchInput" :placeholder="'搜索本站内容'"/>
+      <el-button class="search-bar-button" @click="routeToSearchResult">搜索</el-button>
+    </div>
   </div>
 </template>
 
@@ -61,6 +55,10 @@ export default {
 </script>
 
 <style scoped>
+.blog-title {
+    padding-left: 3%;
+}
+
 .blog-title-text {
     align-items: center;
     font-size: 26px;
@@ -73,6 +71,12 @@ export default {
 
 .blog-header {
     background-color: #545c64;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-menu {
+    width: 1000px;
 }
 
 .menu-item {
@@ -81,6 +85,8 @@ export default {
 
 .search-bar {
     display: flex;
+    padding-right: 1%;
+    width: 400px;
 }
 
 .search-bar-input {
