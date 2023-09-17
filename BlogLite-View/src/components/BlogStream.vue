@@ -48,7 +48,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
     </li>
   </ul>
   <div class="stream-loading" v-loading="streamLoading"/>
-  <div class="at-bottom"  v-if="requestParams.nextRequestParam == null && this.$route.fullPath === '/'">
+  <div class="at-bottom"  v-if="requestParams.nextRequestParam == null && $route.fullPath === '/'">
     作者是条懒狗，就写了这么多！
   </div>
 </template>

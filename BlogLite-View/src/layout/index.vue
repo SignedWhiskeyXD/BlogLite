@@ -32,9 +32,15 @@ export default {
 <style scoped>
 .blog-header {
     padding: 0;
+    position: fixed;
+    width: 100%;
+    z-index: 114514;
+    top: 0;
+    left: 0;
 }
 
 .blog-main {
-    padding: 0;
+    padding: 50px 0 0;
+    height: 100vh;
 }
 </style>
