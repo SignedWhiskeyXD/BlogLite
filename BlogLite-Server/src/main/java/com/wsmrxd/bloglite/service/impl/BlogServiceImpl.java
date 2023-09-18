@@ -119,6 +119,9 @@ public class BlogServiceImpl implements BlogService {
     @CacheEvict(value = "allBlogTags", allEntries = true)
     public int addNewBlog(BlogUploadInfo newBlog) {
         var newBlogEntity = new Blog(newBlog);
+        if(newBlogEntity.getPreviewImage().isEmpty())
+            newBlogEntity.setPreviewImage(MarkDownUtil.getPreviewImageUriFromMarkdown(newBlogEntity.getContent()));
+
         blogMapper.insertBlog(newBlogEntity);
 
         int newBlogID = newBlogEntity.getId();

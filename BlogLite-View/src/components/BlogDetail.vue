@@ -108,6 +108,7 @@ import {getBlogDetail} from "@/fetch/BlogDetailAPI";
 import 'github-markdown-css/github-markdown.css'
 import {getCommentsByBlogID, publishComment} from "@/fetch/CommentAPI";
 import {ElMessage} from "element-plus";
+import {getCommentIdentity, saveCommentIdentity} from "@/utils/storageUtils";
 
 export default {
     name: "BlogDetail",
@@ -119,6 +120,10 @@ export default {
             this.blogDetail.id = this.blog_id;
             this.fetchData();
         }
+        const saveUserInfo = getCommentIdentity();
+        this.commentInput.nickname = saveUserInfo.nickname;
+        this.commentInput.email = saveUserInfo.email;
+        console.log(this.commentInput)
     },
     // 文章详情页，也就是本组件是被keep-alive缓存的，需要用下面的两个方法，在复用本组件时按需改变内容
     beforeRouteUpdate(to, from) {
@@ -172,12 +177,14 @@ export default {
                 .then(response => {
                     if(response.code === 200) {
                         ElMessage.success('评论已发送');
+                        saveCommentIdentity(this.commentInput)
                         this.clearCommentInput();
                         this.currentPage = 1;
                         this.getComments(this.blogDetail.id, 1);
                     }
                     else if(response.code === 201){
                         ElMessage.warning('已发送，请等待站长审核')
+                        saveCommentIdentity(this.commentInput)
                         this.clearCommentInput()
                     }
                     else if(response.code === 50400)

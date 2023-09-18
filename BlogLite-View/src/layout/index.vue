@@ -34,7 +34,8 @@ export default {
     padding: 0;
     position: fixed;
     width: 100%;
-    z-index: 114514;
+    /*z-index不要超过2020，否则导航栏会把ElMessage挡住*/
+    z-index: 1919;
     top: 0;
     left: 0;
 }

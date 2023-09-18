@@ -82,7 +82,7 @@ export default {
 }
 
 .blog-banner {
-    background-image: url("../asset/banner.jpg");
+    background-image: url("https://raw.githubusercontent.com/SignedWhiskeyXD/PicGoRepo/master/img/banner.jpg");
     background-position: center center;
     height: 30vh;
     position: relative;
