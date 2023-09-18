@@ -51,7 +51,8 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
   <div class="at-bottom" v-if="requestParams.nextRequestParam == null && $route.fullPath === '/'">
     作者是条懒狗，就写了这么多！
   </div>
-  <el-skeleton class="blog-item transition-shadow" v-else :rows="6" animated />
+  <el-skeleton class="blog-item transition-shadow"
+               v-else-if="requestParams.nextRequestParam != null && $route.fullPath === '/'" :rows="6" animated />
 </template>
 
 <script>

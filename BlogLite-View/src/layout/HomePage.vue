@@ -11,6 +11,9 @@ import BlogRanking from "@/components/BlogRanking.vue";
     对于子元素产生的滚动条，则似乎无法保留滚动状态
     所以，这个组件作为一个路由组件，如果希望保留滚动条的状态，必须在这里自己整一个，这样才有办法在路由更新时，自定义恢复位置的方法-->
   <el-scrollbar ref="scrollbarRef" always @scroll="onScroll">
+    <div class="blog-banner">
+      <p class="banner-about">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
+    </div>
     <div class="home-page-wrapper">
       <div class="home-page-wrapper-secondary">
         <main class="main-wrapper">
@@ -78,5 +81,18 @@ export default {
     width: 25%;
 }
 
+.blog-banner {
+    background-image: url("../asset/banner.jpg");
+    background-position: center center;
+    height: 30vh;
+    position: relative;
+}
 
+.banner-about {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0;
+}
 </style>

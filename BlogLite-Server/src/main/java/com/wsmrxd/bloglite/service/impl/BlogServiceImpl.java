@@ -3,6 +3,8 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
+import com.wsmrxd.bloglite.enums.ErrorCode;
+import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
@@ -55,6 +57,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Autowired
     private MarkDownUtil markDownUtil;
+
+    @Autowired(required = false)
+    private BlogSearchServiceRedisImpl rediSearch;
 
     @Override
     public BlogAdminDetail getBlogAdminDetailByID(int id) {
@@ -125,6 +130,9 @@ public class BlogServiceImpl implements BlogService {
         if(collectionNames != null && collectionNames.size() > 0)
             arrangeCollectionList(newBlogID, collectionNames);
 
+        if(rediSearch != null && !rediSearch.addDocument(newBlogEntity))
+            throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot create index for blog, id=" + newBlogID);
+
         flushSiteInfo();
         addBlogIDtoZSet(newBlogID);
         return newBlogID;
@@ -137,6 +145,13 @@ public class BlogServiceImpl implements BlogService {
     })
     public void modifyBlog(int id, BlogUploadInfo modifyInfo) {
         blogMapper.updateBlogByModifyInfo(id, new Blog(modifyInfo));
+        if(rediSearch != null){
+            if(!rediSearch.deleteDocument(id))
+                throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot drop index for blog, id=" + id);
+
+            if(!rediSearch.addDocument(id))
+                throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot create index for blog, id=" + id);
+        }
     }
 
     @Override
@@ -171,6 +186,10 @@ public class BlogServiceImpl implements BlogService {
     public boolean deleteBlog(int id) {
         flushSiteInfo();
         removeBlogIDFromZSet(id);
+
+        if(rediSearch != null && !rediSearch.deleteDocument(id))
+            throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot drop index for blog, id=" + id);
+
         blogMapper.deleteTagMappingByBlogID(id);
         blogMapper.deleteCollectionMappingByBlogID(id);
         return blogMapper.deleteBlogByID(id);

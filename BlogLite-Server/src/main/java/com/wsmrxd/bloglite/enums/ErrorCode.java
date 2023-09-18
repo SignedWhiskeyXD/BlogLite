@@ -12,7 +12,9 @@ public enum ErrorCode {
 
     BLOG_NOT_FOUND(54404),
 
-    INVALID_PASSWORD(52403);
+    INVALID_PASSWORD(52403),
+
+    REDISEARCH_ERROR(52501);
 
     private final int errorCode;
 
