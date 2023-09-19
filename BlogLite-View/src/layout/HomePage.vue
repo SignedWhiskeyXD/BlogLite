@@ -13,6 +13,7 @@ import BlogRanking from "@/components/BlogRanking.vue";
   <el-scrollbar ref="scrollbarRef" always @scroll="onScroll">
     <div class="blog-banner">
       <p class="banner-about w-mobile-no-display">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
+      <h1 class="banner-title">WhiskeyXD的个人博客</h1>
     </div>
     <div class="home-page-wrapper">
       <div class="home-page-wrapper-secondary">
@@ -94,6 +95,9 @@ export default {
     background-position: center center;
     height: 30vh;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .banner-about {
@@ -102,5 +106,10 @@ export default {
     right: 5px;
     color: rgba(255, 255, 255, 0.3);
     margin: 0;
+}
+
+.banner-title {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
 }
 </style>

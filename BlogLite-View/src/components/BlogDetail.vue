@@ -29,7 +29,7 @@
 
           <div class="blog-comment-page">
             <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
-              <el-avatar :size="50" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
+              <el-avatar :size="50" style="min-width: 50px" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
               <div class="comment-wrapper">
                 <div class="comment-identity">
                   <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>

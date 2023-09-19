@@ -5,7 +5,7 @@
 <template>
   <div class="blog-ranking">
     <el-text class="rank-title" size="large" tag="b">文章排行</el-text>
-    <el-divider style="scale: 90%; margin: 10px"/>
+    <el-divider style="margin: 0 0 5px"/>
     <div class="blog-ranking-wrapper">
       <div class="blog-rank-info" v-for="rankInfo in rankList" :key="rankInfo.id">
         <el-text class="blog-ranking-title" truncated @click="routeToBlogDetail(rankInfo.id)">
@@ -51,7 +51,9 @@ export default {
 .rank-title {
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .blog-ranking-wrapper {
