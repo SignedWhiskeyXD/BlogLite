@@ -11,7 +11,11 @@ export async function makeRequest(relativeURI, init) {
     const modifiedInit = { ...init, headers };
 
     const response = await fetch(relativeURI, modifiedInit);
-    if(response.status === 403){
+    if(response.status === 401){
+        ElMessage.error('未认证')
+        return null;
+    }
+    else if(response.status === 403){
         ElMessage.error('权限不足')
         return null;
     }

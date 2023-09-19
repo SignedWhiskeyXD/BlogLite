@@ -34,6 +34,11 @@ public class RedisZSet {
         redisZSetOps.removeRangeByScore(key, score, score);
     }
 
+    public <T> void removeZSetValue(String key, T value){
+        var redisZSetOps = redisTemplate.opsForZSet();
+        redisZSetOps.remove(key, value);
+    }
+
     public Set getZSet(String key){
         var redisZSetOps = redisTemplate.opsForZSet();
         return redisZSetOps.range(key, 0, -1);

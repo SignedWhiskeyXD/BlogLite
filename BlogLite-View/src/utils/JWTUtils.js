@@ -1,4 +1,4 @@
- export function parseJWTPayload(jwt){
+function parseJWTPayload(jwt){
     const splitJWT = jwt.split('.');
     if(splitJWT.length !== 3) return {};
 
@@ -18,4 +18,8 @@ export function getLoginUser() {
 
  export function isAdmin(){
      return getLoginUser() === "wsmrxd@gmail.com";
+ }
+
+ export function logout() {
+    window.localStorage.removeItem('token');
  }

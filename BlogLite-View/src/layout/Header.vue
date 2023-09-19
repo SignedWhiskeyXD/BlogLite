@@ -1,5 +1,6 @@
 <script setup>
 import 'element-plus/dist/index.css'
+import Login from "@/components/Login.vue";
 </script>
 
 <template>
@@ -19,6 +20,15 @@ import 'element-plus/dist/index.css'
     <div class="search-bar" :class="{'w-mobile-no-display': hideMobileMenu}">
       <el-input class="search-bar-input" v-model="searchInput" :placeholder="'搜索本站内容'"/>
       <el-button class="search-bar-button" @click="routeToSearchResult">搜索</el-button>
+      <el-dropdown class="search-bar-dropdown">
+        <el-icon style="color: white">
+          <setting/>
+        </el-icon>
+        <template #dropdown>
+          <el-dropdown-item v-if="loginUser" @click="handleLogout">登出</el-dropdown-item>
+          <el-dropdown-item v-else @click="() => showLoginDialog = true">管理员登录</el-dropdown-item>
+        </template>
+      </el-dropdown>
     </div>
     <div class="w-mobile-show">
       <el-icon class="mobile-menu" @click="handleMobileMenuClicked">
@@ -27,12 +37,22 @@ import 'element-plus/dist/index.css'
       </el-icon>
     </div>
   </div>
+  <el-dialog v-model="showLoginDialog">
+    <template #title>
+      <h3 style="text-align: center">如果你是管理员的话...</h3>
+    </template>
+    <Login :username="loginUser"/>
+  </el-dialog>
 </template>
 
 <script>
 import router from "@/router";
+import {getLoginUser, logout} from "@/utils/JWTUtils";
 
 export default {
+    created() {
+        this.loginUser = getLoginUser();
+    },
     data(){
         return{
             menuInfo: [
@@ -46,7 +66,9 @@ export default {
                 }
             ],
             searchInput: "",
-            hideMobileMenu: true
+            hideMobileMenu: true,
+            showLoginDialog: false,
+            loginUser: ""
         }
     },
     methods: {
@@ -55,6 +77,10 @@ export default {
         },
         handleMobileMenuClicked(){
             this.hideMobileMenu = !this.hideMobileMenu;
+        },
+        handleLogout(){
+            logout();
+            this.loginUser = "";
         }
     },
     computed:{
@@ -119,5 +145,11 @@ export default {
     position: fixed;
     right: 20px;
     top: 20px;
+}
+
+.search-bar-dropdown {
+    margin-left: 3px;
+    display: flex;
+    align-items: center;
 }
 </style>

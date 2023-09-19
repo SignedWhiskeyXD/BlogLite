@@ -22,5 +22,7 @@ public interface CommentService {
 
     void deleteComment(int commentID);
 
+    void deleteComment(int commentID, int blogID);
+
     void syncCommentsForReview();
 }

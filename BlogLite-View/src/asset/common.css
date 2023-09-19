@@ -13,3 +13,7 @@
         display: none !important;
     }
 }
+
+.hover-pointer:hover {
+    cursor: pointer;
+}

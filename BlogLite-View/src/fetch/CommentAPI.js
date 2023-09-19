@@ -18,3 +18,10 @@ export async function publishComment(id, commentInfo) {
         message: payload.message
     };
 }
+
+export async function removeComment(blogID, commentID){
+    const query = `?blogID=${blogID}&commentID=${commentID}`;
+    return await makeRequest('/api/admin/comment/delete' + query, {
+        method: 'DELETE'
+    })
+}

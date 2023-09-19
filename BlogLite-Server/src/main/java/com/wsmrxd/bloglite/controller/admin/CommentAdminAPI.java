@@ -33,4 +33,11 @@ public class CommentAdminAPI {
 
         return RestResponse.ok();
     }
+
+    @DeleteMapping("/delete")
+    public RestResponse<Object> deleteCommentFromBlog(@RequestParam("blogID") int blogID,
+                                                      @RequestParam("commentID") int commentID){
+        commentService.deleteComment(commentID, blogID);
+        return RestResponse.ok();
+    }
 }

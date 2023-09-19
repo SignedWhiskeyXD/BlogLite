@@ -85,8 +85,14 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(int commentID) {
         commentMapper.deleteCommentByID(commentID);
+    }
 
-        // TODO: 从缓存有序集合删除该ID
+    @Override
+    public void deleteComment(int commentID, int blogID) {
+        String redisZSetKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
+        deleteComment(commentID);
+
+        cacheService.zSet().removeZSetValue(redisZSetKey, commentID);
     }
 
     @Override

@@ -33,6 +33,11 @@
               <div class="comment-wrapper">
                 <div class="comment-identity">
                   <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
+                  <el-popconfirm title="你确定?" @confirm="handleRemoveComment(comment.id)">
+                    <template #reference>
+                      <div v-if="isAdmin" class="remove-blog hover-pointer">删除</div>
+                    </template>
+                  </el-popconfirm>
                 </div>
                 <div class="comment-content">
                   <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
@@ -107,9 +112,10 @@
 <script>
 import {getBlogDetail} from "@/fetch/BlogDetailAPI";
 import 'github-markdown-css/github-markdown.css'
-import {getCommentsByBlogID, publishComment} from "@/fetch/CommentAPI";
+import {getCommentsByBlogID, publishComment, removeComment} from "@/fetch/CommentAPI";
 import {ElMessage} from "element-plus";
 import {getCommentIdentity, saveCommentIdentity} from "@/utils/storageUtils";
+import {isAdmin} from "@/utils/JWTUtils";
 
 export default {
     name: "BlogDetail",
@@ -124,7 +130,7 @@ export default {
         const saveUserInfo = getCommentIdentity();
         this.commentInput.nickname = saveUserInfo.nickname;
         this.commentInput.email = saveUserInfo.email;
-        console.log(this.commentInput)
+        this.isAdmin = isAdmin();
     },
     // 文章详情页，也就是本组件是被keep-alive缓存的，需要用下面的两个方法，在复用本组件时按需改变内容
     beforeRouteUpdate(to, from) {
@@ -221,6 +227,17 @@ export default {
             this.commentInput.content = "";
             this.commentInput.nickname = "";
             this.commentInput.email = "";
+        },
+        handleRemoveComment(commentID){
+            removeComment(this.blog_id, commentID)
+                .then(({code, message}) => {
+                    if(code === 200){
+                        ElMessage.success('删除成功');
+                        this.getComments(this.blogDetail.id, this.currentPage);
+                    }else{
+                        ElMessage.error('删除失败：' + message);
+                    }
+                })
         }
     },
     data(){
@@ -242,7 +259,8 @@ export default {
                 email: ""
             },
             currentPage: 1,
-            commentButtonDisabled: false
+            commentButtonDisabled: false,
+            isAdmin: false
         }
     }
 }
@@ -333,6 +351,7 @@ export default {
 
 .comment-identity {
     margin-bottom: 10px;
+    position: relative;
 }
 
 .comment-item {
@@ -386,5 +405,12 @@ export default {
 
 .button-to-top:hover {
     cursor: pointer;
+}
+
+.remove-blog {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    color: palevioletred;
 }
 </style>

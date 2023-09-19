@@ -1,34 +1,37 @@
 <template>
-    <div class="login-container">
-        <el-form :model="formData" ref="loginForm" label-width="80px">
-            <el-form-item label="email" prop="email">
-                <el-input
-                    v-model="formData.username"
-                    autocomplete="off"
-                    :prefix-icon="User"
-                />
-            </el-form-item>
-            <el-form-item label="密码" prop="password">
-                <el-input
-                    v-model="formData.password"
-                    type="password"
-                    autocomplete="off"
-                    :prefix-icon="Lock"
-                />
-            </el-form-item>
-        </el-form>
-        <el-button type="primary" @click="submitForm">登录</el-button>
+  <div class="login-container">
+    <div>{{this.username}}</div>
+    <el-form :model="formData" ref="loginForm" label-width="80px">
+      <el-form-item label="email" prop="email">
+        <el-input
+            v-model="formData.username"
+            autocomplete="off"
+            :prefix-icon="User"
+        />
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input
+            v-model="formData.password"
+            type="password"
+            autocomplete="off"
+            :prefix-icon="Lock"
+        />
+      </el-form-item>
+    </el-form>
+    <el-button type="primary" @click="submitForm">登录</el-button>
 
-    </div>
+  </div>
 </template>
 
 <script>
 import {login} from "@/fetch/LoginAPI";
-import router from "@/router";
 import {Lock, User} from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
 
 export default {
+    props: {
+        username: String
+    },
     computed: {
         Lock() {
             return Lock
@@ -52,8 +55,6 @@ export default {
                 email: this.formData.username,
                 password: this.formData.password,
             };
-
-            // 发送网络请求
             login(requestBody)
                 .then(response => {
                     if(response.code === 200) {
@@ -62,7 +63,6 @@ export default {
                             type: "success"
                         })
                         window.localStorage.setItem('token', response.body.token)
-                        router.push('/')
                     }
                     else {
                         let errorMessage = "未知错误"
@@ -76,10 +76,9 @@ export default {
                         })
                     }
                 })
-            .catch((error) => {
-                // 处理错误情况
-                console.error('Error:', error);
-            });
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
         }
     },
 };
@@ -91,22 +90,10 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    background-color: #f2f2f2;
 }
 
 .login-header {
     margin-bottom: 30px;
-}
-
-.el-form-item__label {
-    color: #333;
-    font-weight: bold;
-}
-
-.el-input__inner {
-    border-radius: 4px;
-    border: 1px solid #ccc;
 }
 
 .login-btn {
