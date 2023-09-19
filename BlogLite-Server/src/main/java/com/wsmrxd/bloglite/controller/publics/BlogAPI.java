@@ -3,8 +3,8 @@ package com.wsmrxd.bloglite.controller.publics;
 import com.wsmrxd.bloglite.Utils.HttpUtil;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
+import com.wsmrxd.bloglite.redis.RedisKeyVal;
 import com.wsmrxd.bloglite.service.BlogService;
-import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +19,13 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/blog")
-public class BlogController {
+public class BlogAPI {
 
     @Autowired
     private BlogService blogService;
 
     @Autowired
-    private CacheService cacheService;
+    private RedisKeyVal redisKeyValOps;
 
     @Value("${myConfig.blog.pvIncreaseCoolDownMinute}")
     private int pvCoolDownMinutesPerIP;
@@ -37,7 +37,7 @@ public class BlogController {
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
 
         String clientRedisKey = "AccessBlog::" + id + "::" + HttpUtil.getIP(request);
-        if(cacheService.setKeyValueIfAbsent(clientRedisKey, " ", Duration.ofMinutes(pvCoolDownMinutesPerIP)))
+        if(redisKeyValOps.setKeyValueIfAbsent(clientRedisKey, " ", Duration.ofMinutes(pvCoolDownMinutesPerIP)))
             blogService.increaseBlogViews(id);
 
         ret.setViews(blogService.getBlogViewsAsCached(id));

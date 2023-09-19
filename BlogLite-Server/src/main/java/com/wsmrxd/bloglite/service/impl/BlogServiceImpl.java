@@ -6,6 +6,7 @@ import com.wsmrxd.bloglite.Utils.MarkDownUtil;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.mapping.CacheableMapper;
+import com.wsmrxd.bloglite.redis.RedisHash;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
@@ -56,6 +57,9 @@ public class BlogServiceImpl implements BlogService {
     private CacheService cacheService;
 
     @Autowired
+    private RedisHash redisHashOps;
+
+    @Autowired
     private MarkDownUtil markDownUtil;
 
     @Autowired(required = false)
@@ -73,11 +77,11 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public int getBlogViewsAsCached(int blogID) {
-        Integer ret = cacheService.getValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID));
+        Integer ret = redisHashOps.getValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID));
         if(ret != null) return ret;
 
         ret = blogMapper.selectViewsByBlogID(blogID);
-        cacheService.putKeyValToHash(Integer_BlogViewsByID.name(), Integer.toString(blogID), ret);
+        redisHashOps.putKeyValToHash(Integer_BlogViewsByID.name(), Integer.toString(blogID), ret);
         return ret;
     }
 
@@ -206,22 +210,22 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public Integer getTotalBlogsAsCached() {
-        Integer ret = cacheService.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name());
+        Integer ret = redisHashOps.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name());
         if(ret == null){
             ret = blogMapper.selectBlogCount();
-            cacheService.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name(), ret);
+            redisHashOps.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name(), ret);
         }
         return ret;
     }
 
     @Override
     public Integer getTotalViewsAsCached() {
-        Integer ret = cacheService.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name());
+        Integer ret = redisHashOps.getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name());
         if(ret == null){
             ret = blogMapper.selectViewsCount();
             if(ret == null)
                 ret = 0;
-            cacheService.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), ret);
+            redisHashOps.putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), ret);
         }
         return ret;
     }
@@ -256,9 +260,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void increaseBlogViews(int blogID) {
-        cacheService.increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
-        cacheService.increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
-        cacheService.increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
+        redisHashOps.increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
+        redisHashOps.increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
+        redisHashOps.increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
     }
 
     private void arrangeTagList(int newBlogID, List<String> tagList) {
@@ -295,7 +299,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private void updateBlogViewsFromCache(){
-        Map<String,Integer> viewsMap = cacheService.getHashEntriesByKey(Integer_AddBlogViewsByID.name());
+        Map<String,Integer> viewsMap = redisHashOps.getHashEntriesByKey(Integer_AddBlogViewsByID.name());
         if(viewsMap != null){
             var keySet = viewsMap.keySet();
             for (String key : keySet) {

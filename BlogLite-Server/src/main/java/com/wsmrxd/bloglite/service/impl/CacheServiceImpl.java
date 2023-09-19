@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.*;
 
 // 在一个强类型语言和JSON打交道，那大概率是没类型安全什么事了(逃)
@@ -14,73 +13,6 @@ public class CacheServiceImpl implements CacheService {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
-
-    @Override
-    public <T> void setKeyValue(String key, T value){
-        var redisValOps = redisTemplate.opsForValue();
-        redisValOps.set(key, value);
-    }
-
-    @Override
-    public <T> boolean setKeyValueIfAbsent(String key, T value, Duration timeout){
-        var redisValOps = redisTemplate.opsForValue();
-        return Boolean.TRUE.equals(redisValOps.setIfAbsent(key, value, timeout));
-    }
-
-    @Override
-    public <T> T getValueByKey(String key){
-        var redisValOps = redisTemplate.opsForValue();
-        return (T) redisValOps.get(key);
-    }
-
-    @Override
-    public <T> void putKeyValToHash(String key, String hashKey, T value){
-        var redisHashOps = redisTemplate.opsForHash();
-        redisHashOps.put(key, hashKey, value);
-    }
-
-    @Override
-    public <T> T getValueByHashKey(String key, String hashKey){
-        var redisHashOps = redisTemplate.opsForHash();
-        return (T) redisHashOps.get(key, hashKey);
-    }
-
-    @Override
-    public <T> void rPushValToList(String key, T value) {
-        var redisListOps = redisTemplate.opsForList();
-        redisListOps.rightPush(key, value);
-    }
-
-    @Override
-    public List getList(String key) {
-        var redisListOps = redisTemplate.opsForList();
-        return redisListOps.range(key, 0, -1);
-    }
-
-    @Override
-    public List getListByRange(String key, long startIndex, long endIndex) {
-        var redisListOps = redisTemplate.opsForList();
-        return redisListOps.range(key, startIndex, endIndex);
-    }
-
-    @Override
-    public long getListSize(String key) {
-        var redisListOps = redisTemplate.opsForList();
-        return Objects.requireNonNullElse(redisListOps.size(key), 0L);
-    }
-
-    @Override
-    public Map getHashEntriesByKey(String key){
-        var redisHashOps = redisTemplate.opsForHash();
-        return redisHashOps.entries(key);
-    }
-
-    @Override
-    public void increaseValueByHashKey(String key, String hashKey, long delta) {
-        var redisHashOps = redisTemplate.opsForHash();
-        if(delta > 0)
-            redisHashOps.increment(key, hashKey, delta);
-    }
 
     @Override
     public <T> T getZSetValueByScore(String key, double score){

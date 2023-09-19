@@ -5,6 +5,7 @@ import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import com.wsmrxd.bloglite.entity.Comment;
 import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.mapping.CommentMapper;
+import com.wsmrxd.bloglite.redis.RedisList;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
 import com.wsmrxd.bloglite.vo.CommentAdminDetail;
@@ -32,6 +33,9 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CacheService cacheService;
 
+    @Autowired
+    private RedisList redisListOps;
+
     // 我希望直接通过缓存项来分页，这样的话startPage方法就没用了，那就手动分页
     @Override
     public PageInfo<CommentVO> getCommentsByBlogID(int blogID, int pageNum, int pageSize) {
@@ -54,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void enqueueCommentToReview(int blogID, CommentUploadInfo newComment) {
         Comment comment = new Comment(blogID, newComment);
-        cacheService.rPushValToList(Comment_CommentToReview.name(), comment);
+        redisListOps.rPushValToList(Comment_CommentToReview.name(), comment);
     }
 
     @Override
@@ -92,7 +96,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncCommentsForReview() {
-        List<Comment> comments = cacheService.getList(Comment_CommentToReview.name());
+        List<Comment> comments = redisListOps.getList(Comment_CommentToReview.name());
         if(comments == null || comments.isEmpty()) return;
 
         for(Comment comment : comments)

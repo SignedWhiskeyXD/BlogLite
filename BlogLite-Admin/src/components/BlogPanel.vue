@@ -15,7 +15,7 @@
     <h3>文章摘要</h3>
     <el-input v-model="blogInfo.contentAbstract"></el-input>
     <h3>文章正文</h3>
-    <mavon-editor ref="md" v-model="blogInfo.content" @imgAdd="$imgAdd" class="md-editor"></mavon-editor>
+    <mavon-editor ref="md" v-model="blogInfo.content" class="md-editor"></mavon-editor>
 
     <h3>添加标签</h3>
     <el-tag

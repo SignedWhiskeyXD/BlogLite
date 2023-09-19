@@ -6,7 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HyperLogLog {
+public class RedisHyperLogLog {
 
     private HyperLogLogOperations<String, Object> hyperLogLogOps;
 

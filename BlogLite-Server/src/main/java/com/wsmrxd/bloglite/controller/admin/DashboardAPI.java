@@ -1,6 +1,6 @@
 package com.wsmrxd.bloglite.controller.admin;
 
-import com.wsmrxd.bloglite.redis.HyperLogLog;
+import com.wsmrxd.bloglite.redis.RedisHyperLogLog;
 import com.wsmrxd.bloglite.vo.DashboardInfo;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class DashboardAPI {
     private static final String SITE_PV_KEY = "SitePV";
 
     @Autowired
-    private HyperLogLog hyperLogLog;
+    private RedisHyperLogLog hyperLogLog;
 
     @GetMapping
     public RestResponse<DashboardInfo> serveDashboardInfo(){

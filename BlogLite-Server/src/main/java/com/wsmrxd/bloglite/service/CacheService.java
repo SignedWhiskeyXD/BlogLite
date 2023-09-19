@@ -6,27 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface CacheService {
-    <T> void setKeyValue(String key, T value);
-
-    <T> boolean setKeyValueIfAbsent(String key, T value, Duration timeout);
-
-    <T> T getValueByKey(String key);
-
-    <T> void putKeyValToHash(String key, String hashKey, T value);
-
-    <T> T getValueByHashKey(String key, String hashKey);
-
-    <T> void rPushValToList(String key, T value);
-
-    List getList(String key);
-
-    List getListByRange(String key, long startIndex, long endIndex);
-
-    long getListSize(String key);
-
-    Map getHashEntriesByKey(String key);
-
-    void increaseValueByHashKey(String key, String hashKey, long delta);
 
     <T> T getZSetValueByScore(String key, double score);
 

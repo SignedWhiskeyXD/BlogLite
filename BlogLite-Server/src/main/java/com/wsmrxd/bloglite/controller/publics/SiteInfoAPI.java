@@ -2,7 +2,7 @@ package com.wsmrxd.bloglite.controller.publics;
 
 import com.wsmrxd.bloglite.Utils.HttpUtil;
 import com.wsmrxd.bloglite.entity.VisitorLog;
-import com.wsmrxd.bloglite.redis.HyperLogLog;
+import com.wsmrxd.bloglite.redis.RedisHyperLogLog;
 import com.wsmrxd.bloglite.service.SiteInfoService;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import com.wsmrxd.bloglite.vo.RestResponse;
@@ -26,7 +26,7 @@ public class SiteInfoAPI {
     private SiteInfoService siteInfoService;
 
     @Autowired
-    private HyperLogLog hyperLogLog;
+    private RedisHyperLogLog hyperLogLog;
 
     private static final String SITE_PV_KEY = "SitePV";
 

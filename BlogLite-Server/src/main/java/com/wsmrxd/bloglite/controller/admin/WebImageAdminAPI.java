@@ -45,8 +45,8 @@ public class WebImageAdminAPI {
         this.imageService = imageService;
     }
 
-    // TODO: 理论上这个API能够存储任何上传的文件，应加入过滤
-    @PutMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // 这个API并不可靠，而且考虑到大陆的云服务器的带宽普遍跟极霸毛一样，搭建本地图床并不是一个明智的做法
+//    @PutMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public RestResponse<String> uploadImage(MultipartFile uploadImage) throws IOException {
         String targetFolderName = getYearMonthPrefix();
         File targetFolder = checkTargetDir(targetFolderName);
