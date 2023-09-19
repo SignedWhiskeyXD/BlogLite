@@ -2,7 +2,7 @@ package com.wsmrxd.bloglite.controller.publics;
 
 import com.wsmrxd.bloglite.Utils.HttpUtil;
 import com.wsmrxd.bloglite.entity.VisitorLog;
-import com.wsmrxd.bloglite.redis.RedisHyperLogLog;
+import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.SiteInfoService;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import com.wsmrxd.bloglite.vo.RestResponse;
@@ -26,7 +26,7 @@ public class SiteInfoAPI {
     private SiteInfoService siteInfoService;
 
     @Autowired
-    private RedisHyperLogLog hyperLogLog;
+    private CacheService  cacheService;
 
     private static final String SITE_PV_KEY = "SitePV";
 
@@ -47,7 +47,7 @@ public class SiteInfoAPI {
         VisitorLog visitor = HttpUtil.parseVisitor(request);
         log.info("Visitor from {}, {}, {}, {}",
                 visitor.getIp(), visitor.getDevice(), visitor.getOs(), visitor.getBrowser());
-        hyperLogLog.add(SITE_PV_KEY, visitor.toString());
+        cacheService.hyperLogLog().add(SITE_PV_KEY, visitor.toString());
         return RestResponse.ok();
     }
 }

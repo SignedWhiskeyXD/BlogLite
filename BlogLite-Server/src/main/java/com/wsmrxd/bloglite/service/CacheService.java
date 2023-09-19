@@ -1,35 +1,22 @@
 package com.wsmrxd.bloglite.service;
 
-import java.time.Duration;
+import com.wsmrxd.bloglite.redis.*;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public interface CacheService {
 
-    <T> T getZSetValueByScore(String key, double score);
+    RedisKeyVal keyVal();
 
-    <T> void addValueToSet(String key, T value);
+    RedisHash hash();
 
-    <T> void removeSetValue(String key, T value);
+    RedisSet set();
 
-    Set getSet(String key);
+    RedisList list();
 
-    List getSetAsList(String key);
+    RedisZSet zSet();
 
-    <T> void addValueToZSet(String key, T value, double score);
-
-    void removeZSetValueByScore(String key, double score);
-
-    Set getZSet(String key);
-
-    long getZSetSize(String key);
-
-    List getZSetAsList(String key);
-
-    List getListByReversedScoreRange(String key, double min, double max, int offset, int num);
-
-    List getListByReversedIndexRange(String key, long start, long end);
+    RedisHyperLogLog hyperLogLog();
 
     void delete(String key);
 

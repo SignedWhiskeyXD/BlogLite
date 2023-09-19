@@ -5,7 +5,6 @@ import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import com.wsmrxd.bloglite.entity.Comment;
 import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.mapping.CommentMapper;
-import com.wsmrxd.bloglite.redis.RedisList;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
 import com.wsmrxd.bloglite.vo.CommentAdminDetail;
@@ -33,9 +32,6 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CacheService cacheService;
 
-    @Autowired
-    private RedisList redisListOps;
-
     // 我希望直接通过缓存项来分页，这样的话startPage方法就没用了，那就手动分页
     @Override
     public PageInfo<CommentVO> getCommentsByBlogID(int blogID, int pageNum, int pageSize) {
@@ -58,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void enqueueCommentToReview(int blogID, CommentUploadInfo newComment) {
         Comment comment = new Comment(blogID, newComment);
-        redisListOps.rPushValToList(Comment_CommentToReview.name(), comment);
+        cacheService.list().rPushValToList(Comment_CommentToReview.name(), comment);
     }
 
     @Override
@@ -68,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
         commentMapper.insertComment(comment);
 
         String redisZSetKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
-        cacheService.addValueToZSet(redisZSetKey, comment.getId(), comment.getPublishTime().getTime());
+        cacheService.zSet().addValueToZSet(redisZSetKey, comment.getId(), comment.getPublishTime().getTime());
     }
 
     @Override
@@ -83,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = cacheableMapper.getCommentByID(commentID);
         if(comment == null) return;      // TODO: 也许应该抛个异常？
         String redisListKey = Integer_CommentIDByBlogID.name() + "::" + comment.getIdentify();
-        cacheService.addValueToZSet(redisListKey, commentID, comment.getPublishTime().getTime());
+        cacheService.zSet().addValueToZSet(redisListKey, commentID, comment.getPublishTime().getTime());
     }
 
     @Override
@@ -96,7 +92,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void syncCommentsForReview() {
-        List<Comment> comments = redisListOps.getList(Comment_CommentToReview.name());
+        List<Comment> comments = cacheService.list().getList(Comment_CommentToReview.name());
         if(comments == null || comments.isEmpty()) return;
 
         for(Comment comment : comments)
@@ -122,20 +118,21 @@ public class CommentServiceImpl implements CommentService {
         ensureCommentIDListCached(blogID);
         String redisListKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
 
-        List<Integer> commentIDs = cacheService.getListByReversedIndexRange(redisListKey, startIndex, endIndex);
+        List<Integer> commentIDs = cacheService.zSet().getListByReversedIndexRange(redisListKey, startIndex, endIndex);
         if(commentIDs == null || commentIDs.isEmpty()) return Collections.emptyList();
 
         List<CommentVO> ret = new ArrayList<>(commentIDs.size());
         for(Integer commentID : commentIDs){
             Comment comment = cacheableMapper.getCommentByID(commentID);
-            ret.add(new CommentVO(comment));
+            if (comment != null)
+                ret.add(new CommentVO(comment));
         }
         return ret;
     }
 
     private long getCommentNumByBlogID(int blogID){
         String redisListKey = Integer_CommentIDByBlogID.name() + "::" + blogID;
-        return cacheService.getZSetSize(redisListKey);
+        return cacheService.zSet().getZSetSize(redisListKey);
     }
 
     private void ensureCommentIDListCached(int blogID){
@@ -144,6 +141,6 @@ public class CommentServiceImpl implements CommentService {
 
         List<Comment> comments = commentMapper.selectAllCommentEnabledByIdent(blogID);
         for(Comment comment : comments)
-            cacheService.addValueToZSet(redisListKey, comment.getId(), comment.getPublishTime().getTime());
+            cacheService.zSet().addValueToZSet(redisListKey, comment.getId(), comment.getPublishTime().getTime());
     }
 }
