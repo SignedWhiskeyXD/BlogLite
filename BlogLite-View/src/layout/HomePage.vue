@@ -12,7 +12,7 @@ import BlogRanking from "@/components/BlogRanking.vue";
     所以，这个组件作为一个路由组件，如果希望保留滚动条的状态，必须在这里自己整一个，这样才有办法在路由更新时，自定义恢复位置的方法-->
   <el-scrollbar ref="scrollbarRef" always @scroll="onScroll">
     <div class="blog-banner">
-      <p class="banner-about">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
+      <p class="banner-about w-mobile-no-display">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
     </div>
     <div class="home-page-wrapper">
       <div class="home-page-wrapper-secondary">
@@ -23,7 +23,7 @@ import BlogRanking from "@/components/BlogRanking.vue";
             </keep-alive>
           </router-view>
         </main>
-        <aside class="right-side-wrapper">
+        <aside class="right-side-wrapper w-mobile-no-display">
           <AboutMe class="transition-shadow"/>
           <main-page-tags class="transition-shadow"/>
           <blog-ranking class="transition-shadow"/>
@@ -59,6 +59,12 @@ export default {
     justify-content: center;
 }
 
+@media screen and (max-width: 768px) {
+    .home-page-wrapper {
+        justify-content: flex-start;
+    }
+}
+
 .home-page-wrapper-secondary {
     display: flex;
     width: 1280px;
@@ -75,6 +81,8 @@ export default {
 
 .main-wrapper {
     width: 75%;
+    flex-grow: 1;
+    min-width: 500px;
 }
 
 .right-side-wrapper {

@@ -10,14 +10,17 @@ import 'element-plus/dist/index.css'
       </a>
     </div>
     <el-menu mode="horizontal" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b"
-             :default-active="menuDefaultActive" :router="true" class="header-menu">
+             :default-active="menuDefaultActive" :router="true" class="header-menu w-mobile-no-display">
       <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path">
         {{ menuItem.title }}
       </el-menu-item>
     </el-menu>
-    <div class="search-bar">
+    <div class="search-bar w-mobile-no-display">
       <el-input class="search-bar-input" v-model="searchInput" :placeholder="'搜索本站内容'"/>
       <el-button class="search-bar-button" @click="routeToSearchResult">搜索</el-button>
+    </div>
+    <div class="w-mobile-show">
+<!--      下拉菜单-->
     </div>
   </div>
 </template>
@@ -65,7 +68,7 @@ export default {
     color: #eee;
     margin: 10px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     text-decoration: none;
 }
 
@@ -76,7 +79,7 @@ export default {
 }
 
 .header-menu {
-    width: 1000px;
+    width: 800px;
 }
 
 .menu-item {

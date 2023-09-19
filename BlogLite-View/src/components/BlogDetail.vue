@@ -70,14 +70,15 @@
               </el-col>
               <el-col :span="4">
                 <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
-                  发送 ({{ commentInput.content.length }}/200)
+                  发送
+                  <span class="w-mobile-no-display">({{ commentInput.content.length }}/200)</span>
                 </el-button>
               </el-col>
             </el-row>
           </div>
         </div>
       </main>
-      <aside class="blog-detail-sidebar">
+      <aside class="blog-detail-sidebar w-mobile-no-display">
         <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
           <h4 style="text-align: center">文章标签</h4>
           <el-divider style="margin-bottom: 10px"/>
@@ -253,6 +254,12 @@ export default {
     justify-content: center;
 }
 
+@media screen and (max-width: 768px) {
+    .blog-detail-wrapper {
+        justify-content: flex-start;
+    }
+}
+
 .blog-detail-wrapper-secondary {
     width: 1280px;
     display: flex;
@@ -262,8 +269,10 @@ export default {
     border: 1px solid var(--el-border-color);
     padding: 20px;
     background-color: #ffffff;
-    margin: 20px 40px 30px;
+    margin: 20px 15px 30px;
     width: 75%;
+    min-width: 400px;
+    flex-grow: 1;
 }
 
 .blog-detail-sidebar {

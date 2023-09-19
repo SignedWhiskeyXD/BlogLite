@@ -13,7 +13,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
     </el-text>
   </div>
   <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
-      infinite-scroll-delay="2000" :infinite-scroll-distance="-300">
+      infinite-scroll-delay="800" :infinite-scroll-distance="-100">
     <li v-for="blog in blogs" :key="blog.id"
         class="blog-item transition-shadow">
       <div class="blog-title">
@@ -127,8 +127,8 @@ export default {
     data() {
         return {
             requestParams: {
-                blogNumOnStart: 15,
-                blogNumPerRequest: 10,
+                blogNumOnStart: 5,
+                blogNumPerRequest: 5,
                 nextRequestParam: 0
             },
             blogs: [],
@@ -161,7 +161,7 @@ export default {
 
 .blog-item {
     border-radius: 20px;
-    padding: 20px;
+    padding: 10px 10px 8px;
     margin-bottom: 40px;
     background-color: #ffffff;
 }
@@ -189,18 +189,18 @@ export default {
 
 .title-content-divider {
     scale: 90%;
-    margin-top: 10px;
+    margin: 10px 0 10px;
 }
 
 .blog-tag {
     margin-right: 10px;
+    margin-bottom: 10px ;
 }
 
 .blog-stream {
     list-style: none;
     padding-left: 0;
-    margin-left: 40px;
-    margin-right: 40px;
+    margin: 10px 15px 0;
 }
 
 .blog-date {
@@ -215,7 +215,7 @@ export default {
 
 .blog-preview-image {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
     scale: 95%;
 }
 
@@ -233,6 +233,10 @@ export default {
     .image-error {
         min-height: 480px;
     }
+}
+
+.blog-tags {
+    padding: 0 10px 0;
 }
 
 .at-bottom {
