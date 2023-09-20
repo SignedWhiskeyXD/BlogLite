@@ -1,13 +1,14 @@
-package top.whiskeyxd.bloglitegateway;
+package top.whiskeyxd.blogliteauth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BlogLiteGatewayApplicationTests {
+class BlogLiteAuthApplicationTests {
 
     @Test
     void contextLoads() {
+
     }
 
 }

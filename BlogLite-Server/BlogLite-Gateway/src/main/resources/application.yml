@@ -14,3 +14,11 @@ spring:
           uri: lb://BlogLite-Content
           predicates:
             - Path=/api/**
+        - id: bloglite-auth-route
+          uri: lb://BlogLite-Auth
+          predicates:
+            - Path=/apiAuth/**
+bloglite:
+  jwt:
+    expireTime: 259200000 # 3 days
+    secretKey: DoNotUseThisAsYourSecretKey

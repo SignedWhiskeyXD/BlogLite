@@ -1,4 +1,4 @@
-package top.whiskeyxd.bloglitegateway;
+package top.whiskeyxd.blogliteauth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"top.whiskeyxd"})
-public class BlogLiteGatewayApplication {
+public class BlogLiteAuthApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BlogLiteGatewayApplication.class, args);
+        SpringApplication.run(BlogLiteAuthApplication.class, args);
     }
 
 }

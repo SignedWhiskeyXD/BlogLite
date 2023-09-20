@@ -1,7 +1,7 @@
 import {makeRequest} from "@/fetch/FetchTemplate";
 
 export async function login(formData){
-    return await makeRequest('/api/login', {
+    return await makeRequest('/apiAuth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
