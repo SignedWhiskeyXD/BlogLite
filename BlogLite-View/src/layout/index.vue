@@ -4,16 +4,22 @@ import BlogHeader from './Header.vue'
 
 <template>
   <div class="common-layout">
-      <el-header class="blog-header">
-          <BlogHeader/>
-      </el-header>
-      <el-main class="blog-main">
-        <router-view v-slot="{ Component }">
-          <keep-alive>
-            <component :is="Component"/>
-          </keep-alive>
-        </router-view>
-      </el-main>
+    <el-header class="blog-header">
+        <BlogHeader/>
+    </el-header>
+    <el-main class="blog-main">
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component"/>
+        </keep-alive>
+      </router-view>
+    </el-main>
+    <div class="icp-info">
+      <a href="https://beian.miit.gov.cn/" target="_blank"
+         style="text-decoration: none; color: rgba(0, 0, 0, 0.4);">
+        鄂ICP备2023017016号
+      </a>
+    </div>
   </div>
 </template>
 
@@ -43,5 +49,11 @@ export default {
 .blog-main {
     padding: 50px 0 0;
     height: 100vh;
+}
+
+.icp-info {
+    position: fixed;
+    right: 20px;
+    bottom: 5px;
 }
 </style>
