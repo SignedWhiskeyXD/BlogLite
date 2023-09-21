@@ -312,10 +312,6 @@ export default {
     margin-left: 20px;
 }
 
-.blog-content:deep(p){
-    display: grid;
-}
-
 .blog-content:deep(img){
     max-width: 100%;
     justify-self: center;
