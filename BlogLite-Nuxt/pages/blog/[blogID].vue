@@ -2,6 +2,7 @@
 import type BlogDetail from "~/model/BlogDetail";
 import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
+import 'github-markdown-css/github-markdown.css'
 
 const blogID = getBlogIDFromRoute();
 
