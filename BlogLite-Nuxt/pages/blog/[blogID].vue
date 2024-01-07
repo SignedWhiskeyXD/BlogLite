@@ -1,0 +1,279 @@
+<script setup lang="ts">
+import type BlogDetail from "~/model/BlogDetail";
+import type RestResponse from "~/model/RestResponse";
+import {responseGuard} from "~/my-utils/response-guard";
+
+const blogID = getBlogIDFromRoute();
+
+const {data: blogData} = await useFetch<RestResponse>(`http://localhost:52480/api/blog/${blogID}`);
+
+const blogDetail = responseGuard<BlogDetail>(blogData.value);
+
+function getBlogIDFromRoute(): number {
+    const paramError = createError({
+        statusCode: 404,
+        statusMessage: 'Blog ID Param Error!'
+    });
+    const id = useRoute().params.blogID;
+    if(Array.isArray(id))
+        throw paramError;
+
+    const ret = parseInt(id as string);
+    if(isNaN(ret))
+        throw paramError;
+
+    return ret;
+}
+
+</script>
+
+<template>
+  <div class="blog-detail-wrapper">
+    <div class="blog-detail-wrapper-secondary">
+      <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}" ref="blogDetailSection">
+        <div>
+          <div class="blog-title">
+            <h2>{{ blogDetail.title }}</h2>
+          </div>
+          <el-row class="blog-date-views">
+            <el-col :span="12" class="blog-date">
+              <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
+            </el-col>
+            <el-col :span="12" class="blog-views">
+              <el-text>浏览次数 {{ blogDetail.views }}</el-text>
+            </el-col>
+          </el-row>
+
+          <el-divider class="title-content-divider" border-style="dashed"/>
+          <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
+          <el-divider class="title-content-divider" border-style="dashed"/>
+
+<!--          <h3 ref="blogCommentTitle">{{ commentPageInfo.total }}条评论</h3>
+
+          <div class="blog-comment-page">
+            <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
+              <el-avatar :size="50" style="min-width: 50px" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
+              <div class="comment-wrapper">
+                <div class="comment-identity">
+                  <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
+                  <el-popconfirm title="你确定?" @confirm="handleRemoveComment(comment.id)">
+                    <template #reference>
+                      <div v-if="isAdmin" class="remove-blog hover-pointer">删除</div>
+                    </template>
+                  </el-popconfirm>
+                </div>
+                <div class="comment-content">
+                  <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
+                </div>
+                <el-divider/>
+              </div>
+            </div>
+          </div>
+
+          <el-pagination v-if="commentPageInfo.total > 10"
+                         layouts="prev, pager, next" :total="commentPageInfo.total" background
+                         vmodel:current-page="currentPage" class="comment-pagination"
+                         @current-change="handlePageNumChanged"
+          />
+
+          <div class="blog-comment-input">
+            <el-row class="comment-input-wrapper">
+              <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
+                        placeholder="说点什么吧" v-model="commentInput.content"></el-input>
+            </el-row>
+            <el-row class="comment-identify" :gutter="20">
+              <el-col :span="10">
+                <el-input placeholder="请输入昵称" v-model="commentInput.nickname">
+                  <template #prefix>
+                    <el-icon><User /></el-icon>
+                  </template>
+                </el-input>
+              </el-col>
+              <el-col :span="10" >
+                <el-input placeholder="请输入邮箱" v-model="commentInput.email">
+                  <template #prefix>
+                    <el-icon><Message /></el-icon>
+                  </template>
+                </el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
+                  发送
+                  <span class="w-mobile-no-display">({{ commentInput.content.length }}/200)</span>
+                </el-button>
+              </el-col>
+            </el-row>
+          </div>-->
+        </div>
+      </main>
+      <aside class="blog-detail-sidebar w-mobile-no-display">
+        <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+          <h4 style="text-align: center">文章标签</h4>
+          <el-divider style="margin-bottom: 10px"/>
+          <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
+                  :key="tag" size="large">
+            {{ tag }}
+          </el-tag>
+          <el-text v-if="!(blogDetail.tagNames.length > 0)" size="large">
+            这篇文章没有标签诶
+          </el-text>
+        </div>
+      </aside>
+    </div>
+    <client-only>
+      <div class="fixed-buttons">
+        <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+          <el-icon style="scale: 200%"><ArrowUpBold /></el-icon>
+        </div>
+        <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+          <el-icon style="scale: 200%"><ChatLineSquare /></el-icon>
+        </div>
+      </div>
+    </client-only>
+  </div>
+</template>
+
+<style scoped>
+.blog-detail-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+@media screen and (max-width: 768px) {
+    .blog-detail-wrapper {
+        justify-content: flex-start;
+    }
+}
+
+.blog-detail-wrapper-secondary {
+    width: 1280px;
+    display: flex;
+}
+
+.blog-detail  {
+    border: 1px solid var(--el-border-color);
+    padding: 20px;
+    background-color: #ffffff;
+    margin: 20px 15px 30px;
+    width: 75%;
+    min-width: 400px;
+    flex-grow: 1;
+}
+
+.blog-detail-sidebar {
+    width: 25%;
+}
+
+.blog-tags {
+    border: 1px solid var(--el-border-color);
+    background-color: #ffffff;
+    padding: 5px 20px 20px;
+    margin-top: 20px;
+}
+
+.blog-title {
+    text-align: center;
+}
+
+.blog-content {
+    margin-left: 20px;
+}
+
+.blog-content:deep(img){
+    max-width: 100%;
+    justify-self: center;
+}
+
+.blog-content:deep(code){
+    padding: 0;
+}
+
+.title-content-divider {
+    scale: 90%;
+    margin-top: 10px;
+}
+
+.blog-tag {
+    margin-right: 10px;
+    margin-bottom: 8px;
+}
+
+.blog-date {
+    text-align: center;
+    padding-left: 10%;
+}
+
+.blog-views {
+    text-align: center;
+    padding-right: 10%;
+}
+
+.comment-input-wrapper {
+    margin-bottom: 20px;
+}
+
+.comment-identity {
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.comment-item {
+    display: flex;
+}
+
+.comment-wrapper {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.blog-comment-page {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.comment-pagination {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.fixed-buttons {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+}
+
+.button-to-comment {
+    background-color: white;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-to-comment:hover {
+    cursor: pointer;
+}
+
+.button-to-top {
+    background-color: white;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.button-to-top:hover {
+    cursor: pointer;
+}
+
+.remove-blog {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    color: palevioletred;
+}
+</style>
