@@ -3,8 +3,6 @@
 import type RestResponse from "~/model/RestResponse";
 import type BlogPreview from "~/model/BlogPreview";
 import {responseGuard} from "~/my-utils/response-guard";
-import {routeToBlogDetail} from "~/my-utils/routing";
-
 
 const {data: rankData} = await useFetch<RestResponse>('http://localhost:52480/api/statistic/rank');
 
@@ -18,9 +16,9 @@ const rankList = responseGuard<BlogPreview[]>(rankData.value);
     <el-divider style="margin: 0 0 5px"/>
     <div class="blog-ranking-wrapper">
       <div class="blog-rank-info" v-for="rankInfo in rankList" :key="rankInfo.id">
-        <el-text class="blog-ranking-title" truncated @click="routeToBlogDetail(rankInfo.id)">
+        <a class="blog-ranking-title" :href="`/blog/${rankInfo.id}`">
           {{ rankInfo.title }}
-        </el-text>
+        </a>
       </div>
     </div>
   </div>
@@ -47,8 +45,16 @@ const rankList = responseGuard<BlogPreview[]>(rankData.value);
     margin-bottom: 10px;
 }
 
+.blog-ranking-title {
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.7);
+}
+
 .blog-ranking-title:hover {
-    color: #79bbff;
-    cursor: pointer;
+    color: rgba(0, 0, 0, 0.4)
+}
+
+.blog-rank-info {
+    margin: 0.2rem 0 0.2rem;
 }
 </style>

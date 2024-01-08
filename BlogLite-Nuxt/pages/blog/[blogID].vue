@@ -49,62 +49,8 @@ function getBlogIDFromRoute(): number {
           <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
           <el-divider class="title-content-divider" border-style="dashed"/>
 
-<!--          <h3 ref="blogCommentTitle">{{ commentPageInfo.total }}条评论</h3>
+          <BlogComment :blog-id="blogID"/>
 
-          <div class="blog-comment-page">
-            <div v-for="comment in commentPageInfo.list" :key="comment.id" class="comment-item">
-              <el-avatar :size="50" style="min-width: 50px" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"/>
-              <div class="comment-wrapper">
-                <div class="comment-identity">
-                  <el-text size="large">{{ comment.nickname }}  ({{ comment.email }})</el-text>
-                  <el-popconfirm title="你确定?" @confirm="handleRemoveComment(comment.id)">
-                    <template #reference>
-                      <div v-if="isAdmin" class="remove-blog hover-pointer">删除</div>
-                    </template>
-                  </el-popconfirm>
-                </div>
-                <div class="comment-content">
-                  <el-text size="large" style="color: #000000">{{ comment.content }}</el-text>
-                </div>
-                <el-divider/>
-              </div>
-            </div>
-          </div>
-
-          <el-pagination v-if="commentPageInfo.total > 10"
-                         layouts="prev, pager, next" :total="commentPageInfo.total" background
-                         vmodel:current-page="currentPage" class="comment-pagination"
-                         @current-change="handlePageNumChanged"
-          />
-
-          <div class="blog-comment-input">
-            <el-row class="comment-input-wrapper">
-              <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
-                        placeholder="说点什么吧" v-model="commentInput.content"></el-input>
-            </el-row>
-            <el-row class="comment-identify" :gutter="20">
-              <el-col :span="10">
-                <el-input placeholder="请输入昵称" v-model="commentInput.nickname">
-                  <template #prefix>
-                    <el-icon><User /></el-icon>
-                  </template>
-                </el-input>
-              </el-col>
-              <el-col :span="10" >
-                <el-input placeholder="请输入邮箱" v-model="commentInput.email">
-                  <template #prefix>
-                    <el-icon><Message /></el-icon>
-                  </template>
-                </el-input>
-              </el-col>
-              <el-col :span="4">
-                <el-button style="width: 100%" @click="handlePublishComment" :disabled="commentButtonDisabled">
-                  发送
-                  <span class="w-mobile-no-display">({{ commentInput.content.length }}/200)</span>
-                </el-button>
-              </el-col>
-            </el-row>
-          </div>-->
         </div>
       </main>
       <aside class="blog-detail-sidebar w-mobile-no-display">
@@ -209,35 +155,6 @@ function getBlogIDFromRoute(): number {
     padding-right: 10%;
 }
 
-.comment-input-wrapper {
-    margin-bottom: 20px;
-}
-
-.comment-identity {
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.comment-item {
-    display: flex;
-}
-
-.comment-wrapper {
-    flex-grow: 1;
-    margin-left: 10px;
-}
-
-.blog-comment-page {
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
-.comment-pagination {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
 .fixed-buttons {
     position: fixed;
     bottom: 40px;
@@ -269,12 +186,5 @@ function getBlogIDFromRoute(): number {
 
 .button-to-top:hover {
     cursor: pointer;
-}
-
-.remove-blog {
-    position: absolute;
-    right: 5px;
-    top: 0;
-    color: palevioletred;
 }
 </style>

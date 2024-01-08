@@ -4,7 +4,7 @@ import BlogRanking from "~/components/BlogRanking.vue";
 </script>
 
 <template>
-  <el-scrollbar always>
+  <el-scrollbar height="100%">
     <div class="blog-banner">
       <p class="banner-about w-mobile-no-display">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
       <h1 class="banner-title">WhiskeyXD的个人博客</h1>

@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import {routeToBlogDetail} from "~/my-utils/routing";
 import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
 import type BlogStream from "~/model/BlogStream";
 import type BlogCard from "~/model/BlogCard";
-
-const isScrollDisabled = true;
-const getMoreBlogs = () => {};
 
 let requestParams = {
     blogNumOnStart: 5,
@@ -14,13 +10,40 @@ let requestParams = {
     nextRequestParam: 0
 };
 
-const {data: initStreamData} = await useFetch<RestResponse>(
-    `http://localhost:52480/api/blogstream/init?initNum=${requestParams.blogNumOnStart}`
-);
+const scrollDisabled = ref(true);
 
-const initStream = responseGuard<BlogStream>(initStreamData.value);
-requestParams.nextRequestParam = initStream.nextRequestParam;
-const blogs: BlogCard[] = initStream.blogList;
+const blogs = ref<BlogCard[]>([]);
+
+const noFetchingMore = computed<boolean>(() => requestParams.nextRequestParam == null || scrollDisabled.value);
+
+await initBlogs();
+
+async function initBlogs() {
+    const {data: initStreamData} = await useFetch<RestResponse>(
+        `http://localhost:52480/api/blogstream/init?initNum=${requestParams.blogNumOnStart}`
+    );
+
+    const initStream = responseGuard<BlogStream>(initStreamData.value);
+    requestParams.nextRequestParam = initStream.nextRequestParam;
+    blogs.value = initStream.blogList;
+
+    scrollDisabled.value = false;
+}
+
+async function getMoreBlogs() {
+    scrollDisabled.value = true;
+    const {data: streamData} = await useFetch<RestResponse>('/api/blogstream', {
+        query: {
+            startID: requestParams.nextRequestParam,
+            num: requestParams.blogNumPerRequest
+        }
+    });
+
+    const newStream = responseGuard<BlogStream>(streamData.value);
+    requestParams.nextRequestParam = newStream.nextRequestParam;
+    blogs.value = blogs.value.concat(newStream.blogList);
+    scrollDisabled.value = false;
+}
 
 </script>
 
@@ -33,8 +56,8 @@ const blogs: BlogCard[] = initStream.blogList;
       "{{queryParams.searchKeyword}}" 的搜索结果
     </el-text>
   </div>-->
-  <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="isScrollDisabled"
-      infinite-scroll-delay="800" :infinite-scroll-distance="-100">
+  <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="noFetchingMore"
+      infinite-scroll-delay="800" :infinite-scroll-distance="-200">
     <li v-for="blog in blogs" :key="blog.id"
         class="blog-item transition-shadow">
       <div class="blog-title">
@@ -50,9 +73,9 @@ const blogs: BlogCard[] = initStream.blogList;
       </el-row>
 
       <el-divider class="title-content-divider"/>
-      <div class="blog-content" @click="routeToBlogDetail(blog.id)">
+      <a class="blog-content" :href="`/blog/${blog.id}`">
         {{ blog.contentAbstract }}
-      </div>
+      </a>
       <el-image class="blog-preview-image"
                 :src="blog.previewImage">
         <template #error>
@@ -69,11 +92,11 @@ const blogs: BlogCard[] = initStream.blogList;
     </li>
   </ul>
 
-<!--  <div class="at-bottom" v-if="requestParams.nextRequestParam == null && $route.fullPath === '/'">
+  <div class="at-bottom" v-if="noFetchingMore">
     作者是条懒狗，就写了这么多！
   </div>
   <el-skeleton class="blog-item transition-shadow"
-               v-else-if="requestParams.nextRequestParam != null && $route.fullPath === '/'" :rows="6" animated />-->
+               v-else :rows="6" animated />
 </template>
 
 <style scoped>
@@ -105,10 +128,8 @@ const blogs: BlogCard[] = initStream.blogList;
 
 .blog-content {
     margin-left: 20px;
-}
-
-.blog-content:hover {
-    cursor: pointer;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .title-content-divider {

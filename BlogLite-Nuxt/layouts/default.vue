@@ -32,6 +32,7 @@
 
 .blog-main {
     padding: 0;
+    height: calc(100vh - 60px);
 }
 
 .icp-info {
