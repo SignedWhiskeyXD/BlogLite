@@ -3,6 +3,7 @@ import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
 import type BlogStream from "~/model/BlogStream";
 import type BlogCard from "~/model/BlogCard";
+import {Picture} from "@element-plus/icons-vue";
 
 let requestParams = {
     blogNumOnStart: 5,
@@ -79,7 +80,7 @@ async function getMoreBlogs() {
       <el-image class="blog-preview-image"
                 :src="blog.previewImage">
         <template #error>
-          <el-icon class="image-error"><IconPicture/></el-icon>
+          <el-icon class="image-error"><Picture/></el-icon>
         </template>
       </el-image>
       <el-divider class="title-content-divider" border-style="dashed"/>

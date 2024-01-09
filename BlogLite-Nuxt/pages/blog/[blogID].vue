@@ -2,13 +2,20 @@
 import type BlogDetail from "~/model/BlogDetail";
 import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
+import {ArrowUpBold ,ChatLineSquare} from "@element-plus/icons-vue";
 import 'github-markdown-css/github-markdown.css'
 
 const blogID = getBlogIDFromRoute();
 
+const ClientBlogComment = defineAsyncComponent(() => import('~/components/BlogComment.vue'));
+
 const {data: blogData} = await useFetch<RestResponse>(`http://localhost:52480/api/blog/${blogID}`);
 
 const blogDetail = responseGuard<BlogDetail>(blogData.value);
+
+const blogDetailRef = ref<HTMLElement | null>(null);
+
+const blogCommentRef = ref<HTMLElement | null>(null);
 
 function getBlogIDFromRoute(): number {
     const paramError = createError({
@@ -26,12 +33,20 @@ function getBlogIDFromRoute(): number {
     return ret;
 }
 
+function scrollToTop() {
+    blogDetailRef.value?.scrollIntoView({behavior: 'smooth'});
+}
+
+function scrollToComment() {
+    blogCommentRef.value?.scrollIntoView({behavior: 'smooth'});
+}
+
 </script>
 
 <template>
-  <div class="blog-detail-wrapper">
+  <div class="blog-detail-wrapper" ref="blogDetailRef">
     <div class="blog-detail-wrapper-secondary">
-      <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}" ref="blogDetailSection">
+      <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
         <div>
           <div class="blog-title">
             <h2>{{ blogDetail.title }}</h2>
@@ -49,7 +64,10 @@ function getBlogIDFromRoute(): number {
           <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
           <el-divider class="title-content-divider" border-style="dashed"/>
 
-          <BlogComment :blog-id="blogID"/>
+          <div ref="blogCommentRef"/>
+          <client-only fallback="Loading comments...">
+            <ClientBlogComment :blog-id="blogID" />
+          </client-only>
 
         </div>
       </main>
@@ -69,10 +87,10 @@ function getBlogIDFromRoute(): number {
     </div>
     <client-only>
       <div class="fixed-buttons">
-        <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+        <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToTop">
           <el-icon style="scale: 200%"><ArrowUpBold /></el-icon>
         </div>
-        <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+        <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToComment">
           <el-icon style="scale: 200%"><ChatLineSquare /></el-icon>
         </div>
       </div>

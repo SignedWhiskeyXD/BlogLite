@@ -16,6 +16,9 @@ const searchInput = ref('');
 
 const routeToSearchResult = () => {};
 
+const routeToSubPage = (path: string) => {
+    window.location.href = path;
+}
 </script>
 
 <template>
@@ -26,9 +29,10 @@ const routeToSearchResult = () => {};
       </a>
     </div>
     <el-menu :mode="hideMobileMenu ? 'horizontal' : 'vertical'" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b"
-             :default-active="menuDefaultActive" :router="true" class="header-menu"
+             :default-active="menuDefaultActive" class="header-menu"
              :class="{'w-mobile-no-display': hideMobileMenu}">
-      <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path">
+      <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path"
+                    @click="routeToSubPage(menuItem.path)">
         {{ menuItem.title }}
       </el-menu-item>
     </el-menu>

@@ -4,6 +4,7 @@ import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
 import type CommentInput from "~/model/CommentInput";
 import {preCheckInput} from "~/my-utils/input-checking";
+import {User, Message} from "@element-plus/icons-vue";
 
 const props = defineProps<{
     blogId: number
@@ -13,25 +14,29 @@ const isAdmin = false;
 
 const commentButtonDisabled = ref(false);
 
-const handleRemoveComment = (id: any) => {};
+const currentPage = ref(1);
 
-const handlePageNumChanged = () => {};
-
-const {data} = await useFetch<RestResponse>('/api/comment', {
-    query: {
-        id: props.blogId,
-        pageNum: 1
-    },
-    baseURL: 'http://localhost:52480'
-});
-
-const commentPageInfo = responseGuard<CommentPage>(data.value);
+const commentPageInfo = ref<CommentPage>(await getComments(1));
 
 const commentInput = ref<CommentInput>({
     email: '',
     nickname: '',
     content: ''
 });
+
+async function getComments(pageNum: number): Promise<CommentPage> {
+    const {data} = await useFetch<RestResponse>('/api/comment', {
+        query: {
+            id: props.blogId,
+            pageNum: pageNum
+        }
+    });
+    return responseGuard<CommentPage>(data.value);
+}
+
+async function handlePageNumChanged() {
+    commentPageInfo.value = await getComments(currentPage.value);
+}
 
 async function handlePublishComment() {
     if (!preCheckInput(commentInput.value)) return;
@@ -50,8 +55,29 @@ async function handlePublishComment() {
     }, 3000);
 }
 
+async function handleRemoveComment(id: number) {
+    const {data, error} = await useFetch<RestResponse>('/api/admin/comment/delete', {
+        query: {
+            blogID: props.blogId,
+            commentID: id
+        },
+        method: 'DELETE'
+    });
+
+    if(data.value?.code === 200){
+        ElMessage.success('删除成功');
+        commentPageInfo.value = await getComments(currentPage.value);
+    } else {
+        ElMessage.error(`删除失败：${data.value?.message || error.value?.statusMessage }` );
+    }
+}
+
 function afterCommentSubmitted(response: RestResponse | null) {
-    const code = response?.code;
+    if(response == null) {
+        ElMessage.error('发送评论时出现错误');
+        return;
+    }
+    const code = response.code;
 
     if(code === 200){
         ElMessage.success('评论已发送');
