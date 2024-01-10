@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const hideMobileMenu = true;
+import {Fold, Expand} from "@element-plus/icons-vue";
+
 const menuDefaultActive = '/';
 const menuInfo = [
     {
@@ -14,11 +15,23 @@ const menuInfo = [
 
 const searchInput = ref('');
 
-const routeToSearchResult = () => {};
+const hideMobileMenu = ref(true);
+
+const routeToSearchResult = () => {
+    navigateTo({
+        path: '/',
+        query: {
+            searchKeyword: searchInput.value
+        }
+    })
+};
 
 const routeToSubPage = (path: string) => {
     window.location.href = path;
 }
+
+const handleMobileMenuClicked = () => hideMobileMenu.value = !hideMobileMenu.value;
+
 </script>
 
 <template>
@@ -49,12 +62,12 @@ const routeToSubPage = (path: string) => {
         </template>
       </el-dropdown>-->
     </div>
-<!--    <div class="w-mobile-show">
+    <div class="w-mobile-show">
       <el-icon class="mobile-menu" @click="handleMobileMenuClicked">
         <Fold v-if="hideMobileMenu"/>
         <Expand v-else/>
       </el-icon>
-    </div>-->
+    </div>
   </div>
 </template>
 
@@ -78,6 +91,7 @@ const routeToSubPage = (path: string) => {
     background-color: #545c64;
     display: flex;
     justify-content: space-between;
+    height: 100%;
 }
 
 .blog-header-mobile {
@@ -85,7 +99,8 @@ const routeToSubPage = (path: string) => {
 }
 
 .header-menu {
-    width: 800px;
+    width: 50%;
+    border: 0;
 }
 
 .menu-item {

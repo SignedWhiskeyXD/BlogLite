@@ -2,8 +2,13 @@
 import type RestResponse from "~/model/RestResponse";
 import type BlogTag from "~/model/BlogTag";
 import {responseGuard} from "~/my-utils/response-guard";
+import resolveAPIHost from "~/my-utils/resovle-api-host";
 
-const {data: tagsData} = await useFetch<RestResponse>('http://localhost:52480/api/allTags');
+const {data: tagsData} = await useAsyncData<RestResponse>('allTags', async () => {
+    return await $fetch('/api/allTags', {
+        baseURL: resolveAPIHost()
+    })
+})
 
 const allTags = responseGuard<BlogTag[]>(tagsData.value);
 

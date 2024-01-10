@@ -4,6 +4,7 @@ import {responseGuard} from "~/my-utils/response-guard";
 import type BlogStream from "~/model/BlogStream";
 import type BlogCard from "~/model/BlogCard";
 import {Picture} from "@element-plus/icons-vue";
+import resolveAPIHost from "~/my-utils/resovle-api-host";
 
 let requestParams = {
     blogNumOnStart: 5,
@@ -11,24 +12,46 @@ let requestParams = {
     nextRequestParam: 0
 };
 
+const route = useRoute();
+
 const scrollDisabled = ref(true);
 
 const blogs = ref<BlogCard[]>([]);
 
-const noFetchingMore = computed<boolean>(() => requestParams.nextRequestParam == null || scrollDisabled.value);
+const noFetchingMore = computed<boolean>(() =>
+    requestParams.nextRequestParam == null || scrollDisabled.value || route.fullPath !== '/'
+);
 
-await initBlogs();
+await loadStreamFromQuery(route.query);
 
 async function initBlogs() {
-    const {data: initStreamData} = await useFetch<RestResponse>(
-        `http://localhost:52480/api/blogstream/init?initNum=${requestParams.blogNumOnStart}`
-    );
+    const {data: initStreamData} = await useAsyncData<RestResponse>('initBlogStream', async () => {
+        return await $fetch('/api/blogstream/init', {
+            baseURL: resolveAPIHost(),
+            query: {
+                initNum: requestParams.blogNumOnStart
+            }
+        })
+    });
 
     const initStream = responseGuard<BlogStream>(initStreamData.value);
     requestParams.nextRequestParam = initStream.nextRequestParam;
     blogs.value = initStream.blogList;
 
     scrollDisabled.value = false;
+}
+
+async function initSearchResult(keyword: string) {
+    const {data: searchData} = await useAsyncData<RestResponse>('searchBlog', async () => {
+        return await $fetch('/api/search', {
+            baseURL: resolveAPIHost(),
+            query: {
+                keyword: keyword
+            }
+        })
+    });
+
+    blogs.value = responseGuard<BlogCard[]>(searchData.value);
 }
 
 async function getMoreBlogs() {
@@ -46,17 +69,30 @@ async function getMoreBlogs() {
     scrollDisabled.value = false;
 }
 
+async function loadStreamFromQuery(query: any){
+    const searchKeyword = query.searchKeyword;
+    if(typeof searchKeyword === 'string' && searchKeyword.length > 0){
+        await initSearchResult(searchKeyword);
+    }else{
+        await initBlogs();
+    }
+}
+
+onBeforeRouteUpdate(async (to, _from) => {
+    await loadStreamFromQuery(to.query);
+})
+
 </script>
 
 <template>
-<!--  <div class="collection-title">
-    <el-text v-if="queryParams.collectionID && queryParams.collectionName" size="large">
-      浏览专栏【{{queryParams.collectionName}}】下的所有文章
+  <div class="collection-title">
+<!--    <el-text v-if="route.query.collectionID && route.query.collectionName" size="large">
+      浏览专栏【{{route.query.collectionName}}】下的所有文章
+    </el-text>-->
+    <el-text v-if="route.query.searchKeyword" size="large">
+      "{{route.query.searchKeyword}}" 的搜索结果
     </el-text>
-    <el-text v-else-if="queryParams.searchKeyword" size="large">
-      "{{queryParams.searchKeyword}}" 的搜索结果
-    </el-text>
-  </div>-->
+  </div>
   <ul class="blog-stream" v-infinite-scroll="getMoreBlogs" :infinite-scroll-disabled="noFetchingMore"
       infinite-scroll-delay="800" :infinite-scroll-distance="-200">
     <li v-for="blog in blogs" :key="blog.id"
@@ -96,7 +132,7 @@ async function getMoreBlogs() {
   <div class="at-bottom" v-if="noFetchingMore">
     作者是条懒狗，就写了这么多！
   </div>
-  <el-skeleton class="blog-item transition-shadow"
+  <el-skeleton class="blog-item blog-skeleton transition-shadow"
                v-else :rows="6" animated />
 </template>
 
@@ -188,5 +224,11 @@ async function getMoreBlogs() {
 .at-bottom {
     text-align: center;
     margin-bottom: 30px;
+}
+
+.blog-skeleton {
+    width: auto !important;
+    margin-left: 15px;
+    margin-right: 15px;;
 }
 </style>

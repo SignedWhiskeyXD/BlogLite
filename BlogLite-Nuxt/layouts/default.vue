@@ -21,18 +21,15 @@
 
 <style scoped>
 .blog-header {
-/*    padding: 0;
-    position: fixed;
+    position: relative;
     width: 100%;
-    !*z-index不要超过2020，否则导航栏会把ElMessage挡住*!
     z-index: 1919;
-    top: 0;
-    left: 0;*/
 }
 
 .blog-main {
     padding: 0;
     height: calc(100vh - 60px);
+    overflow-x: hidden;
 }
 
 .icp-info {

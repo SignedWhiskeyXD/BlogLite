@@ -4,24 +4,22 @@ import BlogRanking from "~/components/BlogRanking.vue";
 </script>
 
 <template>
-  <el-scrollbar height="100%">
-    <div class="blog-banner">
-      <p class="banner-about w-mobile-no-display">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
-      <h1 class="banner-title">WhiskeyXD的个人博客</h1>
+  <div class="blog-banner">
+    <p class="banner-about w-mobile-no-display">我手上实在没什么像样的风景图，拿一张玩对马岛之魂的截图糊弄一下算了</p>
+    <h1 class="banner-title">WhiskeyXD的个人博客</h1>
+  </div>
+  <div class="home-page-wrapper">
+    <div class="home-page-wrapper-secondary">
+      <main class="main-wrapper">
+        <BlogStream/>
+      </main>
+      <aside class="right-side-wrapper w-mobile-no-display">
+        <AboutMe class="transition-shadow"/>
+        <MainPageTags class="transition-shadow"/>
+        <BlogRanking class="transition-shadow"/>
+      </aside>
     </div>
-    <div class="home-page-wrapper">
-      <div class="home-page-wrapper-secondary">
-        <main class="main-wrapper">
-          <BlogStream/>
-        </main>
-        <aside class="right-side-wrapper w-mobile-no-display">
-          <AboutMe class="transition-shadow"/>
-          <MainPageTags class="transition-shadow"/>
-          <BlogRanking class="transition-shadow"/>
-        </aside>
-      </div>
-    </div>
-  </el-scrollbar>
+  </div>
 </template>
 
 <style scoped>
@@ -53,7 +51,6 @@ import BlogRanking from "~/components/BlogRanking.vue";
 .main-wrapper {
     width: 75%;
     flex-grow: 1;
-    min-width: 500px;
 }
 
 .right-side-wrapper {

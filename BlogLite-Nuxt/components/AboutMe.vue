@@ -2,8 +2,13 @@
 import type SiteInfo from "~/model/SiteInfo";
 import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
+import resolveAPIHost from "~/my-utils/resovle-api-host";
 
-const {data: siteInfoData} = await useFetch<RestResponse>('http://localhost:52480/api/statistic');
+const {data: siteInfoData} = await useAsyncData<RestResponse>('siteInfo', async () => {
+    return await $fetch('/api/statistic', {
+        baseURL: resolveAPIHost()
+    })
+})
 
 const siteInfo = responseGuard<SiteInfo>(siteInfoData.value);
 

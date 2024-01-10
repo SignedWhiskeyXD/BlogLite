@@ -3,8 +3,13 @@
 import type RestResponse from "~/model/RestResponse";
 import type BlogPreview from "~/model/BlogPreview";
 import {responseGuard} from "~/my-utils/response-guard";
+import resolveAPIHost from "~/my-utils/resovle-api-host";
 
-const {data: rankData} = await useFetch<RestResponse>('http://localhost:52480/api/statistic/rank');
+const {data: rankData} = await useAsyncData<RestResponse>('blogRanking', async () => {
+    return await $fetch('/api/statistic/rank', {
+        baseURL: resolveAPIHost()
+    })
+})
 
 const rankList = responseGuard<BlogPreview[]>(rankData.value);
 
