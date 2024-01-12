@@ -43,13 +43,13 @@ const handleMobileMenuClicked = () => hideMobileMenu.value = !hideMobileMenu.val
     </div>
     <el-menu :mode="hideMobileMenu ? 'horizontal' : 'vertical'" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b"
              :default-active="menuDefaultActive" class="header-menu"
-             :class="{'w-mobile-no-display': hideMobileMenu}">
+             :class="{'w-mobile-no-display': hideMobileMenu, 'w-mobile-auto-width': !hideMobileMenu}">
       <el-menu-item class="menu-item" v-for="menuItem in menuInfo" :index="menuItem.path"
                     @click="routeToSubPage(menuItem.path)">
         {{ menuItem.title }}
       </el-menu-item>
     </el-menu>
-    <div class="search-bar" :class="{'w-mobile-no-display': hideMobileMenu}">
+    <div class="search-bar" :class="{'w-mobile-no-display': hideMobileMenu, 'w-mobile-auto-width': !hideMobileMenu}">
       <el-input class="search-bar-input" v-model="searchInput" :placeholder="'搜索本站内容'"/>
       <el-button class="search-bar-button" @click="routeToSearchResult">搜索</el-button>
 <!--      <el-dropdown class="search-bar-dropdown">

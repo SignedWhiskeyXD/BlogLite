@@ -121,7 +121,6 @@ function scrollToComment() {
     background-color: #ffffff;
     margin: 20px 15px 30px;
     width: 75%;
-    min-width: 400px;
     flex-grow: 1;
 }
 

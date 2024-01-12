@@ -15,6 +15,10 @@ body {
     .w-mobile-flex-start {
         justify-content: flex-start !important;
     }
+
+    .w-mobile-auto-width {
+        width: auto !important;
+    }
 }
 
 @media screen and (min-width: 769px) {

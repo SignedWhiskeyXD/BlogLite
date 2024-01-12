@@ -60,10 +60,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // 由于Nuxt.js要用一套代码搞定服务端渲染和客户端渲染，在HMR之后，useFetch实际上由客户端调用，为此必须为开发环境启用CORS支持
     // 生产环境则可以忽略，因为生产环境不存在HMR，页面内容已经由Nuxt预渲染
+    // 当然，如果前端组件正确处理了客户端和服务端不同的数据获取逻辑，那么就可以充分使用反向代理来转发请求，而无需配置CORS
     private CorsConfigurationSource corsConfigurationSource(int port) {
         CorsConfiguration configuration = new CorsConfiguration();
         String origin = "http://localhost:" + port;
         configuration.setAllowedOrigins(List.of(origin));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
