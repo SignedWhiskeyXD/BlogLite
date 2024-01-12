@@ -33,4 +33,6 @@ myConfig:
     needReview: true
   blog:
     pvIncreaseCoolDownMinute: 1   # 同IP访问同一文章，此段时间内的重复访问仅统计一次
-    searchEngine: RediSearch      # 此项值为RedisSearch或SQL，未定义的时候默认通过SQL搜索
+    searchEngine: SQL      # 此项值为RedisSearch或SQL，未定义的时候默认通过SQL搜索
+  misc:
+    nuxtDevPort: 3000
