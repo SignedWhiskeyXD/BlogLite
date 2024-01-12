@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    background-color: aliceblue;
+}
+
+.el-header {
+    padding: 0 !important;
+}
+
+@media screen and (max-width: 768px) {
+    .w-mobile-no-display {
+        display: none !important;
+    }
+
+    .w-mobile-flex-start {
+        justify-content: flex-start !important;
+    }
+
+    .w-mobile-auto-width {
+        width: auto !important;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .w-mobile-show {
+        display: none !important;
+    }
+}
+
+.hover-pointer:hover {
+    cursor: pointer;
+}
