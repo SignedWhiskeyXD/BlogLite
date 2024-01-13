@@ -23,11 +23,6 @@ myConfig:
   jwt:
     expireTime: 259200000 # 3 days
     secretKey: DoNotUseThisAsYourSecretKey
-  OAuth2:
-    Github:
-      client_id: 462da6fa5afb7fb778d0
-      client_secret: 1145141919810
-      redirect_uri: https://www.baidu.com
   image:
     repositoryPath: D://dev/nginx-1.25.1/html/image
     nginxContext: http://127.0.0.1/image/
