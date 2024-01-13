@@ -20,6 +20,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 myConfig:
+  domain: whiskeyxd.top
   jwt:
     expireTime: 259200000 # 3 days
     secretKey: DoNotUseThisAsYourSecretKey
