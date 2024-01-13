@@ -44,7 +44,8 @@ SpringBoot + Nuxt.js 个人自用博客系统，前后端分离(SSR + SPA)
 
 ~~~shell
 chmod +x ./deploy.sh
-./deploy.sh
+# 通过命令行参数指定构建目标，以构建所有目标为例：
+./deploy.sh -ans
 ~~~
 
 
