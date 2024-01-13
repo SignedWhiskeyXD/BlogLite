@@ -10,6 +10,12 @@ export default defineNuxtConfig({
       }
     }
   },
+  app: {
+    head: {
+      charset: 'utf-8',
+      title: 'WhiskeyXD BlogLite'
+    }
+  },
   routeRules: {
     '/blog/**': {
       swr: 60,

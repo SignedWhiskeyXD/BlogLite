@@ -51,7 +51,7 @@ const handleMobileMenuClicked = () => hideMobileMenu.value = !hideMobileMenu.val
     </el-menu>
     <div class="search-bar" :class="{'w-mobile-no-display': hideMobileMenu, 'w-mobile-auto-width': !hideMobileMenu}">
       <el-input class="search-bar-input" v-model="searchInput" :placeholder="'搜索本站内容'"/>
-      <el-button class="search-bar-button" @click="routeToSearchResult">搜索</el-button>
+      <el-button class="search-bar-button" @click="routeToSearchResult" :disabled="searchInput.length < 1">搜索</el-button>
 <!--      <el-dropdown class="search-bar-dropdown">
         <el-icon style="color: white">
           <setting/>

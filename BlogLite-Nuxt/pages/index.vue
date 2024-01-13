@@ -1,6 +1,12 @@
 <script setup lang="ts">
+const route = useRoute();
 
-import BlogRanking from "~/components/BlogRanking.vue";
+useHead({
+    title: () =>
+        route.query.searchKeyword
+            ? `${route.query.searchKeyword} - WhiskeyXD BlogLite`
+            : '首页 - WhiskeyXD BlogLite'
+})
 </script>
 
 <template>

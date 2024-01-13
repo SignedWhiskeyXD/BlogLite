@@ -17,6 +17,10 @@ const blogDetailRef = ref<HTMLElement | null>(null);
 
 const blogCommentRef = ref<HTMLElement | null>(null);
 
+useHead({
+    title: `${blogDetail.title} - WhiskeyXD BlogLite`
+});
+
 function getBlogIDFromRoute(): number {
     const paramError = createError({
         statusCode: 404,
