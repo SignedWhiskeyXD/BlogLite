@@ -4,16 +4,16 @@
 <div align="center">
 	<img src="https://img.shields.io/badge/JDK-11-blue"/>
     <img src="https://img.shields.io/badge/SpringBoot-2.7.14-green"/>
-    <img src="https://img.shields.io/badge/Vue.js-3.3.4-palegreen"/>
-    <img src="https://img.shields.io/badge/Vite-4.4.6-mediumpurple"/>
+    <img src="https://img.shields.io/badge/Nuxt.js-3.9.1-palegreen"/>
 </div>
+
 
 
 ## 简介
 
-SpringBoot + Vue.js 个人自用博客系统，前后端分离(SPA)
+SpringBoot + Nuxt.js 个人自用博客系统，前后端分离(SSR + SPA)
 
-欢迎预览：[whiskeyxd.top](http://whiskeyxd.top)
+欢迎预览：[whiskeyxd.top](https://whiskeyxd.top)
 
 
 
@@ -32,9 +32,7 @@ SpringBoot + Vue.js 个人自用博客系统，前后端分离(SPA)
 
 ### 前端
 
-- **核心框架**: Vue.js
-- **脚手架**: Vite
-- **客户端路由**: Vue Router
+- **全栈框架**: Nuxt3
 - **UI**: Element Plus
 - **Markdown 样式**: [github-markdown-css](https://github.com/sindresorhus/generate-github-markdown-css)
 
@@ -42,13 +40,22 @@ SpringBoot + Vue.js 个人自用博客系统，前后端分离(SPA)
 
 ## 部署
 
+在先行配置好`systemd`服务的情况下， 本项目提供了bash脚本`deploy.sh`以供自动化部署：
+
+~~~shell
+chmod +x ./deploy.sh
+./deploy.sh
+~~~
+
+
+
 ### 后端部署
 
-1. 确保部署环境安装了MySQL Server与Redis Server
+1. 确保部署环境安装了MySQL Server与Redis Server，JRE最低要求为Java 11
 
 2. 如果希望启用RediSearch作为搜索引擎，那么需要手动安装其作为Redis模块，或者直接安装Redis Stack，其提供了对RediSearch 2.x的集成
 
-   若不希望安装Redis Stack，对于Debian系Linux，可以考虑通过包管理器安装之：
+   若不希望安装Redis Stack，对于Debian系Linux，可以考虑通过包管理器安装这个模块：
 
    ~~~shell
    sudo apt update
@@ -69,9 +76,7 @@ SpringBoot + Vue.js 个人自用博客系统，前后端分离(SPA)
 
 ### 前端部署
 
-访客端与管理端两个前端项目的部署方式没有限定，取决于服务器提供Web服务的方式
-
-本项目提供了一个简单的Docker配置用于快速部署前端应用，在个人服务器则使用Nginx进行部署：
+访客端与管理端两个前端项目的部署方式没有限定，在假定使用Nginx作为网关服务器的情况下：
 
 - 确保不要暴露额外的端口：仅暴露80与443
 

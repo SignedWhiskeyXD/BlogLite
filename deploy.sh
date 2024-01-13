@@ -1,5 +1,8 @@
 #!/bin/bash
 pm="cnpm"
+server_deploy_dir="/root/bloglite-deployment"
+nuxt_deploy_dir="/root/bloglite-deployment/bloglite-nuxt"
+admin_dist_dir="/var/www/bloglite-admin"
 
 # 构建过程比较消耗内存，因此应当先行停止运行的服务
 systemctl stop bloglite-nuxt
@@ -8,7 +11,7 @@ systemctl stop mysql
 
 # 开始构建API服务器
 server_src_dir="./BlogLite-Server"
-server_deploy_dir="/root/bloglite-deployment"
+
 cd "$server_src_dir"
 
 # 执行 Maven 构建
@@ -31,7 +34,6 @@ cd -
 
 # 开始构建Nuxt服务
 nuxt_src_dir="./BlogLite-Nuxt"
-nuxt_deploy_dir="/root/bloglite-deployment/bloglite-nuxt"
 cd "$nuxt_src_dir"
 
 # 构建
@@ -53,7 +55,6 @@ cd -
 
 # 开始构建管理端
 admin_src_dir="./BlogLite-Admin"
-admin_dist_dir="/var/www/bloglite-admin"
 cd "$admin_src_dir"
 
 # 构建
