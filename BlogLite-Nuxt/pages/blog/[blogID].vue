@@ -44,116 +44,117 @@ function scrollToTop() {
 function scrollToComment() {
     blogCommentRef.value?.scrollIntoView({behavior: 'smooth'});
 }
-
 </script>
 
 <template>
-  <div class="blog-detail-wrapper" ref="blogDetailRef">
-    <div class="blog-detail-wrapper-secondary">
-      <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-        <div>
-          <div class="blog-title">
-            <h2>{{ blogDetail.title }}</h2>
-          </div>
-          <el-row class="blog-date-views">
-            <el-col :span="12" class="blog-date">
-              <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
-            </el-col>
-            <el-col :span="12" class="blog-views">
-              <el-text>浏览次数 {{ blogDetail.views }}</el-text>
-            </el-col>
-          </el-row>
-
-          <el-divider class="title-content-divider" border-style="dashed"/>
-          <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
-          <el-divider class="title-content-divider" border-style="dashed"/>
-
-          <div ref="blogCommentRef"/>
-          <client-only fallback="Loading comments...">
-            <ClientBlogComment :blog-id="blogID" />
-          </client-only>
-
-        </div>
-      </main>
-      <aside class="blog-detail-sidebar w-mobile-no-display">
-        <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
-          <h4 style="text-align: center">文章标签</h4>
-          <el-divider style="margin-bottom: 10px"/>
-          <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
-                  :key="tag" size="large">
-            {{ tag }}
-          </el-tag>
-          <el-text v-if="!(blogDetail.tagNames.length > 0)" size="large">
-            这篇文章没有标签诶
-          </el-text>
-        </div>
-      </aside>
-    </div>
-    <client-only>
-      <div class="fixed-buttons">
-        <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToTop">
-          <el-icon style="scale: 200%"><ArrowUpBold /></el-icon>
-        </div>
-        <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToComment">
-          <el-icon style="scale: 200%"><ChatLineSquare /></el-icon>
-        </div>
+  <div class="blog-wrapper" ref="blogDetailRef">
+    <main class="blog-detail" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+      <div class="blog-title">
+        <h2>{{ blogDetail.title }}</h2>
       </div>
-    </client-only>
+      <el-row class="blog-date-views">
+        <el-col :span="12" class="blog-date">
+          <el-text>发布时间 {{ blogDetail.publishTime }}</el-text>
+        </el-col>
+        <el-col :span="12" class="blog-views">
+          <el-text>浏览次数 {{ blogDetail.views }}</el-text>
+        </el-col>
+      </el-row>
+
+      <el-divider class="title-content-divider" border-style="dashed"/>
+      <div class="blog-content markdown-body" v-html="blogDetail.contentHTML"/>
+      <el-divider class="title-content-divider" border-style="dashed"/>
+
+      <div ref="blogCommentRef"/>
+      <client-only fallback="Loading comments...">
+        <div class="blog-comment-wrapper">
+          <ClientBlogComment :blog-id="blogID" />
+        </div>
+      </client-only>
+    </main>
+    <aside class="blog-detail-sidebar w-mobile-no-display">
+      <div class="blog-tags" :style="{boxShadow: `var(--el-box-shadow-dark)`}">
+        <h4 style="text-align: center">文章标签</h4>
+        <el-divider style="margin-bottom: 10px"/>
+        <el-tag v-for="tag in blogDetail.tagNames" class="blog-tag"
+                :key="tag" size="large">
+          {{ tag }}
+        </el-tag>
+        <el-text v-if="!(blogDetail.tagNames.length > 0)" size="large">
+          这篇文章没有标签诶
+        </el-text>
+      </div>
+    </aside>
   </div>
+
+  <client-only>
+    <div class="fixed-buttons">
+      <div class="button-to-top" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToTop">
+        <el-icon style="scale: 200%"><ArrowUpBold /></el-icon>
+      </div>
+      <div class="button-to-comment" :style="{boxShadow: `var(--el-box-shadow-dark)`}" @click="scrollToComment">
+        <el-icon style="scale: 200%"><ChatLineSquare /></el-icon>
+      </div>
+    </div>
+  </client-only>
 </template>
 
 <style scoped>
-.blog-detail-wrapper {
+.blog-wrapper {
     display: flex;
-    justify-content: center;
-}
-
-@media screen and (max-width: 768px) {
-    .blog-detail-wrapper {
-        justify-content: flex-start;
-    }
-}
-
-.blog-detail-wrapper-secondary {
-    width: 1280px;
-    display: flex;
+    margin: 0 auto;
+    max-width: 1280px;
 }
 
 .blog-detail  {
     border: 1px solid var(--el-border-color);
-    padding: 20px;
     background-color: #ffffff;
-    margin: 20px 15px 30px;
+
+    margin: 20px 8px 40px;
     width: 75%;
     flex-grow: 1;
 }
 
 .blog-detail-sidebar {
     width: 25%;
+    margin: 20px 8px
 }
 
 .blog-tags {
     border: 1px solid var(--el-border-color);
     background-color: #ffffff;
     padding: 5px 20px 20px;
-    margin-top: 20px;
 }
 
 .blog-title {
     text-align: center;
 }
 
-.blog-content {
-    margin-left: 20px;
+.markdown-body {
+    padding: 0 45px 30px;
 }
 
-.blog-content:deep(img){
-    max-width: 100%;
-    justify-self: center;
+.blog-comment-wrapper {
+    padding: 0 30px 30px;
 }
 
-.blog-content:deep(code){
-    padding: 0;
+.markdown-body:deep(img){
+    display: block;
+    margin: 0 auto;
+}
+
+@media screen and (max-width: 768px) {
+    .blog-detail {
+        margin: 20px 0 40px
+    }
+
+    .markdown-body {
+        padding: 0 15px;
+    }
+
+    .blog-comment-wrapper {
+        padding: 15px;
+    }
 }
 
 .title-content-divider {
@@ -189,6 +190,7 @@ function scrollToComment() {
     display: flex;
     justify-content: center;
     align-items: center;
+    color: rgba(0, 0, 0, 0.5);
 }
 
 .button-to-comment:hover {
@@ -203,6 +205,7 @@ function scrollToComment() {
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
+    color: rgba(0, 0, 0, 0.5);
 }
 
 .button-to-top:hover {

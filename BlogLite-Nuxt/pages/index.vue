@@ -4,7 +4,7 @@ const route = useRoute();
 useHead({
     title: () =>
         route.query.searchKeyword
-            ? `${route.query.searchKeyword} - WhiskeyXD BlogLite`
+            ? `${route.query.searchKeyword} 的搜索结果 - WhiskeyXD BlogLite`
             : '首页 - WhiskeyXD BlogLite'
 })
 </script>
