@@ -1,24 +1,23 @@
 package com.wsmrxd.bloglite.controller.publics;
 
-import com.wsmrxd.bloglite.Utils.HttpUtil;
+import com.wsmrxd.bloglite.dto.BlogVisitorInfo;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.RestResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/blog")
+@Slf4j
 public class BlogAPI {
 
     @Autowired
@@ -36,11 +35,21 @@ public class BlogAPI {
         if(ret == null)
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
 
-        String clientRedisKey = "AccessBlog::" + id + "::" + HttpUtil.getIP(request);
-        if(cacheService.keyVal().setKeyValueIfAbsent(clientRedisKey, " ", Duration.ofMinutes(pvCoolDownMinutesPerIP)))
-            blogService.increaseBlogViews(id);
-
         ret.setViews(blogService.getBlogViewsAsCached(id));
         return RestResponse.ok(ret);
+    }
+
+    @PostMapping("/views")
+    public RestResponse<String> addBlogViews(@RequestBody BlogVisitorInfo visitorInfo) {
+        int blogID = visitorInfo.getBlogID();
+        String ipAddr = visitorInfo.getIpAddr();
+        String clientRedisKey = "Access::" + blogID + "::" + ipAddr;
+
+        if(cacheService.keyVal().setKeyValueIfAbsent(clientRedisKey, " ", Duration.ofMinutes(pvCoolDownMinutesPerIP))) {
+            blogService.increaseBlogViews(blogID);
+            log.info("Visitor from {} accessed blog {}", ipAddr, blogID);
+        }
+
+        return RestResponse.ok("OK");
     }
 }

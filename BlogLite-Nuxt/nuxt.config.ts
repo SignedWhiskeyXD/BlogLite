@@ -1,4 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import {createResolver} from "@nuxt/kit";
+
+const resolver = createResolver(import.meta.url);
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@element-plus/nuxt'],
@@ -18,10 +22,16 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/blog/**': {
-      swr: 60,
+      swr: 60 * 10      // 10 min
     },
     '/': {
-      swr: 60
+      swr: 60           // 1 min
     }
-  }
+  },
+  serverHandlers: [
+    {
+      middleware: true,
+      handler: resolver.resolve('./my-utils/server-middlewares/post-blog-views.ts')
+    }
+  ]
 })
