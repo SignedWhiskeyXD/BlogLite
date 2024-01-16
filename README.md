@@ -34,7 +34,8 @@ SpringBoot + Nuxt.js 个人自用博客系统，前后端分离(SSR + SPA)
 
 - **全栈框架**: Nuxt3
 - **UI**: Element Plus
-- **Markdown 样式**: [github-markdown-css](https://github.com/sindresorhus/generate-github-markdown-css)
+- **Markdown 样式**: [github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
+- **代码高亮**: [Prism.js](https://prismjs.com/)
 
 
 

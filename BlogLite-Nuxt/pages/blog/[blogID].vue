@@ -3,6 +3,8 @@ import type BlogDetail from "~/model/BlogDetail";
 import type RestResponse from "~/model/RestResponse";
 import {responseGuard} from "~/my-utils/response-guard";
 import {ArrowUpBold ,ChatLineSquare} from "@element-plus/icons-vue";
+import Prism from "assets/prism";
+import '~/assets/prism.css'
 import 'github-markdown-css/github-markdown.css'
 
 const blogID = getBlogIDFromRoute();
@@ -20,6 +22,35 @@ const blogCommentRef = ref<HTMLElement | null>(null);
 useHead({
     title: `${blogDetail.title} - WhiskeyXD BlogLite`
 });
+
+onMounted(() =>
+    highlightCodes()
+)
+
+function highlightCodes() {
+    for (const element of document.getElementsByTagName('code')) {
+        let lang: string | null = getLangFromClasses(element.className)
+
+        if(lang === null) continue;
+        else if(lang === 'vue') lang = 'markup'
+
+        // @ts-ignore
+        if(Prism.languages[lang])
+            // @ts-ignore
+            element.innerHTML = Prism.highlight(element.innerText, Prism.languages[lang], lang);
+        else
+            console.log(`language ${lang} is not supported yet`);
+    }
+}
+
+function getLangFromClasses(classes: string): string | null {
+    for (const classname of classes.split(' ')) {
+        const split = classname.split('-');
+        if(split[0].startsWith('lang') && split[1].length > 0)
+            return split[1];
+    }
+    return null;
+}
 
 function getBlogIDFromRoute(): number {
     const paramError = createError({
