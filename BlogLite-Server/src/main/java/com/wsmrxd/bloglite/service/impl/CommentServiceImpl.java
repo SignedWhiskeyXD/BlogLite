@@ -3,7 +3,6 @@ package com.wsmrxd.bloglite.service.impl;
 import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import com.wsmrxd.bloglite.entity.Comment;
-import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.mapping.CommentMapper;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
@@ -25,9 +24,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private CommentMapper commentMapper;
-
-    @Autowired
-    private CacheableMapper cacheableMapper;
 
     @Autowired
     private CacheService cacheService;
@@ -76,7 +72,7 @@ public class CommentServiceImpl implements CommentService {
     public void enableComment(int commentID) {
         commentMapper.updateCommentEnabled(commentID, true);
 
-        Comment comment = cacheableMapper.getCommentByID(commentID);
+        Comment comment = commentMapper.selectCommentByID(commentID);
         if(comment == null) return;      // TODO: 也许应该抛个异常？
         String redisListKey = Integer_CommentIDByBlogID.name() + "::" + comment.getIdentify();
         cacheService.zSet().addValueToZSet(redisListKey, commentID, comment.getPublishTime().getTime());
@@ -129,7 +125,7 @@ public class CommentServiceImpl implements CommentService {
 
         List<CommentVO> ret = new ArrayList<>(commentIDs.size());
         for(Integer commentID : commentIDs){
-            Comment comment = cacheableMapper.getCommentByID(commentID);
+            Comment comment = commentMapper.selectCommentByID(commentID);
             if (comment != null)
                 ret.add(new CommentVO(comment));
         }

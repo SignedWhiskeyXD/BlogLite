@@ -35,17 +35,6 @@ CREATE TABLE blog_tag_mapping(
     tag_id int NOT NULL
 ) ENGINE = InnoDB;
 
-DROP TABLE IF EXISTS image_mapping;
-CREATE TABLE image_mapping(
-    id int NOT NULL AUTO_INCREMENT,
-    source varchar(255) UNIQUE,
-    md5 varchar(32) NOT NULL UNIQUE,
-    folder varchar(30) NOT NULL,
-    original_name varchar(255),
-    type_suffix varchar(10),
-    PRIMARY KEY (id) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
 DROP TABLE IF EXISTS blog_collection;
 CREATE TABLE blog_collection(
     id int NOT NULL AUTO_INCREMENT,

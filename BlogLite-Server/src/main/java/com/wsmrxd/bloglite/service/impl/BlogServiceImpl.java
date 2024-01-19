@@ -5,7 +5,6 @@ import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
-import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
@@ -50,9 +49,6 @@ public class BlogServiceImpl implements BlogService {
     private BlogCollectionMapper collectionMapper;
 
     @Autowired
-    private CacheableMapper cacheableMapper;
-
-    @Autowired
     private CacheService cacheService;
 
     @Autowired
@@ -63,11 +59,11 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogAdminDetail getBlogAdminDetailByID(int id) {
-        var blog = cacheableMapper.getBlogEntityByID(id);
+        var blog = blogMapper.selectBlogByID(id);
         if(blog == null) return null;
 
         return new BlogAdminDetail(blog,
-                cacheableMapper.getTagNamesByBlogID(id),
+                blogMapper.selectTagNamesByBlogID(id),
                 blogMapper.selectCollectionNamesByBlogID(id));
     }
 
@@ -83,24 +79,24 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogDetail getBlogDetail(int id) {
-        Blog blog = cacheableMapper.getBlogEntityByID(id);
+        Blog blog = blogMapper.selectBlogByID(id);
         if(blog == null)
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "Blog Not Found");
 
         var ret = new BlogDetail(blog);
         ret.setContentHTML(markDownUtil.toHtml(blog));
-        ret.setTagNames(cacheableMapper.getTagNamesByBlogID(id));
+        ret.setTagNames(blogMapper.selectTagNamesByBlogID(id));
         return ret;
     }
 
     @Override
     @Nullable
     public BlogCard getBlogCard(int blogID){
-        var blog = cacheableMapper.getBlogEntityByID(blogID);
+        var blog = blogMapper.selectBlogByID(blogID);
         if(blog == null) return null;
 
         var ret = new BlogCard(blog);
-        ret.setTagNames(cacheableMapper.getTagNamesByBlogID(blogID));
+        ret.setTagNames(blogMapper.selectTagNamesByBlogID(blogID));
 
         return ret;
     }
@@ -129,11 +125,11 @@ public class BlogServiceImpl implements BlogService {
 
         int newBlogID = newBlogEntity.getId();
         var tagList = newBlog.getTagNames();
-        if(tagList != null && tagList.size() > 0)
+        if(tagList != null && !tagList.isEmpty())
             arrangeTagList(newBlogID, tagList);
 
         var collectionNames = newBlog.getCollections();
-        if(collectionNames != null && collectionNames.size() > 0)
+        if(collectionNames != null && !collectionNames.isEmpty())
             arrangeCollectionList(newBlogID, collectionNames);
 
         if(rediSearch != null && !rediSearch.addDocument(newBlogEntity))
@@ -167,7 +163,7 @@ public class BlogServiceImpl implements BlogService {
     })
     public void reArrangeBlogTag(int blogID, List<String> tagNames){
         blogMapper.deleteTagMappingByBlogID(blogID);
-        if(tagNames != null && tagNames.size() > 0)
+        if(tagNames != null && !tagNames.isEmpty())
             arrangeTagList(blogID, tagNames);
     }
 
@@ -179,7 +175,7 @@ public class BlogServiceImpl implements BlogService {
         }
 
         blogMapper.deleteCollectionMappingByBlogID(blogID);
-        if(collectionNames != null && collectionNames.size() > 0)
+        if(collectionNames != null && !collectionNames.isEmpty())
             arrangeCollectionList(blogID, collectionNames);
     }
 
@@ -247,7 +243,7 @@ public class BlogServiceImpl implements BlogService {
         List<Integer> cached = cacheService.set()
                 .getSetAsList(Integer_BlogIDs_ByCollectionID_.name() + collectionID);
 
-        if(cached != null && cached.size() > 0)
+        if(cached != null && !cached.isEmpty())
             return cached;
 
         var blogIDs = collectionMapper.selectBlogIDsByCollectionID(collectionID);

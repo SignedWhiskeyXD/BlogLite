@@ -3,7 +3,6 @@ package com.wsmrxd.bloglite.service.impl;
 import com.wsmrxd.bloglite.dto.BlogCollectionCreateInfo;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.mapping.BlogCollectionMapper;
-import com.wsmrxd.bloglite.mapping.CacheableMapper;
 import com.wsmrxd.bloglite.service.BlogCollectionService;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.CacheService;
@@ -30,9 +29,6 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
 
     @Autowired
     private CacheService cacheService;
-
-    @Autowired
-    private CacheableMapper cacheableMapper;
 
     @Value("${myConfig.image.defaultCollectionImage}")
     private String defaultCollectionImageUrl;
@@ -74,7 +70,7 @@ public class BlogCollectionServiceImpl implements BlogCollectionService {
         newCollectionEntity.setCollectionName(newCollection.getCollectionName());
         newCollectionEntity.setDescription(newCollection.getDescription());
         String imageLink = newCollection.getImageLink();
-        if(imageLink != null && imageLink.length() > 0)
+        if(imageLink != null && !imageLink.isEmpty())
             newCollectionEntity.setImageLink(imageLink);
         else
             newCollectionEntity.setImageLink(defaultCollectionImageUrl);
