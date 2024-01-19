@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,15 @@ public class BlogSearchServiceRedisImpl implements BlogSearchService {
     private static final String INDEX_NAME = "BlogSearch";
 
     private static final String DOCUMENT_ID_PREFIX = "BlogIndexed::";
+
+    public boolean checkIndexExists() {
+        try {
+            createBlogIndex();
+        } catch (JedisDataException exception) {
+            return true;
+        }
+        return false;
+    }
 
     public void createBlogIndex(){
         Client client = new Client(INDEX_NAME, jedis);
