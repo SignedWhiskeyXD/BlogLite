@@ -64,7 +64,7 @@ useHead({
 }
 
 .blog-banner {
-    background-image: url("https://raw.githubusercontent.com/SignedWhiskeyXD/PicGoRepo/master/img/banner.jpg");
+    background-image: url("http://cdn.whiskeyxd.top/image/20240125132629.png-coverted.webp");
     background-position: center center;
     height: 30vh;
     position: relative;
