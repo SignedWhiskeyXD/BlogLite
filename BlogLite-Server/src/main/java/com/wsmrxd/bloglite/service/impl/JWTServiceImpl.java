@@ -7,6 +7,7 @@ import com.wsmrxd.bloglite.service.JWTService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 
 @Service
@@ -27,13 +28,13 @@ public class JWTServiceImpl implements JWTService {
     }
 
     @Override
-    public String extractTokenFromHeader(String authorization) {
-        if(authorization == null) return null;
+    public String extractTokenFromHeader(@Nullable String authorization) {
+        if(authorization == null) return "";
 
         if(authorization.startsWith("Bearer ") && authorization.length() > 7)
             return authorization.substring(7);
         else
-            return null;
+            return "";
     }
 
     @Override

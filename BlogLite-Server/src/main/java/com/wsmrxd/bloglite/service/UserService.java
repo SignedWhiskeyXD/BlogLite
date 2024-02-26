@@ -1,6 +1,7 @@
 package com.wsmrxd.bloglite.service;
 
 import com.wsmrxd.bloglite.entity.User;
+import com.wsmrxd.bloglite.vo.LoginSuccessInfo;
 
 public interface UserService {
     User getUser(int id);
@@ -13,4 +14,5 @@ public interface UserService {
 
     boolean changeUsername(String email, String newUsername);
 
+    LoginSuccessInfo doLogin(String email, String password);
 }

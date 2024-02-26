@@ -64,7 +64,7 @@ useHead({
 }
 
 .blog-banner {
-    background-image: url("http://cdn.whiskeyxd.top/image/20240125132629.png-coverted.webp");
+    background-image: url("https://cdn.whiskeyxd.top/image/20240125132629.png-coverted.webp");
     background-position: center center;
     height: 30vh;
     position: relative;

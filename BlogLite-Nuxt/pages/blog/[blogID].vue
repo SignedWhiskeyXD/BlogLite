@@ -6,12 +6,17 @@ import {ArrowUpBold ,ChatLineSquare} from "@element-plus/icons-vue";
 import Prism from "assets/prism";
 import '~/assets/prism.css'
 import 'github-markdown-css/github-markdown.css'
+import resolveAPIHost from "~/my-utils/resovle-api-host";
 
 const blogID = getBlogIDFromRoute();
 
 const ClientBlogComment = defineAsyncComponent(() => import('~/components/BlogComment.vue'));
 
-const {data: blogData} = await useFetch<RestResponse>(`http://localhost:52480/api/blog/${blogID}`);
+const {data: blogData} = await useAsyncData<RestResponse>('blog', async () => {
+    return await $fetch(`/api/blog/${blogID}`, {
+        baseURL: resolveAPIHost()
+    })
+})
 
 const blogDetail = responseGuard<BlogDetail>(blogData.value);
 
