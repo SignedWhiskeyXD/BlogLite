@@ -1,5 +1,6 @@
 package com.wsmrxd.bloglite.mapping;
 
+import com.wsmrxd.bloglite.annotation.MapperCache;
 import com.wsmrxd.bloglite.entity.Comment;
 import com.wsmrxd.bloglite.vo.CommentAdminDetail;
 import org.apache.ibatis.annotations.*;
@@ -10,6 +11,7 @@ import java.util.List;
 public interface CommentMapper {
 
     @Select("SELECT * FROM comment WHERE id = #{id}")
+    @MapperCache(value = "Comment", key = "#id")
     Comment selectCommentByID(int id);
 
     @Select("SELECT * FROM comment WHERE identify = #{ident} AND enable = true ORDER BY id DESC")

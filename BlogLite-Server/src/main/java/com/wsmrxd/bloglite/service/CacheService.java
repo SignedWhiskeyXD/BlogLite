@@ -2,8 +2,6 @@ package com.wsmrxd.bloglite.service;
 
 import com.wsmrxd.bloglite.redis.*;
 
-import java.util.List;
-
 public interface CacheService {
 
     RedisKeyVal keyVal();

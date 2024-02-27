@@ -23,7 +23,7 @@ SpringBoot + Nuxt.js 个人自用博客系统，前后端分离(SSR + SPA)
 
 - **核心框架**:  SpringBoot
 - **持久层**: MyBatis
-- **认证与鉴权**: Spring Security  + Auth0 JWT
+- **认证与鉴权**: Auth0 JWT
 - **SQL**: MySQL
 - **NoSQL**: Redis
 - **搜索引擎**: RediSearch

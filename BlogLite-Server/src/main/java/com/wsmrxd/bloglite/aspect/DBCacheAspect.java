@@ -1,17 +1,23 @@
 package com.wsmrxd.bloglite.aspect;
 
-import com.wsmrxd.bloglite.entity.Blog;
-import com.wsmrxd.bloglite.entity.Comment;
+import com.wsmrxd.bloglite.annotation.MapperCache;
 import com.wsmrxd.bloglite.service.CacheService;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-import java.util.List;
+import java.lang.reflect.Method;
 
+@Slf4j
 @Aspect
 @Component
 public class DBCacheAspect {
@@ -19,41 +25,36 @@ public class DBCacheAspect {
     @Autowired
     private CacheService cacheService;
 
-    @Around("execution(* com.wsmrxd.bloglite.mapping.BlogMapper.selectBlogByID(int)) && args(blogID)")
-    public Object cacheBlogEntity(ProceedingJoinPoint pjp, int blogID) throws Throwable {
-        String redisKey = "Blog::" + blogID;
-        Blog blogCached = cacheService.keyVal().getValueByKey(redisKey);
-        if(blogCached != null) return blogCached;
+    private static final ExpressionParser spelParser = new SpelExpressionParser();
 
-        Object ret = pjp.proceed();
-        cacheEntity(redisKey, ret);
-        return ret;
+    public static final String KEY_SEPARATOR = "::";
+
+    @Around("@annotation(mapperCache)")
+    public Object logMessage(ProceedingJoinPoint pjp, MapperCache mapperCache) throws Throwable {
+        String cacheKey = parseCacheKey(pjp, mapperCache);
+        return handleCache(cacheKey, pjp);
     }
 
-    @Around("execution(* com.wsmrxd.bloglite.mapping.CommentMapper.selectCommentByID(int)) && args(commentID)")
-    public Object cacheCommentEntity(ProceedingJoinPoint pjp, int commentID) throws Throwable {
-        String redisKey = "Comment::" + commentID;
-        Comment commentCached = cacheService.keyVal().getValueByKey(redisKey);
-        if(commentCached != null) return commentCached;
+    private String parseCacheKey(JoinPoint joinPoint, MapperCache cacheAnnotation) {
+        var signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        var evaluationContext = new MethodBasedEvaluationContext(
+                null, method, joinPoint.getArgs(), new DefaultParameterNameDiscoverer());
 
-        Object ret = pjp.proceed();
-        cacheEntity(redisKey, ret);
-        return ret;
+        String parsedKey = spelParser.parseExpression(cacheAnnotation.key()).getValue(evaluationContext, String.class);
+        return cacheAnnotation.value() + KEY_SEPARATOR + parsedKey;
     }
 
-    @Around("execution(* com.wsmrxd.bloglite.mapping.BlogMapper.selectTagNamesByBlogID(int)) && args(blogID)")
-    public Object cacheBlogTags(ProceedingJoinPoint pjp, int blogID) throws Throwable {
-        String redisKey = "TagNamesOfBlog::" + blogID;
-        List<String> cachedTagNames = cacheService.keyVal().getValueByKey(redisKey);
+    private Object handleCache(String cacheKey, ProceedingJoinPoint pjp) throws Throwable {
+        Object cachedTagNames = cacheService.keyVal().getValueByKey(cacheKey);
         if(cachedTagNames != null) return cachedTagNames;
 
-        Object ret = pjp.proceed();
-        cacheEntity(redisKey, ret);
-        return ret;
-    }
-
-    private void cacheEntity(String redisKey, @Nullable Object value) {
-        if(value == null) return;
-        cacheService.keyVal().setKeyValue(redisKey, value);
+        log.info("Resolved cache key \"{}\" missed", cacheKey);
+        Object entity = pjp.proceed();
+        if(entity != null) {
+            cacheService.keyVal().setKeyValue(cacheKey, entity);
+            log.info("Resolved cache key \"{}\" rebuilt", cacheKey);
+        }
+        return entity;
     }
 }

@@ -1,5 +1,6 @@
 package com.wsmrxd.bloglite.mapping;
 
+import com.wsmrxd.bloglite.annotation.MapperCache;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogCollection;
 import com.wsmrxd.bloglite.entity.BlogCollectionMapping;
@@ -13,6 +14,7 @@ import java.util.List;
 public interface BlogMapper {
 
     @Select("SELECT * FROM blog WHERE id = #{id}")
+    @MapperCache(value = "Blog", key = "#id")
     Blog selectBlogByID(int id);
 
     @Select("SELECT id, title, views FROM blog ORDER BY id DESC")
@@ -32,6 +34,7 @@ public interface BlogMapper {
     @Select("SELECT bt.tag_name FROM blog_tag_mapping btm\n" +
             "INNER JOIN blog_tag bt ON btm.tag_id = bt.id\n" +
             "WHERE btm.blog_id = #{id}")
+    @MapperCache(value = "TagNamesOfBlog", key = "#id")
     List<String> selectTagNamesByBlogID(int id);
 
     @Select("SELECT bc.* FROM blog_collection_mapping bcm\n" +
