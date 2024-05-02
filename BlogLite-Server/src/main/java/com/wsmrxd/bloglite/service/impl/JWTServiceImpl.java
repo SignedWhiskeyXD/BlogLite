@@ -13,19 +13,11 @@ import java.util.Date;
 @Service
 public class JWTServiceImpl implements JWTService {
 
+    @Value("${myConfig.jwt.secretKey}")
     private String secretKey;
 
-    private long expireTime;
-
-    @Value("${myConfig.jwt.secretKey}")
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
     @Value("${myConfig.jwt.expireTime}")
-    public void setExpireTime(long expireTime) {
-        this.expireTime = expireTime;
-    }
+    private long expireTime;
 
     @Override
     public String extractTokenFromHeader(@Nullable String authorization) {
@@ -70,5 +62,4 @@ public class JWTServiceImpl implements JWTService {
             return null;
         }
     }
-
 }

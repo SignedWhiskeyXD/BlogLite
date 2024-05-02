@@ -22,7 +22,11 @@ public class SiteInfoAPI {
 
     @GetMapping
     public RestResponse<SiteInfo> serveSiteInfo() {
-        return RestResponse.ok(siteInfoService.getSiteInfo());
+        SiteInfo ret = new SiteInfo(
+                siteInfoService.getTotalBlogsAsCached(),
+                siteInfoService.getTotalViewsAsCached()
+        );
+        return RestResponse.ok(ret);
     }
 
     @GetMapping("/rank")

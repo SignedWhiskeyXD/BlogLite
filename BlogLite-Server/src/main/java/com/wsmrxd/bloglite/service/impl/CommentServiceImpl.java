@@ -10,14 +10,14 @@ import com.wsmrxd.bloglite.vo.CommentAdminDetail;
 import com.wsmrxd.bloglite.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.Integer_CommentIDByBlogID;
-import static com.wsmrxd.bloglite.enums.RedisKeyForList.Comment_CommentToReview;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -27,6 +27,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private CacheService cacheService;
+
+    private final BlockingDeque<Comment> commentQueue = new LinkedBlockingDeque<>();
 
     // 我希望直接通过缓存项来分页，这样的话startPage方法就没用了，那就手动分页
     @Override
@@ -50,7 +52,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void enqueueCommentToReview(int blogID, CommentUploadInfo newComment) {
         Comment comment = new Comment(blogID, newComment);
-        cacheService.list().rPushValToList(Comment_CommentToReview.name(), comment);
+        commentQueue.addLast(comment);
     }
 
     @Override
@@ -92,15 +94,20 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void syncCommentsForReview() {
-        List<Comment> comments = cacheService.list().getList(Comment_CommentToReview.name());
-        if(comments == null || comments.isEmpty()) return;
+        if (commentQueue.isEmpty()) return;
 
-        for(Comment comment : comments)
-            commentMapper.insertComment(comment);
+        List<Comment> comments = new ArrayList<>();
+        commentQueue.drainTo(comments);
 
-        cacheService.delete(Comment_CommentToReview.name());
+        comments.forEach(comment -> {
+            try {
+                commentMapper.insertComment(comment);
+            } catch (Exception e) {
+                /* 如果插入失败，那么重新加入队列 */
+                commentQueue.addLast(comment);
+            }
+        });
     }
 
     private static void hideCommentEmail(List<CommentVO> commentList){

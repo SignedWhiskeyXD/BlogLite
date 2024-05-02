@@ -78,6 +78,8 @@ public class BlogAdminAPI {
         if(!newBlog.getTagNames().isEmpty())
             blogTagService.addTag(null);
 
+        siteInfoService.modifyTotalBlogs(1);
+
         return RestResponse.ok();
     }
 
@@ -88,6 +90,8 @@ public class BlogAdminAPI {
         boolean result = blogService.deleteBlog(id);
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Delete The Blog");
+
+        siteInfoService.modifyTotalBlogs(-1);
         return RestResponse.ok();
     }
 }

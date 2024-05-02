@@ -5,7 +5,6 @@ import com.github.pagehelper.PageInfo;
 import com.wsmrxd.bloglite.Utils.MarkDownUtil;
 import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
-import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.dto.BlogUploadInfo;
 import com.wsmrxd.bloglite.entity.Blog;
 import com.wsmrxd.bloglite.entity.BlogCollectionMapping;
@@ -26,12 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
+import javax.annotation.PostConstruct;
 import java.util.List;
-
-import static com.wsmrxd.bloglite.enums.RedisKeyForHash.*;
-import static com.wsmrxd.bloglite.enums.RedisKeyForSet.Integer_BlogIDs_ByCollectionID_;
-import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.*;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -46,13 +43,18 @@ public class BlogServiceImpl implements BlogService {
     private BlogCollectionMapper collectionMapper;
 
     @Autowired
-    private CacheService cacheService;
-
-    @Autowired
     private MarkDownUtil markDownUtil;
 
     @Autowired(required = false)
     private BlogSearchServiceRedisImpl rediSearch;
+
+    /* 倒序排列的文章ID集合 */
+    private final TreeSet<Integer> blogIDs = new TreeSet<>((lhs, rhs) -> Integer.compare(rhs, lhs));
+
+    @PostConstruct
+    public void fillBlogIDs() {
+        blogIDs.addAll(blogMapper.selectAllBlogID());
+    }
 
     @Override
     public BlogAdminDetail getBlogAdminDetailByID(int id) {
@@ -62,16 +64,6 @@ public class BlogServiceImpl implements BlogService {
         return new BlogAdminDetail(blog,
                 blogMapper.selectTagNamesByBlogID(id),
                 blogMapper.selectCollectionNamesByBlogID(id));
-    }
-
-    @Override
-    public int getBlogViewsAsCached(int blogID) {
-        Integer ret = cacheService.hash().getValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID));
-        if(ret != null) return ret;
-
-        ret = blogMapper.selectViewsByBlogID(blogID);
-        cacheService.hash().putKeyValToHash(Integer_BlogViewsByID.name(), Integer.toString(blogID), ret);
-        return ret;
     }
 
     @Override
@@ -126,7 +118,7 @@ public class BlogServiceImpl implements BlogService {
         if(rediSearch != null && !rediSearch.addDocument(newBlogEntity))
             throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot create index for blog, id=" + newBlogID);
 
-        addBlogIDtoZSet(newBlogID);
+        blogIDs.add(newBlogID);
         return newBlogID;
     }
 
@@ -159,11 +151,6 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void reArrangeBlogCollection(int blogID, List<String> collectionNames){
-        var blogCollections = blogMapper.selectBlogCollectionByBlogID(blogID);
-        for(var blogCollection : blogCollections) {
-            cacheService.set().removeSetValue(Integer_BlogIDs_ByCollectionID_.name() + blogCollection.getId(), blogID);
-        }
-
         blogMapper.deleteCollectionMappingByBlogID(blogID);
         if(collectionNames != null && !collectionNames.isEmpty())
             arrangeCollectionList(blogID, collectionNames);
@@ -176,7 +163,7 @@ public class BlogServiceImpl implements BlogService {
             @CacheEvict(value = "TagNamesOfBlog", key = "#id")
     })
     public boolean deleteBlog(int id) {
-        removeBlogIDFromZSet(id);
+        blogIDs.remove(id);
 
         if(rediSearch != null && !rediSearch.deleteDocument(id))
             throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot drop index for blog, id=" + id);
@@ -188,30 +175,16 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public List<Integer> getBlogIDsStartAt(int startID, int blogNum) {
-        if(!cacheService.hasKey(Integer_AllBlogIDs.name()))
-            cacheAllBlogIDs();
-
-        List<Integer> blogIDs = cacheService.zSet().getListByReversedScoreRange(
-                Integer_AllBlogIDs.name(), Double.NEGATIVE_INFINITY, startID, 0, blogNum);
-
-        if(blogIDs != null)
-            return blogIDs;
-        else return new ArrayList<>();
+        /* 由于集合是倒序排列的，实际上这等效于获取正序集合的headSet */
+        return blogIDs.tailSet(startID)
+                .stream()
+                .limit(blogNum)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Integer> getBlogIDsByCollectionIDAsCached(int collectionID){
-        List<Integer> cached = cacheService.set()
-                .getSetAsList(Integer_BlogIDs_ByCollectionID_.name() + collectionID);
-
-        if(cached != null && !cached.isEmpty())
-            return cached;
-
-        var blogIDs = collectionMapper.selectBlogIDsByCollectionID(collectionID);
-        for(Integer blogID : blogIDs)
-            cacheService.set().addValueToSet(Integer_BlogIDs_ByCollectionID_.name() + collectionID, blogID);
-
-        return blogIDs;
+        return collectionMapper.selectBlogIDsByCollectionID(collectionID);
     }
 
     private void arrangeTagList(int newBlogID, List<String> tagList) {
@@ -230,34 +203,11 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private void arrangeCollectionList(int newBlogID, List<String> collectionNames){
-        for(String collectionName: collectionNames){
+        for(String collectionName: collectionNames) {
             var blogCollection = collectionMapper.selectBlogCollectionByName(collectionName);
-            if(blogCollection != null) {
-                blogMapper.insertBlogCollectionMapping(new BlogCollectionMapping(newBlogID, blogCollection.getId()));
-                cacheService.set().addValueToSet(Integer_BlogIDs_ByCollectionID_.name() + blogCollection.getId(), newBlogID);
-            }
+            if(blogCollection == null) continue;
+
+            blogMapper.insertBlogCollectionMapping(new BlogCollectionMapping(newBlogID, blogCollection.getId()));
         }
-    }
-
-    private void cacheAllBlogIDs(){
-        cacheService.delete(Integer_AllBlogIDs.name());
-
-        List<Integer> allBlogIDs = blogMapper.selectAllBlogID();
-        for(Integer id : allBlogIDs)
-            cacheService.zSet().addValueToZSet(Integer_AllBlogIDs.name(), id, id);
-    }
-
-    private void addBlogIDtoZSet(int blogID) {
-        if(!cacheService.hasKey(Integer_AllBlogIDs.name()))
-            cacheAllBlogIDs();
-
-        cacheService.zSet().addValueToZSet(Integer_AllBlogIDs.name(), blogID, blogID);
-    }
-
-    private void removeBlogIDFromZSet(int blogID) {
-        if(!cacheService.hasKey(Integer_AllBlogIDs.name()))
-            cacheAllBlogIDs();
-
-        cacheService.zSet().removeZSetValueByScore(Integer_AllBlogIDs.name(), blogID);
     }
 }

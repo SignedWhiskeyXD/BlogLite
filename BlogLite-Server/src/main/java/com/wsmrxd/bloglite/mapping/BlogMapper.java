@@ -8,6 +8,7 @@ import com.wsmrxd.bloglite.entity.BlogTagMapping;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import org.apache.ibatis.annotations.*;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Mapper
@@ -47,8 +48,9 @@ public interface BlogMapper {
             "WHERE bcm.blog_id = #{id}")
     List<String> selectCollectionNamesByBlogID(int id);
 
+    @Nullable
     @Select("SELECT views FROM blog WHERE id = #{id}")
-    int selectViewsByBlogID(int id);
+    Integer selectViewsByBlogID(int id);
 
     @Insert("INSERT INTO blog_tag_mapping VALUES (#{blog_id}, #{tag_id})")
     void insertBlogTagMapping(BlogTagMapping mapping);
@@ -77,8 +79,8 @@ public interface BlogMapper {
     @Delete("DELETE FROM blog_collection_mapping WHERE blog_id = #{blogID}")
     void deleteCollectionMappingByBlogID(int blogID);
 
-    @Update("UPDATE blog set views = views + #{views} WHERE id = #{id}")
-    void updateBlogViewsByID(@Param("id") int id, @Param("views") int views);
+    @Update("UPDATE blog set views = #{viewsUpdate} WHERE id = #{id}")
+    void updateBlogViewsByID(@Param("id") int id, @Param("viewsUpdate") int viewsUpdate);
 
     @Update("UPDATE blog SET " +
             "title = #{modified.title}, " +

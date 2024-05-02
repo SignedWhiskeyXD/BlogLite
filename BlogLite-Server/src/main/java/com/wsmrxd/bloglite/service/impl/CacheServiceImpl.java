@@ -16,18 +16,6 @@ public class CacheServiceImpl implements CacheService {
     private RedisKeyVal redisKeyVal;
 
     @Autowired
-    private RedisList redisList;
-
-    @Autowired
-    private RedisSet redisSet;
-
-    @Autowired
-    private RedisHash redisHash;
-
-    @Autowired
-    private RedisHyperLogLog redisHyperLogLog;
-
-    @Autowired
     private RedisZSet redisZSet;
 
     @Override
@@ -46,27 +34,7 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
-    public RedisHash hash() {
-        return this.redisHash;
-    }
-
-    @Override
-    public RedisSet set() {
-        return this.redisSet;
-    }
-
-    @Override
-    public RedisList list() {
-        return this.redisList;
-    }
-
-    @Override
     public RedisZSet zSet() {
         return this.redisZSet;
-    }
-
-    @Override
-    public RedisHyperLogLog hyperLogLog() {
-        return this.redisHyperLogLog;
     }
 }

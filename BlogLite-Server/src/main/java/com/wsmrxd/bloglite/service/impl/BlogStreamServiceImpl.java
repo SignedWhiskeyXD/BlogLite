@@ -2,6 +2,7 @@ package com.wsmrxd.bloglite.service.impl;
 
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.BlogStreamService;
+import com.wsmrxd.bloglite.service.SiteInfoService;
 import com.wsmrxd.bloglite.vo.BlogCard;
 import com.wsmrxd.bloglite.vo.BlogStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,11 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     @Autowired
     private BlogService blogService;
 
-    private String defaultBlogCardImage;
+    @Autowired
+    private SiteInfoService siteInfoService;
 
     @Value("${myConfig.image.defaultBlogCardImage}")
-    public void setDefaultBlogCardImage(String defaultBlogCardImage) {
-        this.defaultBlogCardImage = defaultBlogCardImage;
-    }
+    private String defaultBlogCardImage;
 
     @Override
     public BlogStream getInitStream(int num) {
@@ -69,7 +69,7 @@ public class BlogStreamServiceImpl implements BlogStreamService {
     }
 
     private void setViewsAndImageToBlogCard(BlogCard blogCard){
-        blogCard.setViews(blogService.getBlogViewsAsCached(blogCard.getId()));
+        blogCard.setViews(siteInfoService.getBlogLiveViews(blogCard.getId()));
         if(blogCard.getPreviewImage().isEmpty())
             blogCard.setPreviewImage(defaultBlogCardImage);
     }

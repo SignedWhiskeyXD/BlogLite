@@ -6,15 +6,7 @@ public interface CacheService {
 
     RedisKeyVal keyVal();
 
-    RedisHash hash();
-
-    RedisSet set();
-
-    RedisList list();
-
     RedisZSet zSet();
-
-    RedisHyperLogLog hyperLogLog();
 
     void delete(String key);
 

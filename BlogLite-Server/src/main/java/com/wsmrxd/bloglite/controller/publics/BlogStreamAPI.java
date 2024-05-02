@@ -1,6 +1,5 @@
 package com.wsmrxd.bloglite.controller.publics;
 
-import com.wsmrxd.bloglite.service.BlogSearchService;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.BlogStreamService;
 import com.wsmrxd.bloglite.vo.BlogCard;
@@ -19,21 +18,20 @@ public class BlogStreamAPI {
     private BlogStreamService blogStreamService;
 
     @Autowired
-    private BlogSearchService blogSearchService;
-
-    @Autowired
     private BlogService blogService;
 
+    @Deprecated
     @GetMapping("/init")
     public RestResponse<BlogStream> serveBlogStreamInitiation(@RequestParam int initNum){
         return RestResponse.ok(blogStreamService.getInitStream(initNum));
     }
 
     @GetMapping
-    public RestResponse<BlogStream> serveBlogStream(@RequestParam(defaultValue = "1919810") int startID,
+    public RestResponse<BlogStream> serveBlogStream(@RequestParam(required = false) Integer startID,
                                         @RequestParam(defaultValue = "5") int num){
-        var ret = blogStreamService.getBlogStream(startID, num);
-        return RestResponse.ok(ret);
+        if (startID == null) return RestResponse.ok(blogStreamService.getInitStream(num));
+
+        return RestResponse.ok(blogStreamService.getBlogStream(startID, num));
     }
 
     @GetMapping("/collection/{collectionID}")

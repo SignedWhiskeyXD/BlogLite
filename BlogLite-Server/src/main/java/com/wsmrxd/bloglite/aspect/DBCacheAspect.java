@@ -30,9 +30,9 @@ public class DBCacheAspect {
     public static final String KEY_SEPARATOR = "::";
 
     @Around("@annotation(mapperCache)")
-    public Object logMessage(ProceedingJoinPoint pjp, MapperCache mapperCache) throws Throwable {
+    public Object aroundMapperCaching(ProceedingJoinPoint pjp, MapperCache mapperCache) throws Throwable {
         String cacheKey = parseCacheKey(pjp, mapperCache);
-        return handleCache(cacheKey, pjp);
+        return handleCache(pjp, cacheKey);
     }
 
     private String parseCacheKey(JoinPoint joinPoint, MapperCache cacheAnnotation) {
@@ -45,9 +45,9 @@ public class DBCacheAspect {
         return cacheAnnotation.value() + KEY_SEPARATOR + parsedKey;
     }
 
-    private Object handleCache(String cacheKey, ProceedingJoinPoint pjp) throws Throwable {
-        Object cachedTagNames = cacheService.keyVal().getValueByKey(cacheKey);
-        if(cachedTagNames != null) return cachedTagNames;
+    private Object handleCache(ProceedingJoinPoint pjp, String cacheKey) throws Throwable {
+        Object cachedObject = cacheService.keyVal().getValueByKey(cacheKey);
+        if(cachedObject != null) return cachedObject;
 
         log.info("Resolved cache key \"{}\" missed", cacheKey);
         Object entity = pjp.proceed();

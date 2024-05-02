@@ -29,8 +29,6 @@ public interface BlogService {
 
     boolean deleteBlog(int id);
 
-    int getBlogViewsAsCached(int blogID);
-
     List<Integer> getBlogIDsStartAt(int startID, int blogNum);
 
     List<Integer> getBlogIDsByCollectionIDAsCached(int collectionID);

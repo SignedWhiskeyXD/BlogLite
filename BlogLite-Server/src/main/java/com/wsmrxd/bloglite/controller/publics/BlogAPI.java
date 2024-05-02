@@ -39,7 +39,7 @@ public class BlogAPI {
         if(ret == null)
             throw new BlogException(ErrorCode.BLOG_NOT_FOUND, "No Such Blog!");
 
-        ret.setViews(blogService.getBlogViewsAsCached(id));
+        ret.setViews(siteInfoService.getBlogLiveViews(id));
         return RestResponse.ok(ret);
     }
 

@@ -1,37 +1,42 @@
 package com.wsmrxd.bloglite.service.impl;
 
 import com.wsmrxd.bloglite.mapping.BlogMapper;
-import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.SiteInfoService;
 import com.wsmrxd.bloglite.vo.BlogPreview;
-import com.wsmrxd.bloglite.vo.SiteInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-
-import static com.wsmrxd.bloglite.enums.RedisKeyForHash.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class SiteInfoServiceImpl implements SiteInfoService {
 
-    @Autowired
-    private BlogMapper blogMapper;
+    private final BlogMapper blogMapper;
 
-    @Autowired
-    private CacheService cacheService;
+    private final ConcurrentHashMap<Integer, AtomicInteger> blogViews;
+
+    private final AtomicInteger totalBlogs;
+
+    private final AtomicInteger totalViews;
 
     private static final int RANK_SIZE = 10;
 
-    @Override
-    public SiteInfo getSiteInfo() {
-        SiteInfo ret = new SiteInfo();
-        ret.setTotalBlogs(this.getTotalBlogsAsCached());
-        ret.setTotalViews(this.getTotalViewsAsCached());
-        return ret;
+    @Autowired
+    public SiteInfoServiceImpl(BlogMapper blogMapper) {
+        this.blogMapper = blogMapper;
+
+        this.blogViews = new ConcurrentHashMap<>();
+
+        /* 加载文章总数 */
+        int totalBlogs = blogMapper.selectBlogCount();
+        this.totalBlogs = new AtomicInteger(totalBlogs);
+
+        /* 加载全站访问量 */
+        int totalViews = blogMapper.selectViewsCount();
+        this.totalViews = new AtomicInteger(totalViews);
     }
 
     @Override
@@ -41,58 +46,59 @@ public class SiteInfoServiceImpl implements SiteInfoService {
     }
 
     @Override
-    @CacheEvict("BlogRanking")
-    public void UpdateSiteInfo() {
-        this.flushSiteInfo();
-        /* 重建缓存 */
-        this.getTotalBlogsAsCached();
-        this.getTotalViewsAsCached();
+    public int getTotalBlogsAsCached() {
+        return totalBlogs.get();
     }
 
     @Override
-    public Integer getTotalBlogsAsCached() {
-        Integer ret = cacheService.hash().getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name());
-        if (ret == null) {
-            ret = blogMapper.selectBlogCount();
-            cacheService.hash().putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name(), ret);
+    public int getTotalViewsAsCached() {
+        return totalViews.get();
+    }
+
+    @Override
+    public int getBlogLiveViews(int blogID) {
+        if (blogViews.containsKey(blogID)) return blogViews.get(blogID).get();
+
+        int views = blogMapper.selectViewsByBlogID(blogID);
+        blogViews.put(blogID, new AtomicInteger(views));
+        return views;
+    }
+
+    @Override
+    public synchronized boolean flushSiteInfo() {
+        if (blogViews.isEmpty()) return false;
+
+        for (Integer blogId : blogViews.keySet()) {
+            int views = blogViews.get(blogId).get();
+            blogMapper.updateBlogViewsByID(blogId, views);
         }
-        return ret;
-    }
-
-    @Override
-    public Integer getTotalViewsAsCached() {
-        Integer ret = cacheService.hash().getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name());
-        if (ret == null) {
-            ret = blogMapper.selectViewsCount();
-            if (ret == null)
-                ret = 0;
-            cacheService.hash().putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), ret);
-        }
-        return ret;
-    }
-
-    @Override
-    public void flushSiteInfo() {
-        updateBlogViewsFromCache();
-        cacheService.delete(Integer_SiteInfo.name());
+        blogViews.clear();
+        return true;
     }
 
     @Override
     public void increaseBlogViews(int blogID) {
-        cacheService.hash().increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
-        cacheService.hash().increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
-        cacheService.hash().increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
+        totalViews.incrementAndGet();
+
+        /* 已载入缓存，直接自增 */
+        AtomicInteger viewsFromMap = blogViews.get(blogID);
+        if (viewsFromMap != null) {
+            viewsFromMap.incrementAndGet();
+            return;
+        }
+
+        /* 可能是新文章，没有进缓存，从数据库拿 */
+        Integer views = blogMapper.selectViewsByBlogID(blogID);
+        if (views == null) return;
+
+        blogViews.put(blogID, new AtomicInteger(views + 1));
     }
 
-    private void updateBlogViewsFromCache() {
-        Map<String, Integer> viewsMap = cacheService.hash().getHashEntriesByKey(Integer_AddBlogViewsByID.name());
-        if (viewsMap != null) {
-            var keySet = viewsMap.keySet();
-            for (String key : keySet) {
-                Integer addNum = viewsMap.get(key);
-                blogMapper.updateBlogViewsByID(Integer.parseInt(key), addNum);
-            }
-        }
-        cacheService.delete(Integer_AddBlogViewsByID.name());
+    @Override
+    public void modifyTotalBlogs(int delta) {
+        if (delta > 0)
+            totalBlogs.incrementAndGet();
+        else if (delta < 0)
+            totalBlogs.decrementAndGet();
     }
 }
