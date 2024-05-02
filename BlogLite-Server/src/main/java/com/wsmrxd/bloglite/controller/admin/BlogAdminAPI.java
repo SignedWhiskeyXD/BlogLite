@@ -6,6 +6,7 @@ import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.BlogTagService;
+import com.wsmrxd.bloglite.service.SiteInfoService;
 import com.wsmrxd.bloglite.vo.BlogAdminDetail;
 import com.wsmrxd.bloglite.vo.BlogPreview;
 import com.wsmrxd.bloglite.vo.RestResponse;
@@ -24,6 +25,9 @@ public class BlogAdminAPI {
 
     @Autowired
     private BlogTagService blogTagService;
+
+    @Autowired
+    private SiteInfoService siteInfoService;
 
     @GetMapping("/{id}")
     public RestResponse<BlogAdminDetail> serveBlogByID(@PathVariable int id){
@@ -64,6 +68,8 @@ public class BlogAdminAPI {
 
     @PutMapping
     public RestResponse<Object> addNewBlog(@RequestBody BlogUploadInfo newBlog){
+        siteInfoService.flushSiteInfo();
+
         int newBlogID = blogService.addNewBlog(newBlog);
         if(newBlogID < 1)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Add The Blog");
@@ -77,6 +83,8 @@ public class BlogAdminAPI {
 
     @DeleteMapping("/{id}")
     public RestResponse<Object> deleteBlog(@PathVariable int id){
+        siteInfoService.flushSiteInfo();
+
         boolean result = blogService.deleteBlog(id);
         if(!result)
             throw new BlogException(ErrorCode.BAD_REQUEST, "Cannot Delete The Blog");

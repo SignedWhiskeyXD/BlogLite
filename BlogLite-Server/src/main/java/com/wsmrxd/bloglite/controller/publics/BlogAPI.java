@@ -5,6 +5,7 @@ import com.wsmrxd.bloglite.enums.ErrorCode;
 import com.wsmrxd.bloglite.exception.BlogException;
 import com.wsmrxd.bloglite.service.BlogService;
 import com.wsmrxd.bloglite.service.CacheService;
+import com.wsmrxd.bloglite.service.SiteInfoService;
 import com.wsmrxd.bloglite.vo.BlogDetail;
 import com.wsmrxd.bloglite.vo.RestResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,9 @@ public class BlogAPI {
     @Autowired
     private CacheService cacheService;
 
+    @Autowired
+    private SiteInfoService siteInfoService;
+
     @Value("${myConfig.blog.pvIncreaseCoolDownMinute}")
     private int pvCoolDownMinutesPerIP;
 
@@ -46,7 +50,7 @@ public class BlogAPI {
         String clientRedisKey = "Access::" + blogID + "::" + ipAddr;
 
         if(cacheService.keyVal().setKeyValueIfAbsent(clientRedisKey, " ", Duration.ofMinutes(pvCoolDownMinutesPerIP))) {
-            blogService.increaseBlogViews(blogID);
+            siteInfoService.increaseBlogViews(blogID);
             log.info("Visitor from {} accessed blog {}", ipAddr, blogID);
         }
 

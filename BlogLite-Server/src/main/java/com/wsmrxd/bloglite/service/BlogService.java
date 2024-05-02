@@ -19,8 +19,6 @@ public interface BlogService {
 
     PageInfo<BlogPreview> getAllBlogsByPage(int pageNum, int pageSize);
 
-    List<BlogPreview> getBlogRanking(int limit);
-
     int addNewBlog(BlogUploadInfo newBlog);
 
     void modifyBlog(int id, BlogUploadInfo modifyInfo);
@@ -33,15 +31,7 @@ public interface BlogService {
 
     int getBlogViewsAsCached(int blogID);
 
-    void flushSiteInfo();
-
-    Integer getTotalBlogsAsCached();
-
-    Integer getTotalViewsAsCached();
-
     List<Integer> getBlogIDsStartAt(int startID, int blogNum);
 
     List<Integer> getBlogIDsByCollectionIDAsCached(int collectionID);
-
-    void increaseBlogViews(int blogID);
 }

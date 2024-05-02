@@ -27,12 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.wsmrxd.bloglite.enums.RedisKeyForHash.*;
-import static com.wsmrxd.bloglite.enums.RedisKeyForHash.SiteInfo_TotalViews;
 import static com.wsmrxd.bloglite.enums.RedisKeyForSet.Integer_BlogIDs_ByCollectionID_;
 import static com.wsmrxd.bloglite.enums.RedisKeyForZSet.*;
 
@@ -108,12 +105,6 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<BlogPreview> getBlogRanking(int limit) {
-        if(limit < 0) return Collections.emptyList();
-        return blogMapper.selectBlogsOrderByViews(limit);
-    }
-
-    @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "allBlogTags", allEntries = true)
     public int addNewBlog(BlogUploadInfo newBlog) {
@@ -135,7 +126,6 @@ public class BlogServiceImpl implements BlogService {
         if(rediSearch != null && !rediSearch.addDocument(newBlogEntity))
             throw new BlogException(ErrorCode.REDISEARCH_ERROR, "Cannot create index for blog, id=" + newBlogID);
 
-        flushSiteInfo();
         addBlogIDtoZSet(newBlogID);
         return newBlogID;
     }
@@ -186,7 +176,6 @@ public class BlogServiceImpl implements BlogService {
             @CacheEvict(value = "TagNamesOfBlog", key = "#id")
     })
     public boolean deleteBlog(int id) {
-        flushSiteInfo();
         removeBlogIDFromZSet(id);
 
         if(rediSearch != null && !rediSearch.deleteDocument(id))
@@ -195,34 +184,6 @@ public class BlogServiceImpl implements BlogService {
         blogMapper.deleteTagMappingByBlogID(id);
         blogMapper.deleteCollectionMappingByBlogID(id);
         return blogMapper.deleteBlogByID(id);
-    }
-
-    @Override
-    public void flushSiteInfo() {
-        updateBlogViewsFromCache();
-        cacheService.delete(Integer_SiteInfo.name());
-    }
-
-    @Override
-    public Integer getTotalBlogsAsCached() {
-        Integer ret = cacheService.hash().getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name());
-        if(ret == null){
-            ret = blogMapper.selectBlogCount();
-            cacheService.hash().putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalBlogs.name(), ret);
-        }
-        return ret;
-    }
-
-    @Override
-    public Integer getTotalViewsAsCached() {
-        Integer ret = cacheService.hash().getValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name());
-        if(ret == null){
-            ret = blogMapper.selectViewsCount();
-            if(ret == null)
-                ret = 0;
-            cacheService.hash().putKeyValToHash(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), ret);
-        }
-        return ret;
     }
 
     @Override
@@ -251,13 +212,6 @@ public class BlogServiceImpl implements BlogService {
             cacheService.set().addValueToSet(Integer_BlogIDs_ByCollectionID_.name() + collectionID, blogID);
 
         return blogIDs;
-    }
-
-    @Override
-    public void increaseBlogViews(int blogID) {
-        cacheService.hash().increaseValueByHashKey(Integer_BlogViewsByID.name(), Integer.toString(blogID), 1);
-        cacheService.hash().increaseValueByHashKey(Integer_SiteInfo.name(), SiteInfo_TotalViews.name(), 1);
-        cacheService.hash().increaseValueByHashKey(Integer_AddBlogViewsByID.name(), Integer.toString(blogID), 1);
     }
 
     private void arrangeTagList(int newBlogID, List<String> tagList) {
@@ -291,18 +245,6 @@ public class BlogServiceImpl implements BlogService {
         List<Integer> allBlogIDs = blogMapper.selectAllBlogID();
         for(Integer id : allBlogIDs)
             cacheService.zSet().addValueToZSet(Integer_AllBlogIDs.name(), id, id);
-    }
-
-    private void updateBlogViewsFromCache(){
-        Map<String,Integer> viewsMap = cacheService.hash().getHashEntriesByKey(Integer_AddBlogViewsByID.name());
-        if(viewsMap != null){
-            var keySet = viewsMap.keySet();
-            for (String key : keySet) {
-                Integer addNum = viewsMap.get(key);
-                blogMapper.updateBlogViewsByID(Integer.parseInt(key), addNum);
-            }
-        }
-        cacheService.delete(Integer_AddBlogViewsByID.name());
     }
 
     private void addBlogIDtoZSet(int blogID) {

@@ -22,15 +22,10 @@ public class MarkDownUtil {
     }
 
     public static String getPreviewImageUriFromMarkdown(String markdown){
-        Stream<String> lines = markdown.lines();
-        String firstLine = lines.findFirst().orElse("");
-
-        int leftPos = firstLine.indexOf('(');
-        int rightPos = firstLine.lastIndexOf(')');
-        if(leftPos == -1 || rightPos == -1 || leftPos + 1 >= rightPos)
-            return "";
-
-        String imageUri = firstLine.substring(leftPos + 1, rightPos);
-        return imageUri.startsWith("http") ? imageUri : "";
+        return Stream.of(markdown.split("\n"))
+                .filter(line -> line.matches("^!\\[.*]\\(.*\\)$"))
+                .map(line -> line.substring(line.indexOf('(') + 1, line.lastIndexOf(')')))
+                .findFirst()
+                .orElse("");
     }
 }

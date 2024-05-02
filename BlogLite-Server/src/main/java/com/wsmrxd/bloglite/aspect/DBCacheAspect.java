@@ -39,7 +39,7 @@ public class DBCacheAspect {
         var signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         var evaluationContext = new MethodBasedEvaluationContext(
-                null, method, joinPoint.getArgs(), new DefaultParameterNameDiscoverer());
+                joinPoint.getTarget(), method, joinPoint.getArgs(), new DefaultParameterNameDiscoverer());
 
         String parsedKey = spelParser.parseExpression(cacheAnnotation.key()).getValue(evaluationContext, String.class);
         return cacheAnnotation.value() + KEY_SEPARATOR + parsedKey;

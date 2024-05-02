@@ -2,28 +2,32 @@ package com.wsmrxd.bloglite.redis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.time.Duration;
 
 @Component
 public class RedisKeyVal {
 
+    private final ValueOperations<String, Object> redisValOps;
+
     @Autowired
-    RedisTemplate<String, Object> redisTemplate;
+    public RedisKeyVal(RedisTemplate<String, Object> redisTemplate) {
+        this.redisValOps = redisTemplate.opsForValue();
+    }
 
     public <T> void setKeyValue(String key, T value){
-        var redisValOps = redisTemplate.opsForValue();
         redisValOps.set(key, value);
     }
 
     public <T> boolean setKeyValueIfAbsent(String key, T value, Duration timeout){
-        var redisValOps = redisTemplate.opsForValue();
         return Boolean.TRUE.equals(redisValOps.setIfAbsent(key, value, timeout));
     }
 
+    @Nullable
     public <T> T getValueByKey(String key){
-        var redisValOps = redisTemplate.opsForValue();
         return (T) redisValOps.get(key);
     }
 }

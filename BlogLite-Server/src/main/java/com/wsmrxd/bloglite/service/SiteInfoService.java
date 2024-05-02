@@ -12,4 +12,12 @@ public interface SiteInfoService {
     List<BlogPreview> getBlogRanking();
 
     void UpdateSiteInfo();
+
+    Integer getTotalBlogsAsCached();
+
+    Integer getTotalViewsAsCached();
+
+    void flushSiteInfo();
+
+    void increaseBlogViews(int blogID);
 }
