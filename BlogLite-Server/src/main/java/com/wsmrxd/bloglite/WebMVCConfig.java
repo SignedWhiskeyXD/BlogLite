@@ -1,6 +1,6 @@
 package com.wsmrxd.bloglite;
 
-import com.wsmrxd.bloglite.Utils.JWTInterceptor;
+import com.wsmrxd.bloglite.utils.JWTInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

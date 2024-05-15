@@ -1,4 +1,4 @@
-package com.wsmrxd.bloglite.Utils;
+package com.wsmrxd.bloglite.utils;
 
 import com.wsmrxd.bloglite.service.impl.BlogSearchServiceRedisImpl;
 import lombok.extern.slf4j.Slf4j;

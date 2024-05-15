@@ -1,14 +1,10 @@
 package com.wsmrxd.bloglite.service;
 
-import javax.annotation.Nullable;
+interface JWTService {
 
-public interface JWTService {
+    fun extractTokenFromHeader(authorization: String?): String
 
-    String extractTokenFromHeader(@Nullable String authorization);
+    fun generateToken(subject: String): String
 
-    String generateToken(String subject);
-
-    boolean verifyToken(String token);
-
-    String getSubject(String token);
+    fun verifyToken(token: String): Boolean
 }

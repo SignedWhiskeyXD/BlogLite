@@ -1,59 +1,32 @@
-package com.wsmrxd.bloglite.service.impl;
+package com.wsmrxd.bloglite.service.impl
 
-import com.wsmrxd.bloglite.entity.User;
-import com.wsmrxd.bloglite.exception.BlogAuthException;
-import com.wsmrxd.bloglite.mapping.UserMapper;
-import com.wsmrxd.bloglite.service.JWTService;
-import com.wsmrxd.bloglite.service.UserService;
-import com.wsmrxd.bloglite.vo.LoginSuccessInfo;
-import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.wsmrxd.bloglite.entity.User
+import com.wsmrxd.bloglite.exception.BlogAuthException
+import com.wsmrxd.bloglite.mapping.UserMapper
+import com.wsmrxd.bloglite.service.JWTService
+import com.wsmrxd.bloglite.service.UserService
+import com.wsmrxd.bloglite.vo.LoginSuccessInfo
+import org.mindrot.jbcrypt.BCrypt
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
 
 @Service
-public class UserServiceImpl implements UserService {
+class UserServiceImpl
+@Autowired constructor(
+    private val mapper: UserMapper,
+    private val jwtService: JWTService
+) : UserService {
 
-    @Autowired
-    private UserMapper mapper;
-
-    @Autowired
-    private JWTService jwtService;
-
-    @Override
-    public User getUser(int id) {
-        return mapper.selectUserByID(id);
+    override fun getUser(email: String): User? {
+        return mapper.selectUserByEmail(email)
     }
 
-    @Override
-    public User getUser(String email) {
-        return mapper.selectUserByEmail(email);
-    }
+    override fun doLogin(email: String, password: String): LoginSuccessInfo {
+        val loginUser = getUser(email) ?: throw BlogAuthException("User not found!")
 
-    @Override
-    public int queryUserID(String email) {
-        return mapper.selectUserByEmail(email).getId();
-    }
+        if (!BCrypt.checkpw(password, loginUser.password)) throw BlogAuthException("Invalid user or password!")
 
-    @Override
-    public boolean changePassword(String email, String newPassword) {
-        return mapper.updateUserPassword(email, newPassword);
-    }
-
-    @Override
-    public boolean changeUsername(String email, String newUsername) {
-        return mapper.updateUserUsername(email, newUsername);
-    }
-
-    @Override
-    public LoginSuccessInfo doLogin(String email, String password) {
-        User loginUser = getUser(email);
-        if (loginUser == null)
-            throw new BlogAuthException("User not found!");
-
-        if(!BCrypt.checkpw(password, loginUser.getPassword()))
-            throw new BlogAuthException("Invalid user or password!");
-
-        String jwt = jwtService.generateToken(email);
-        return new LoginSuccessInfo(email, jwt);
+        val jwt = jwtService.generateToken(email)
+        return LoginSuccessInfo(email, jwt)
     }
 }

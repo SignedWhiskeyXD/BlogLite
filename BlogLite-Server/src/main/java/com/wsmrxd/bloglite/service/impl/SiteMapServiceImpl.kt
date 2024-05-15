@@ -1,44 +1,35 @@
-package com.wsmrxd.bloglite.service.impl;
+package com.wsmrxd.bloglite.service.impl
 
-import com.wsmrxd.bloglite.mapping.BlogMapper;
-import com.wsmrxd.bloglite.service.SiteMapService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import com.wsmrxd.bloglite.mapping.BlogMapper
+import com.wsmrxd.bloglite.service.SiteMapService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Service
 
 @Service
-public class SiteMapServiceImpl implements SiteMapService {
-
-    private String siteMapText;
+class SiteMapServiceImpl : SiteMapService {
 
     @Autowired
-    private BlogMapper blogMapper;
+    private lateinit var blogMapper: BlogMapper
 
-    @Value("${myConfig.domain}")
-    private String domain;
+    @Value("\${myConfig.domain}")
+    private lateinit var domain: String
 
-    @Override
-    public String getSiteMapText() {
-        return Optional
-                .ofNullable(siteMapText)
-                .orElse(loadSiteMapText());
+    private var siteMapText: String = ""
+
+    override fun getSiteMapText(): String {
+        return siteMapText.ifBlank { loadSiteMapText() }
     }
 
     @Scheduled(cron = "0 0 0,12 * * *")
-    public String loadSiteMapText() {
-        List<Integer> blogIDs = blogMapper.selectAllBlogID();
-        StringBuilder stringBuilder = new StringBuilder();
+    fun loadSiteMapText(): String {
+        val blogIDs = blogMapper.selectAllBlogID()
+        var ret = ""
 
-        for(Integer id: blogIDs) {
-            stringBuilder.append("https://").append(domain)
-                    .append("/blog/").append(id).append("\n");
-        }
+        blogIDs.forEach { ret += "https://$domain/blog/$it\n" }
 
-        siteMapText = stringBuilder.toString();
-        return siteMapText;
+        siteMapText = ret
+        return ret
     }
 }

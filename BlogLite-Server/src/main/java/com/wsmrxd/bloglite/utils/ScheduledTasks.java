@@ -1,4 +1,4 @@
-package com.wsmrxd.bloglite.Utils;
+package com.wsmrxd.bloglite.utils;
 
 import com.wsmrxd.bloglite.service.CommentService;
 import com.wsmrxd.bloglite.service.SiteInfoService;

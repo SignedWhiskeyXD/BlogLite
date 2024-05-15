@@ -1,4 +1,4 @@
-package com.wsmrxd.bloglite.Utils;
+package com.wsmrxd.bloglite.utils;
 
 import com.wsmrxd.bloglite.entity.Blog;
 import org.commonmark.parser.Parser;

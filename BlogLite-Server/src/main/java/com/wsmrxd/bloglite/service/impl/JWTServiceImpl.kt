@@ -1,65 +1,48 @@
-package com.wsmrxd.bloglite.service.impl;
+package com.wsmrxd.bloglite.service.impl
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.wsmrxd.bloglite.service.JWTService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Nullable;
-import java.util.Date;
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTVerificationException
+import com.wsmrxd.bloglite.service.JWTService
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
-public class JWTServiceImpl implements JWTService {
+class JWTServiceImpl(
+    @Value("\${myConfig.jwt.expireTime}")
+    private val expireTime: Long,
 
-    @Value("${myConfig.jwt.secretKey}")
-    private String secretKey;
+    @Value("\${myConfig.jwt.secretKey}")
+    private val secretKey: String
+) : JWTService {
 
-    @Value("${myConfig.jwt.expireTime}")
-    private long expireTime;
+    private val algorithm: Algorithm = Algorithm.HMAC256(secretKey)
 
-    @Override
-    public String extractTokenFromHeader(@Nullable String authorization) {
-        if(authorization == null) return "";
-
-        if(authorization.startsWith("Bearer ") && authorization.length() > 7)
-            return authorization.substring(7);
+    override fun extractTokenFromHeader(authorization: String?): String {
+        return if (authorization?.startsWith("Bearer ") == true)
+            authorization.substring(7)
         else
-            return "";
+            ""
     }
 
-    @Override
-    public String generateToken(String subject) {
-        long currentTileMsecs = System.currentTimeMillis();
-        Date issuedAt = new Date(currentTileMsecs);
-        Date expireAt = new Date(currentTileMsecs + expireTime);
-        var algorithm = Algorithm.HMAC256(secretKey);
+    override fun generateToken(subject: String): String {
+        val currentTileMsecs = System.currentTimeMillis()
+        val issuedAt = Date(currentTileMsecs)
+        val expireAt = Date(currentTileMsecs + expireTime)
 
         return JWT.create().withSubject(subject)
-                .withIssuedAt(issuedAt)
-                .withExpiresAt(expireAt)
-                .sign(algorithm);
+            .withIssuedAt(issuedAt)
+            .withExpiresAt(expireAt)
+            .sign(algorithm)
     }
 
-    @Override
-    public boolean verifyToken(String token) {
-        try {
-            var algorithm = Algorithm.HMAC256(secretKey);
-            JWT.require(algorithm).build().verify(token);
-        }catch (JWTVerificationException e){
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String getSubject(String token) {
-        try {
-            var decodedJWT = JWT.decode(token);
-            return decodedJWT.getSubject();
-        }catch (JWTVerificationException e){
-            return null;
+    override fun verifyToken(token: String): Boolean {
+        return try {
+            JWT.require(algorithm).build().verify(token)
+            true
+        } catch (e: JWTVerificationException) {
+            false
         }
     }
 }

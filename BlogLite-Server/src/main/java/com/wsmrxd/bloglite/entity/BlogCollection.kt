@@ -1,15 +1,8 @@
 package com.wsmrxd.bloglite.entity;
 
-import lombok.Data;
-
-@Data
-public class BlogCollection {
-
-    private int id;
-
-    private String imageLink;
-
-    private String collectionName;
-
-    private String description;
-}
+data class BlogCollection (
+    var id: Int? = null,
+    var imageLink: String? = null,
+    var collectionName: String? = null,
+    var description: String? = null
+)

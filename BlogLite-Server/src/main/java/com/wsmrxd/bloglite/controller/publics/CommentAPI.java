@@ -1,7 +1,6 @@
 package com.wsmrxd.bloglite.controller.publics;
 
 import com.github.pagehelper.PageInfo;
-import com.wsmrxd.bloglite.Utils.HttpUtil;
 import com.wsmrxd.bloglite.dto.CommentUploadInfo;
 import com.wsmrxd.bloglite.service.CacheService;
 import com.wsmrxd.bloglite.service.CommentService;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.Objects;
+
+import static com.wsmrxd.bloglite.utils.HttpUtilKt.getIPFromRequest;
 
 @RestController
 @RequestMapping("/api/comment")
@@ -44,7 +45,7 @@ public class CommentAPI {
     public RestResponse<Object> uploadCommentByID(@PathVariable Integer id,
                                                   @RequestBody CommentUploadInfo newComment,
                                                   HttpServletRequest request){
-        String sourceIP = HttpUtil.getIP(request);
+        String sourceIP = getIPFromRequest(request);
         String ipKey = "CommentIPV4::" + Objects.requireNonNullElse(sourceIP, "UnknownIP");
         if(coolDownMinutes > 0 && !cacheService.keyVal().setKeyValueIfAbsent(ipKey, " ", Duration.ofMinutes(coolDownMinutes)))
             return RestResponse.build(50400, Integer.toString(coolDownMinutes));

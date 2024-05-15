@@ -1,6 +1,6 @@
-package com.wsmrxd.bloglite.service;
+package com.wsmrxd.bloglite.service
 
-public interface SiteMapService {
+interface SiteMapService {
 
-    String getSiteMapText();
+    fun getSiteMapText(): String
 }
